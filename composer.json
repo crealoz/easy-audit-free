@@ -1,6 +1,6 @@
 {
     "name": "crealoz/easy-audit",
-    "description": "Description of your module",
+    "description": "A tool that permits to run different types of audits in Magento 2.",
     "require": {
         "php": "^8.1",
         "magento/framework": "*",
@@ -10,8 +10,7 @@
     "type": "magento2-module",
     "version": "1.0.0",
     "license": [
-        "OSL-3.0",
-        "AFL-3.0"
+        "OSL-3.0"
     ],
     "autoload": {
         "files": [ "registration.php" ],
