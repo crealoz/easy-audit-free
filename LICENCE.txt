@@ -1,0 +1,4 @@
+Open Software License (OSL) v. 3.0
+
+This software is licensed under the Open Software License version 3.0.
+Full license text: https://opensource.org/licenses/OSL-3.0
