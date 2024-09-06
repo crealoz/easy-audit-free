@@ -18,20 +18,14 @@ class Audit
         protected array                      $processors = []
     )
     {
-        foreach ($this->processors as $sectionName => $processors) {
-            dump($sectionName);
-            foreach ($processors as $processorName => $processor) {
-                dump($processorName);
-                dump(array_keys($processor));
-            }
-        }
+
     }
 
     /**
      * @throws \Zend_Pdf_Exception
      * @throws FileSystemException
      */
-    public function run(OutputInterface $output = null): string
+    public function run(OutputInterface $output = null, string $language = null): string
     {
         foreach ($this->processors as $typeName => $subTypes) {
             $type = $this->typeFactory->create($typeName);
@@ -40,7 +34,7 @@ class Audit
         if ($output instanceof OutputInterface) {
             $output->writeln(PHP_EOL.'Creating PDF...');
         }
-        return $this->pdfWriter->createdPDF($this->results);
+        return $this->pdfWriter->createdPDF($this->results, $language);
     }
 
     public function getAvailableProcessors(): array
