@@ -1,0 +1,109 @@
+<?xml version="1.0" ?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">easyaudit_request_form.crealoz_easyaudit_request_listing_data_source</item>
+        </item>
+        <item name="label" translate="true" xsi:type="string">General Information</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+    <settings>
+        <buttons>
+            <button class="Crealoz\EasyAudit\Block\Adminhtml\Widget\Button\Back" name="back"/>
+            <button class="Crealoz\EasyAudit\Block\Adminhtml\Widget\Button\Save" name="save"/>
+        </buttons>
+        <namespace>easyaudit_request_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>easyaudit_request_form.crealoz_easyaudit_request_listing_data_source</dep>
+        </deps>
+    </settings>
+    <dataSource name="crealoz_easyaudit_request_listing_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="*/*/save"/>
+        </settings>
+        <dataProvider class="Crealoz\EasyAudit\Ui\DataProvider\AuditRequest" name="crealoz_easyaudit_request_listing_data_source">
+            <settings>
+                <requestFieldName>request_id</requestFieldName>
+                <primaryFieldName>request_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+
+    <fieldset name="general">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="collapsible" xsi:type="boolean">false</item>
+                <item name="label" xsi:type="string" translate="true">Audit Scope</item>
+                <item name="sortOrder" xsi:type="number">10</item>
+            </item>
+        </argument>
+        <field name="run_all" sortOrder="10" formElement="select">
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>text</dataType>
+                <label translate="true">Run all audits</label>
+                <dataScope>run_all</dataScope>
+                <switcherConfig>
+                    <rules>
+                        <rule name="0">
+                            <value>0</value>
+                            <actions>
+                                <action name="0">
+                                    <target>easyaudit_request_form.easyaudit_request_form.general.request</target>
+                                    <callback>show</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                        <rule name="1">
+                            <value>1</value>
+                            <actions>
+                                <action name="0">
+                                    <target>easyaudit_request_form.easyaudit_request_form.general.request</target>
+                                    <callback>hide</callback>
+                                </action>
+                            </actions>
+                        </rule>
+                    </rules>
+                </switcherConfig>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+        <field name="request" formElement="multiselect" sortOrder="30">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="source" xsi:type="string">audit</item>
+                    <item name="default" xsi:type="string">general</item>
+                </item>
+            </argument>
+            <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
+                <dataType>array</dataType>
+                <label translate="true">Audit Types</label>
+                <dataScope>request</dataScope>
+            </settings>
+            <formElements>
+                <multiselect>
+                    <settings>
+                        <options class="Crealoz\EasyAudit\Ui\Request\Form\AuditTypes"/>
+                    </settings>
+                </multiselect>
+            </formElements>
+        </field>
+    </fieldset>
+</form>

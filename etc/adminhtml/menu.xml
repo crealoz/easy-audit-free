@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Crealoz::tools"
+             title="Crealoz"
+             module="Crealoz_EasyAudit"
+             sortOrder="100"
+             parent="Magento_Backend::system"
+             resource="Crealoz_EasyAudit::sub_menu"/>
+        <add id="Crealoz_EasyAudit::sub_menu"
+             title="Easy Audit"
+             module="Crealoz_EasyAudit"
+             sortOrder="10"
+             parent="Crealoz::tools"
+             action="easyaudit/request/index"
+             resource="Crealoz_EasyAudit::sub_menu"/>
+    </menu>
+</config>
