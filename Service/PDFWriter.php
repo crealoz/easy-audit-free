@@ -4,6 +4,7 @@ namespace Crealoz\EasyAudit\Service;
 
 use Crealoz\EasyAudit\Service\PDFWriter\CliTranslator;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
+use Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SectionInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Crealoz\EasyAudit\Service\PDFWriter\SpecificSections;
 use Magento\Framework\Filesystem;
@@ -26,9 +27,9 @@ class PDFWriter
     public function __construct(
         private readonly Filesystem       $filesystem,
         private readonly SizeCalculation  $sizeCalculation,
-        private readonly SpecificSections $specificSections,
         private readonly Reader           $moduleReader,
         private readonly CliTranslator    $cliTranslator,
+        private readonly array $specificSections = [],
         public int                        $x = 50
     )
     {
@@ -131,9 +132,12 @@ class PDFWriter
         $this->currentPage->drawText($translatedTitle, 44, $this->y);
         foreach ($section as $type => $entries) {
             if (isset($entries['specificSections'])) {
-                $functionName = $entries['specificSections'];
+                $sectionName = $entries['specificSections'];
                 unset($entries['specificSections']);
-                $this->specificSections->$functionName($entries, $this);
+                if (!isset($this->specificSections[$sectionName]) || !$this->specificSections[$sectionName] instanceof SectionInterface) {
+                    throw new \InvalidArgumentException("Specific section $sectionName is not valid");
+                }
+                $this->specificSections[$sectionName]->writeSection($this, $entries);
             } else {
                 $this->manageSubsection($entries);
             }

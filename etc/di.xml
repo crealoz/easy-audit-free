@@ -131,23 +131,12 @@
         </arguments>
     </type>
     <!-- change default preference of DriverInterface -->
-    <type name="Crealoz\EasyAudit\Service\Processor\Code\Helpers">
-        <arguments>
-            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
-            <argument name="io" xsi:type="object">Magento\Framework\Filesystem\Io\File\Proxy</argument>
-        </arguments>
-    </type>
     <type name="Crealoz\EasyAudit\Service\Processor\Di\Plugins\AroundChecker">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
     </type>
     <type name="Crealoz\EasyAudit\Service\Processor\Code\HardWrittenSQL">
-        <arguments>
-            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
-        </arguments>
-    </type>
-    <type name="Crealoz\EasyAudit\Service\Processor\Code\UseOfObjectManager">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
@@ -169,7 +158,19 @@
         </arguments>
     </type>
     <!-- End of change default preference of DriverInterface -->
-
+    <!-- PDF Writer -->
+    <type name="Crealoz\EasyAudit\Service\PDFWriter">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Proxy</argument>
+            <argument name="sizeCalculation" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation\Proxy</argument>
+            <argument name="moduleReader" xsi:type="object">Magento\Framework\Module\Dir\Reader\Proxy</argument>
+            <argument name="cliTranslator" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\CliTranslator\Proxy</argument>
+            <argument name="specificSections" xsi:type="array">
+                <item name="manageBlockVMRatio" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\BlockVMRatio</item>
+                <item name="manageUnusedModules" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\UnusedModules</item>
+            </argument>
+        </arguments>
+    </type>
     <!-- DataSources for the grids -->
     <!-- Audit -->
     <virtualType name="Crealoz\EasyAudit\Ui\DataProvider\Audit" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">

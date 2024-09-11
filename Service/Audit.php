@@ -4,6 +4,7 @@ namespace Crealoz\EasyAudit\Service;
 
 use Crealoz\EasyAudit\Service\Type\TypeFactory;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Serialize\Serializer\Json;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Audit
@@ -12,10 +13,11 @@ class Audit
     protected array $results = [];
 
     public function __construct(
-        protected readonly PDFWriter         $pdfWriter,
-        protected readonly TypeFactory       $typeFactory,
-        private readonly ArrayTools          $arrayTools,
-        protected array                      $processors = []
+        protected readonly PDFWriter   $pdfWriter,
+        protected readonly TypeFactory $typeFactory,
+        private readonly ArrayTools    $arrayTools,
+        protected array                $processors = [],
+        protected array                $resultProcessors = []
     )
     {
 
@@ -32,7 +34,13 @@ class Audit
             $this->results[$typeName] = $type->process($subTypes, $typeName, $output);
         }
         if ($output instanceof OutputInterface) {
-            $output->writeln(PHP_EOL.'Creating PDF...');
+            $output->writeln(PHP_EOL . 'Processing results...');
+        }
+        foreach ($this->resultProcessors as $processor) {
+            $processor->process($this->results);
+        }
+        if ($output instanceof OutputInterface) {
+            $output->writeln(PHP_EOL . 'Creating PDF...');
         }
         return $this->pdfWriter->createdPDF($this->results, $language);
     }
