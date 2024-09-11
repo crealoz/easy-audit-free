@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <crealoz_audit>
+            <translations>
+                <hardWrittenSQLSelect>
+                    <title translate="true">Hard Written SQL SELECT</title>
+                    <explanation translate="true">SELECT queries must be avoided. Use the Magento Framework methods instead or a custom repository with a getList and/or getById methods.</explanation>
+                </hardWrittenSQLSelect>
+                <hardWrittenSQLDelete>
+                    <title translate="true">Hard Written SQL DELETE</title>
+                    <explanation translate="true">DELETE queries must be avoided. Use the Magento Framework methods instead or a custom repository with a delete and/or deleteById methods.</explanation>
+                </hardWrittenSQLDelete>
+                <hardWrittenSQLUpdate>
+                    <title translate="true">Hard Written SQL UPDATE</title>
+                    <explanation translate="true">UPDATE queries should be avoided. Use the Magento Framework methods instead or a custom repository with a save method. It can be faster for large amounts of data but it can lead to data loss in case of an update.</explanation>
+                </hardWrittenSQLUpdate>
+                <hardWrittenSQLInsert>
+                    <title translate="true">Hard Written SQL INSERT</title>
+                    <explanation translate="true">INSERT queries should be avoided. Use the Magento Framework methods instead or a custom repository with a save method. It can be faster for large amounts of data but it can lead to data loss in case of an update.</explanation>
+                </hardWrittenSQLInsert>
+                <hardWrittenSQLJoin>
+                    <title translate="true">Hard Written SQL JOIN</title>
+                    <explanation translate="true">JOIN queries should be avoided. Use the Magento Framework methods instead.</explanation>
+                </hardWrittenSQLJoin>
+                <useCacheable>
+                    <title translate="true">Use of cacheable="false" in layout XML</title>
+                    <explanation translate="true">Cacheable="false" is not recommended for dynamic blocks and should be avoided. If you need to use cacheable="false" for a block, make sure it is necessary and that the block should not be cached (e.g. : Customer Section, sales...).</explanation>
+                </useCacheable>
+                <unusedModules>
+                    <title translate="true">Unused Modules</title>
+                    <explanation translate="true">The following modules are not active. Consider removing them.</explanation>
+                </unusedModules>
+                <sameModulePlugin>
+                    <title translate="true">Same Module Plugin</title>
+                    <explanation translate="true">Plugin class must not be in the same module as the plugged in class.</explanation>
+                </sameModulePlugin>
+                <blockViewModelRatio>
+                    <title translate="true">Block vs ViewModel Ratio</title>
+                    <explanation translate="true">The ratio of Block files to ViewModel files is too high. This can be a sign of poor code organization.</explanation>
+                </blockViewModelRatio>
+            </translations>
+        </crealoz_audit>
+    </default>
+</config>

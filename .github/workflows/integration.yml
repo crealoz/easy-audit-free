@@ -34,7 +34,7 @@ jobs:
         uses: extdn/github-actions-m2/magento-integration-tests/8.1@master
         with:
           module_name: Crealoz_EasyAudit
-          composer_name: crealoz/easy-audit
+          composer_name: crealoz/easy-audit-free
           magento_version: '2.4.6'
           composer_version: 2
           phpunit_file: 'phpunit.xml'

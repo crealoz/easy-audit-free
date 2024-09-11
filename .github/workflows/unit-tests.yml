@@ -10,5 +10,5 @@ jobs:
         env:
           MAGENTO_VERSION: '2.4.5'
           MODULE_NAME: Crealoz_EasyAudit
-          COMPOSER_NAME: crealoz/easy-audit
+          COMPOSER_NAME: crealoz/easy-audit-free
           PHPUNIT_FILE: 'phpunit.xml'

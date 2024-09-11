@@ -9,6 +9,7 @@ use Magento\Framework\Filesystem\DriverInterface;
 
 class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
 {
+
     protected string $processorName = 'Hard Written SQL';
 
     protected string $auditSection = 'PHP';

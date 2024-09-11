@@ -2,16 +2,19 @@
 
 namespace Crealoz\EasyAudit\Service;
 
+use Crealoz\EasyAudit\Service\PDFWriter\CliTranslator;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Exception\FileSystemException;
 use Crealoz\EasyAudit\Service\PDFWriter\SpecificSections;
+use Magento\Framework\Filesystem;
+use Magento\Framework\Module\Dir\Reader;
 
 /**
  * @author Christophe Ferreboeuf <christophe@crealoz.fr>
  */
 class PDFWriter
 {
+
     private \Zend_Pdf $pdf;
 
     public \Zend_Pdf_Page $currentPage;
@@ -21,11 +24,12 @@ class PDFWriter
     private ?\Zend_Pdf_Resource_Image $logo;
 
     public function __construct(
-        private readonly \Magento\Framework\Filesystem $filesystem,
-        private SizeCalculation                        $sizeCalculation,
-        private SpecificSections                       $specificSections,
-        private readonly \Magento\Framework\Module\Dir\Reader $moduleReader,
-        public int                                     $x = 50
+        private readonly Filesystem       $filesystem,
+        private readonly SizeCalculation  $sizeCalculation,
+        private readonly SpecificSections $specificSections,
+        private readonly Reader           $moduleReader,
+        private readonly CliTranslator    $cliTranslator,
+        public int                        $x = 50
     )
     {
 
@@ -35,7 +39,7 @@ class PDFWriter
      * Entry point for the PDF creation
      *
      */
-    public function createdPDF($results): string
+    public function createdPDF($results, $locale): string
     {
         $this->pdf = new \Zend_Pdf();
         $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
@@ -44,6 +48,7 @@ class PDFWriter
         } catch (\Zend_Pdf_Exception $e) {
             $this->logo = null;
         }
+        $this->cliTranslator->initLanguage($locale);
         foreach ($results as $type => $result) {
             foreach ($result as $section => $sectionResults) {
                 $isFirst = true;
@@ -64,10 +69,10 @@ class PDFWriter
             }
         }
         //Get media directory in filesystem
-        if (!$this->filesystem->getDirectoryRead(DirectoryList::MEDIA )->isExist('/crealoz')) {
-            $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA )->create('/crealoz');
+        if (!$this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist('/crealoz')) {
+            $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->create('/crealoz');
         }
-        $fileName = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA )->getAbsolutePath('/crealoz/audit.pdf');
+        $fileName = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath('/crealoz/audit.pdf');
         $this->pdf->save($fileName);
         return $fileName;
     }
@@ -78,7 +83,7 @@ class PDFWriter
      */
     private function makeHeaderAndFooter(): void
     {
-        $this->currentPage->drawText('EasyAudit Report by Crealoz', 20, 20);
+        $this->currentPage->drawText(__('EasyAudit Report by Crealoz'), 20, 20);
         // Get the image path
         if ($this->logo !== null) {
             $this->currentPage->drawImage($this->logo, 500, 800, 550, 820);
@@ -93,7 +98,7 @@ class PDFWriter
      */
     private function manageSubResult($subResults): void
     {
-        if (!empty($subResults['errors'])){
+        if (!empty($subResults['errors'])) {
             if ($this->y < $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize($subResults['errors'])) {
                 $this->addPage();
             }
@@ -122,7 +127,8 @@ class PDFWriter
 
     private function displaySection(string $title, array $section): void
     {
-        $this->currentPage->drawText($title, 44, $this->y);
+        $translatedTitle = $this->cliTranslator->translate($title);
+        $this->currentPage->drawText($translatedTitle, 44, $this->y);
         foreach ($section as $type => $entries) {
             if (isset($entries['specificSections'])) {
                 $functionName = $entries['specificSections'];
@@ -145,7 +151,7 @@ class PDFWriter
             if (is_array($files)) {
                 $this->writeLine($key);
                 foreach ($files as $file) {
-                    $this->writeLine('-' . $file, 8, 0.2, 0.2, 0.2);
+                    $this->writeLine('-' . $file, 0, 8, 0.2, 0.2, 0.2);
                 }
             } else {
                 $this->writeLine('-' . $files);
@@ -153,20 +159,24 @@ class PDFWriter
         }
     }
 
-    public function writeLine($text, $size = 9, $r = 0, $g = 0, $b = 0): void
+    public function writeLine($text, $depth = 0, $size = 9, $r = 0, $g = 0, $b = 0): void
     {
+        $translatedText = $text;
+        if ($depth == 0) {
+            $translatedText = $this->cliTranslator->translate($text);
+        }
         $this->setGeneralStyle($size, $r, $g, $b);
         // If line is too long, we split it
         if (strlen($text) > 130) {
             $wrappedText = wordwrap($text, 130, "--SPLIT--");
             $lines = explode("--SPLIT--", $wrappedText);
+            $depth++;
             foreach ($lines as $line) {
-                $this->writeLine($line);
+                $this->writeLine($line, $depth);
             }
             return;
         }
-
-        $this->currentPage->drawText($text, $this->x, $this->y);
+        $this->currentPage->drawText($translatedText, $this->x, $this->y);
         $this->y -= floor($size * 1.3);
         if ($this->y < 50) {
             $this->addPage();
@@ -175,6 +185,7 @@ class PDFWriter
 
     private function writeTitle($text, $x = null): void
     {
+        $translatedText = $this->cliTranslator->translate($text);
         $this->y -= 10;
         if ($this->y < 130) {
             $this->addPage();
@@ -182,7 +193,7 @@ class PDFWriter
         $x = $x ?? $this->x;
         $this->setTitleStyle();
         $this->y -= 15;
-        $this->currentPage->drawText(strtoupper($text), $x, $this->y);
+        $this->currentPage->drawText(strtoupper($translatedText), $x, $this->y);
         $this->y -= 30;
         $this->setGeneralStyle();
     }
@@ -195,7 +206,8 @@ class PDFWriter
         if (isset($subsection['title'])) {
             $this->y -= 20;
             $this->setSubTitleStyle();
-            $this->currentPage->drawText($subsection['title'], 48, $this->y);
+            $translatedTitle = $this->cliTranslator->translate($subsection['title']);
+            $this->currentPage->drawText($translatedTitle, 48, $this->y);
         }
         if (isset($subsection['explanation'])) {
             // First we remove line feed, carriage return and tabs
@@ -205,7 +217,7 @@ class PDFWriter
         }
         if (isset($subsection['caution'])) {
             $subsection['caution'] = preg_replace('/\s+/', ' ', $subsection['caution']);
-            $this->writeLine($subsection['caution'], 8, 0.85, 0, 0);
+            $this->writeLine($subsection['caution'],0, 8, 0.85, 0, 0);
         }
     }
 
@@ -213,7 +225,8 @@ class PDFWriter
     {
         $this->setTitleStyle(15);
         $this->y -= 15;
-        $this->currentPage->drawText(strtoupper($text), 43, $this->y);
+        $translatedText = $this->cliTranslator->translate($text);
+        $this->currentPage->drawText($translatedText, 43, $this->y);
         $this->y -= 20;
         if ($this->y < 50) {
             $this->addPage();
@@ -233,10 +246,10 @@ class PDFWriter
     public function setGeneralStyle($size = 9, $r = 0, $g = 0, $b = 0)
     {
         $style = new \Zend_Pdf_Style();
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb($r,$g,$b));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb($r,$g,$b));
+        $style->setLineColor(new \Zend_Pdf_Color_Rgb($r, $g, $b));
+        $style->setFillColor(new \Zend_Pdf_Color_Rgb($r, $g, $b));
         $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font,$size);
+        $style->setFont($font, $size);
         $this->currentPage->setStyle($style);
     }
 
@@ -244,10 +257,10 @@ class PDFWriter
     {
         $style = new \Zend_Pdf_Style();
         // Blue color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0,0,0.85));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0,0,0.85));
+        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0, 0, 0.85));
+        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0, 0, 0.85));
         $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font,$size);
+        $style->setFont($font, $size);
         $this->currentPage->setStyle($style);
     }
 
@@ -255,10 +268,10 @@ class PDFWriter
     {
         $style = new \Zend_Pdf_Style();
         // Blue color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0,0.45,0.85));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0,0.45,0.85));
+        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0, 0.45, 0.85));
+        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0, 0.45, 0.85));
         $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font,$size);
+        $style->setFont($font, $size);
         $this->currentPage->setStyle($style);
     }
 
@@ -266,10 +279,10 @@ class PDFWriter
     {
         $style = new \Zend_Pdf_Style();
         // Red color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0.85,0,0));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0.85,0,0));
+        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0.85, 0, 0));
+        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0.85, 0, 0));
         $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font,$size);
+        $style->setFont($font, $size);
         $this->currentPage->setStyle($style);
     }
 
@@ -277,10 +290,10 @@ class PDFWriter
     {
         $style = new \Zend_Pdf_Style();
         // Orange color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0.85,0.45,0));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0.85,0.45,0));
+        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0.85, 0.45, 0));
+        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0.85, 0.45, 0));
         $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font,$size);
+        $style->setFont($font, $size);
         $this->currentPage->setStyle($style);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace Crealoz\EasyAudit\Console;
 
+use Composer\Console\Input\InputOption;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,7 +21,9 @@ class RunAuditCommand extends Command
     protected function configure()
     {
         $this->setName('crealoz:run:audit')
-            ->setDescription('Run the audit service on request');
+            ->setDescription('Run the audit service on request')
+            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language to use for the audit service', 'en_US')
+        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -28,7 +31,9 @@ class RunAuditCommand extends Command
         $start = microtime(true);
         $output->writeln('Starting audit service...');
 
-        $this->auditService->run($output);
+        $language = $input->getOption('language');
+
+        $this->auditService->run($output, $language);
 
         $duration = microtime(true) - $start;
         // Output the duration in a human readable format

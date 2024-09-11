@@ -1,5 +1,5 @@
 {
-    "name": "crealoz/easy-audit",
+    "name": "crealoz/easy-audit-free",
     "description": "A tool that permits to run different types of audits in Magento 2.",
     "require": {
         "php": "^8.1",

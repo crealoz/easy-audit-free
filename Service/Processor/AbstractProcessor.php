@@ -36,7 +36,7 @@ abstract class AbstractProcessor implements ProcessorInterface
             && !array_key_exists('warnings', $this->results)
             && !array_key_exists('suggestions', $this->results)
         ) {
-            throw new GeneralAuditException(__('Results are malformed for processor ' . $this->getProcessorName() . '. Please check the processor implementation.'));
+            throw new GeneralAuditException(__('Results are malformed for processor %1. Please check the processor implementation.', $this->getProcessorName()));
         }
         return $this->results;
     }
