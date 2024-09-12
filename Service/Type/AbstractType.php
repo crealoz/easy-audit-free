@@ -14,6 +14,8 @@ abstract class AbstractType implements TypeInterface
 
     protected array $fileGetters = [];
 
+    protected array $erroneousFiles = [];
+
     public function __construct(
         protected readonly FileGetterFactory $fileGetterFactory,
         protected readonly LoggerInterface $logger
@@ -35,9 +37,7 @@ abstract class AbstractType implements TypeInterface
                     $progressBar->start();
                 }
                 $this->doProcess($processors, $files, $progressBar);
-                foreach ($processors as $processor) {
-                    $this->results[$processor->getAuditSection()][$processor->getProcessorName()] = $processor->getResults();
-                }
+                $this->manageResults($processors);
                 if ($output) {
                     $progressBar->finish();
                 }
@@ -54,6 +54,25 @@ abstract class AbstractType implements TypeInterface
             $this->fileGetters[$type] = $this->fileGetterFactory->create($type);
         }
         return $this->fileGetters[$type];
+    }
+
+    protected function manageResults(array $processors) : void
+    {
+        foreach ($processors as $processor) {
+            $this->results[$processor->getAuditSection()][$processor->getProcessorName()] = $processor->getResults();
+            foreach ($processor->getErroneousFiles() as $file => $score) {
+                if (isset($this->erroneousFiles[$file])) {
+                    $this->erroneousFiles[$file] += $score;
+                } else {
+                    $this->erroneousFiles[$file] = $score;
+                }
+            }
+        }
+    }
+
+    public function getErroneousFiles(): array
+    {
+        return $this->erroneousFiles;
     }
 
 }

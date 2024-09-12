@@ -10,7 +10,7 @@ interface ProcessorInterface
     /**
      * @param $input
      */
-    public function run($input): array;
+    public function run($input);
 
     /**
      * @return string
@@ -23,4 +23,6 @@ interface ProcessorInterface
     public function getResults(): array;
 
     public function getAuditSection(): string;
+
+    public function getErroneousFiles(): array;
 }

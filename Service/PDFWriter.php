@@ -50,6 +50,8 @@ class PDFWriter
             $this->logo = null;
         }
         $this->cliTranslator->initLanguage($locale);
+        $erroneousFiles = $results['erroneousFiles'];
+        unset($results['erroneousFiles']);
         foreach ($results as $type => $result) {
             foreach ($result as $section => $sectionResults) {
                 $isFirst = true;

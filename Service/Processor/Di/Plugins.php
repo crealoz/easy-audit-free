@@ -8,6 +8,7 @@ use Crealoz\EasyAudit\Exception\Processor\Plugins\ConfigProviderPluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\MagentoFrameworkPluginExtension;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\PluginFileDoesNotExistException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\SameModulePluginException;
+use Crealoz\EasyAudit\Service\Audit;
 use Crealoz\EasyAudit\Service\Processor\AbstractProcessor;
 use Crealoz\EasyAudit\Service\Processor\Di\Plugins\AroundChecker;
 use Crealoz\EasyAudit\Service\Processor\Di\Plugins\CheckConfigProvider;
@@ -84,7 +85,7 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
      * @param $input
      * @return array
      */
-    public function run($input): array
+    public function run($input)
     {
         //Check if the input is an XML object
         if (!($input instanceof \SimpleXMLElement)) {
@@ -112,8 +113,8 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
             }
         } catch (FileSystemException $e) {
             $this->results['warnings']['insufficientPermissions']['files'][] = $e->getMessage();
+            $this->addErroneousFile($input, Audit::PRIORITY_HIGH);
         }
-        return $this->results;
     }
 
     /**
@@ -128,6 +129,7 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         } catch (SameModulePluginException $e) {
             $this->results['hasErrors'] = true;
             $this->results['errors']['sameModulePlugin']['files'][] = $e->getErroneousFile();
+            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
         }
         try {
             $this->isMagentoFrameworkClass($pluggingClass, $pluggedInClass);
@@ -137,24 +139,29 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
                 $this->results['errors']['magentoFrameworkPlugin']['files'][$e->getPluggedFile()] = [];
             }
             $this->results['errors']['magentoFrameworkPlugin']['files'][$e->getPluggedFile()][] = $e->getErroneousFile();
+            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
         }
         try {
             $this->checkPluginFile($pluggingClass);
         } catch (PluginFileDoesNotExistException $e) {
             $this->results['hasErrors'] = true;
             $this->results['warnings']['nonExistentPluginFile']['files'][] = $e->getErroneousFile();
+            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_AVERAGE);
         } catch (AroundToBeforePluginException $e) {
             $this->results['hasErrors'] = true;
             $this->results['warnings']['aroundToBeforePlugin']['files'][] = $e->getErroneousFile();
+            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
         } catch (AroundToAfterPluginException $e) {
             $this->results['hasErrors'] = true;
             $this->results['warnings']['aroundToAfterPlugin']['files'][] = $e->getErroneousFile();
+            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
         }
         try {
             $this->isCheckoutConfigProviderPlugin($pluggedInClass, $pluggingClass);
         } catch (ConfigProviderPluginException $e) {
             $this->results['hasErrors'] = true;
             $this->results['errors']['configProviderPlugin']['files'][] = $e->getErroneousFile();
+            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
         }
     }
 

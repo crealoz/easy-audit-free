@@ -12,7 +12,9 @@ abstract class AbstractProcessor implements ProcessorInterface
 
     protected string $auditSection = '';
 
-    abstract public function run($input): array;
+    protected array $erroneousFiles = [];
+
+    abstract public function run($input);
 
     /**
      * @throws GeneralAuditException
@@ -47,5 +49,20 @@ abstract class AbstractProcessor implements ProcessorInterface
             throw new GeneralAuditException(__('Audit section is not set'));
         }
         return $this->auditSection;
+    }
+
+    public function getErroneousFiles(): array
+    {
+        return $this->erroneousFiles;
+    }
+
+    protected function addErroneousFile(string $file, int $score): void
+    {
+        if (!array_key_exists($file, $this->erroneousFiles)) {
+            $this->erroneousFiles[$file] = $score;
+        } else {
+            $this->erroneousFiles[$file] += $score;
+        }
+
     }
 }

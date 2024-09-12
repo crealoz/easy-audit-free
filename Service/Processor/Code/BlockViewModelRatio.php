@@ -25,7 +25,7 @@ class BlockViewModelRatio extends AbstractProcessor implements ProcessorInterfac
         'suggestions' => []
     ];
 
-    public function run($input): array
+    public function run($input)
     {
         if (!is_array($input)) {
             throw new \InvalidArgumentException('Input must be an array');
@@ -38,7 +38,6 @@ class BlockViewModelRatio extends AbstractProcessor implements ProcessorInterfac
                 $this->results['warnings']['blockViewModelRatio']['files'][$module] = $blockViewModelRatio;
             }
         }
-        return $this->results;
     }
 
     private function segregateFilesByModule(array $files): array

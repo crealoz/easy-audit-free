@@ -4,11 +4,15 @@ namespace Crealoz\EasyAudit\Service;
 
 use Crealoz\EasyAudit\Service\Type\TypeFactory;
 use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Serialize\Serializer\Json;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Audit
 {
+    const PRIORITY_HIGH = 3;
+
+    const PRIORITY_AVERAGE = 2;
+
+    const PRIORITY_LOW = 1;
 
     protected array $results = [];
 
@@ -29,10 +33,24 @@ class Audit
      */
     public function run(OutputInterface $output = null, string $language = null): string
     {
+        $erroneousFiles = [];
         foreach ($this->processors as $typeName => $subTypes) {
             $type = $this->typeFactory->create($typeName);
             $this->results[$typeName] = $type->process($subTypes, $typeName, $output);
+            $erroneousFiles[$typeName] = $type->getErroneousFiles();
         }
+        $consolidatedErroneousFiles = [];
+        foreach ($erroneousFiles as $files) {
+            foreach ($files as $file => $score) {
+                if (isset($consolidatedErroneousFiles[$file])) {
+                    $consolidatedErroneousFiles[$file] += $score;
+                } else {
+                    $consolidatedErroneousFiles[$file] = $score;
+                }
+            }
+        }
+        arsort($consolidatedErroneousFiles);
+        $this->results['erroneousFiles'] = $consolidatedErroneousFiles;
         if ($output instanceof OutputInterface) {
             $output->writeln(PHP_EOL . 'Processing results...');
         }

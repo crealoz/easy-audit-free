@@ -2,6 +2,7 @@
 
 namespace Crealoz\EasyAudit\Service\Processor\View;
 
+use Crealoz\EasyAudit\Service\Audit;
 use Crealoz\EasyAudit\Service\Processor\AbstractProcessor;
 use Crealoz\EasyAudit\Service\Processor\ProcessorInterface;
 
@@ -31,7 +32,7 @@ class Cacheable extends AbstractProcessor implements ProcessorInterface
 
     protected array $allowedAreas = ['sales', 'customer', 'gift', 'message'];
 
-    public function run($input): array
+    public function run($input)
     {
         if (!$input instanceof \SimpleXMLElement) {
             throw new \InvalidArgumentException('Input is not an instance of SimpleXMLElement');
@@ -51,6 +52,5 @@ class Cacheable extends AbstractProcessor implements ProcessorInterface
                 $this->results['warnings']['useCacheable']['files'][] = (string) $block->attributes()->name;
             }
         }
-        return $this->results;
     }
 }

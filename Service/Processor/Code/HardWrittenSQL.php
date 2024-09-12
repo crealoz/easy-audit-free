@@ -2,6 +2,7 @@
 
 namespace Crealoz\EasyAudit\Service\Processor\Code;
 
+use Crealoz\EasyAudit\Service\Audit;
 use Crealoz\EasyAudit\Service\Processor\AbstractProcessor;
 use Crealoz\EasyAudit\Service\Processor\ProcessorInterface;
 use Magento\Framework\Exception\FileSystemException;
@@ -64,7 +65,7 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
     /**
      * @throws FileSystemException
      */
-    public function run($input): array
+    public function run($input)
     {
         $code = $this->driver->fileGetContents($input);
         if (str_contains($code, 'SELECT') ) {
@@ -75,6 +76,7 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
             if (!empty($matches)) {
                 $this->results['hasErrors'] = true;
                 $this->results['errors']['hardWrittenSQLSelect']['files'][] = $input;
+                $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
         if (str_contains($code, 'INSERT') ) {
@@ -85,6 +87,7 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
             if (!empty($matches)) {
                 $this->results['hasErrors'] = true;
                 $this->results['warnings']['hardWrittenSQLInsert']['files'][] = $input;
+                $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
         if (str_contains($code, 'UPDATE') ) {
@@ -95,6 +98,7 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
             if (!empty($matches)) {
                 $this->results['hasErrors'] = true;
                 $this->results['warnings']['hardWrittenSQLUpdate']['files'][] = $input;
+                $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
         if (str_contains($code, 'DELETE') ) {
@@ -105,6 +109,7 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
             if (!empty($matches)) {
                 $this->results['hasErrors'] = true;
                 $this->results['errors']['hardWrittenSQLDelete']['files'][] = $input;
+                $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
         if (str_contains($code, 'JOIN') ) {
@@ -117,6 +122,5 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
                 $this->results['suggestions']['hardWrittenSQLJoin']['files'][] = $input;
             }
         }
-        return $this->results;
     }
 }

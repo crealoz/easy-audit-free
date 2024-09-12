@@ -36,7 +36,7 @@ class UnusedModules extends AbstractProcessor implements ProcessorInterface
     /**
      * @throws FileSystemException
      */
-    public function run($input): array
+    public function run($input)
     {
         $unusedModules = $this->getModuleConfig->process($input);
         if (!empty($unusedModules)) {
@@ -45,6 +45,5 @@ class UnusedModules extends AbstractProcessor implements ProcessorInterface
                 $this->results['suggestions']['unusedModules']['files'][] = $module;
             }
         }
-        return $this->results;
     }
 }
