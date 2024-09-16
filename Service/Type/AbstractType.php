@@ -20,7 +20,12 @@ abstract class AbstractType implements TypeInterface
         protected readonly FileGetterFactory $fileGetterFactory,
         protected readonly LoggerInterface $logger
     ) {
-
+        if (!empty($this->erroneousFiles)) {
+            dd($this->erroneousFiles);
+        }
+        if (!empty($this->results)) {
+            dd($this->results);
+        }
     }
 
     public function process(array $subTypes, string $type, OutputInterface $output = null): array

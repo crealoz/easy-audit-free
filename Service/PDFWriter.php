@@ -6,7 +6,6 @@ use Crealoz\EasyAudit\Service\PDFWriter\CliTranslator;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
 use Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SectionInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Crealoz\EasyAudit\Service\PDFWriter\SpecificSections;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\Dir\Reader;
 
@@ -40,7 +39,7 @@ class PDFWriter
      * Entry point for the PDF creation
      *
      */
-    public function createdPDF($results, $locale): string
+    public function createdPDF($results, $locale, $filename): string
     {
         $this->pdf = new \Zend_Pdf();
         $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
@@ -51,6 +50,12 @@ class PDFWriter
         }
         $this->cliTranslator->initLanguage($locale);
         $erroneousFiles = $results['erroneousFiles'];
+        $introductions = $results['introduction'] ?? [];
+        $this->addPage();
+        foreach ($introductions as $introduction) {
+            $this->manageIntroduction($introduction);
+        }
+        unset($results['introduction']);
         unset($results['erroneousFiles']);
         foreach ($results as $type => $result) {
             foreach ($result as $section => $sectionResults) {
@@ -75,9 +80,14 @@ class PDFWriter
         if (!$this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist('/crealoz')) {
             $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->create('/crealoz');
         }
-        $fileName = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath('/crealoz/audit.pdf');
-        $this->pdf->save($fileName);
-        return $fileName;
+        $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath('/crealoz/' . $filename . '.pdf');
+        // Check if the file already exists
+        if (file_exists($filePath)) {
+            $filename = $filename . '_' . time();
+            $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath('/crealoz/' . $filename . '.pdf');
+        }
+        $this->pdf->save($filePath);
+        return $filePath;
     }
 
     /**
@@ -92,6 +102,20 @@ class PDFWriter
             $this->currentPage->drawImage($this->logo, 500, 800, 550, 820);
         }
         $this->currentPage->drawText('Created on : ' . date('Y-m-d H:i:s'), 420, 20);
+    }
+
+    private function manageIntroduction(array $introduction): void
+    {
+        $this->writeLine($introduction['summary']);
+        foreach ($introduction['files'] ?? [] as $file => $score) {
+            if ($score >= 10) {
+                $this->writeLine($file . ' (' . $score . ')', 0, 7, 0.85, 0, 0);
+            } elseif ($score >= 5) {
+                $this->writeLine($file . ' (' . $score . ')', 0, 6, 0.85, 0.45, 0);
+            } else {
+                $this->writeLine($file . ' (' . $score . ')', 0, 5, 0.85, 0.85, 0);
+            }
+        }
     }
 
     /**
@@ -206,7 +230,7 @@ class PDFWriter
 
     public function writeSubSectionIntro($subsection): void
     {
-        if ($this->y < $this->sizeCalculation->calculateIntroSize($subsection)) {
+        if ($this->y < $this->sizeCalculation->calculateSectionIntroSize($subsection)) {
             $this->addPage();
         }
         if (isset($subsection['title'])) {

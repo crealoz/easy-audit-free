@@ -25,19 +25,19 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
 
     protected string $processorName = 'plugins';
 
-    protected string $auditSection = 'di';
+    protected string $auditSection = 'Dependency Injection (DI)';
 
     protected array $results = [
         'hasErrors' => false,
         'errors' => [
             'sameModulePlugin' => [
                 'title' => 'Same Module Plugin',
-                'explanation' => 'Plugin class must not be in the same module as the plugged in class',
+                'explanation' => 'Plugin class must not be in the same module as the plugged in class.',
                 'files' => []
             ],
             'magentoFrameworkPlugin' => [
                 'title' => 'Magento Framework Plugin',
-                'explanation' => 'Plugin class must not be in the Magento Framework',
+                'explanation' => 'Plugged in class must not be in the Magento Framework. They are called several times and can lead to performance issues.',
                 'files' => []
             ],
             'configProviderPlugin' => [
@@ -49,22 +49,22 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         'warnings' => [
             'nonExistentPluginFile' => [
                 'title' => 'Non-existent Plugin File',
-                'explanation' => 'Plugin file does not exist',
+                'explanation' => 'Plugin file does not exist.',
                 'files' => []
             ],
             'insufficientPermissions' => [
                 'title' => 'Insufficient Permissions',
-                'explanation' => 'Insufficient permissions to read file',
+                'explanation' => 'Insufficient permissions to read file.',
                 'files' => []
             ],
             'aroundToBeforePlugin' => [
                 'title' => 'Around to Before Plugin',
-                'explanation' => 'Around plugin should be a before plugin',
+                'explanation' => 'Around plugin should be a before plugin. Around plugins drastically decrease performances of the website and should be reserved to really specific cases.',
                 'files' => []
             ],
             'aroundToAfterPlugin' => [
                 'title' => 'Around to After Plugin',
-                'explanation' => 'Around plugin should be an after plugin',
+                'explanation' => 'Around plugin should be an after plugin. Around plugins drastically decrease performances of the website and should be reserved to really specific cases.',
                 'files' => []
             ],
         ],
@@ -72,10 +72,10 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
     ];
 
     public function __construct(
-        protected AroundChecker $aroundChecker,
-        private CheckConfigProvider $checkConfigProvider,
-        private readonly LoggerInterface $logger,
-        private readonly Files $filesUtility
+        protected AroundChecker              $aroundChecker,
+        private readonly CheckConfigProvider $checkConfigProvider,
+        private readonly LoggerInterface     $logger,
+        private readonly Files               $filesUtility
     )
     {
 

@@ -16,11 +16,24 @@ class TypeFactory
         if (!isset($this->typeMapping[$type])) {
             throw new \InvalidArgumentException("Unknown type: $type");
         }
+        $object = $this->objectManager->create($this->typeMapping[$type]);
+        if (!$object instanceof TypeInterface) {
+            throw new \InvalidArgumentException("Could not create an object of type $type. It does not implement
+             TypeInterface. Allowed types: " . implode(", ", array_keys($this->typeMapping)));
+        }
+        return $object;
+    }
+
+    public function get(string $type): TypeInterface
+    {
+        if (!isset($this->typeMapping[$type])) {
+            throw new \InvalidArgumentException("Unknown type: $type");
+        }
         $object = $this->objectManager->get($this->typeMapping[$type]);
         if (!$object instanceof TypeInterface) {
             throw new \InvalidArgumentException("Could not create an object of type $type. It does not implement
              TypeInterface. Allowed types: " . implode(", ", array_keys($this->typeMapping)));
         }
-        return $this->objectManager->get($this->typeMapping[$type]);
+        return $object;
     }
 }

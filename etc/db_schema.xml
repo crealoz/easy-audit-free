@@ -1,21 +1,12 @@
 <?xml version="1.0"?>
 <schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
-    <table name="crealoz_easyaudit" resource="default" engine="innodb" comment="Easy Audit Table">
-        <column xsi:type="int" name="audit_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
-        <column xsi:type="varchar" name="username" nullable="false" length="255" comment="User"/>
-        <column xsi:type="timestamp" name="execution_date" nullable="false" on_update="false" default="CURRENT_TIMESTAMP" comment="Date"/>
-        <column xsi:type="varchar" name="filepath" nullable="true" length="255" comment="File Path"/>
-        <column xsi:type="varchar" name="overall_result" nullable="true" length="255" comment="Overall Result"/>
-        <constraint xsi:type="primary" referenceId="PRIMARY">
-            <column name="audit_id"/>
-        </constraint>
-    </table>
     <table name="crealoz_easyaudit_request" resource="default" engine="innodb" comment="Easy Audit Request Table">
         <column xsi:type="int" name="request_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
         <column xsi:type="varchar" name="username" nullable="false" length="255" comment="User"/>
         <column xsi:type="timestamp" name="execution_time" nullable="true" on_update="false" comment="Execution Time"/>
         <column xsi:type="timestamp" name="created_at" nullable="false" on_update="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="text" name="request" nullable="true" comment="Request"/>
+        <column xsi:type="varchar" name="filepath" nullable="true" length="255" comment="File Path"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="request_id"/>
         </constraint>

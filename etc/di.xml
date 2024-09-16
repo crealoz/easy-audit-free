@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <!-- Preferences-->
-        <preference for="Crealoz\EasyAudit\Api\Data\AuditInterface" type="Crealoz\EasyAudit\Model\Audit"/>
         <preference for="Crealoz\EasyAudit\Api\Data\AuditRequestInterface" type="Crealoz\EasyAudit\Model\AuditRequest"/>
-        <preference for="Crealoz\EasyAudit\Api\AuditRepositoryInterface" type="Crealoz\EasyAudit\Model\AuditRepository"/>
         <preference for="Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface" type="Crealoz\EasyAudit\Model\AuditRequestRepository"/>
      <!-- End of Preferences -->
     <!-- Command -->
@@ -60,6 +58,9 @@
                         <item name="configphp" xsi:type="object">Crealoz\EasyAudit\Service\Processor\Logic\UnusedModules</item>
                     </item>
                 </item>
+            </argument>
+            <argument name="resultProcessors" xsi:type="array">
+                <item name="erroneous_files" xsi:type="object">Crealoz\EasyAudit\Service\Results\ErroneousFiles</item>
             </argument>
         </arguments>
     </type>

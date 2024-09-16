@@ -43,46 +43,7 @@
                 <item name="sortOrder" xsi:type="number">10</item>
             </item>
         </argument>
-        <field name="run_all" sortOrder="10" formElement="select">
-            <settings>
-                <validation>
-                    <rule name="required-entry" xsi:type="boolean">true</rule>
-                </validation>
-                <dataType>text</dataType>
-                <label translate="true">Run all audits</label>
-                <dataScope>run_all</dataScope>
-                <switcherConfig>
-                    <rules>
-                        <rule name="0">
-                            <value>0</value>
-                            <actions>
-                                <action name="0">
-                                    <target>easyaudit_request_form.easyaudit_request_form.general.request</target>
-                                    <callback>show</callback>
-                                </action>
-                            </actions>
-                        </rule>
-                        <rule name="1">
-                            <value>1</value>
-                            <actions>
-                                <action name="0">
-                                    <target>easyaudit_request_form.easyaudit_request_form.general.request</target>
-                                    <callback>hide</callback>
-                                </action>
-                            </actions>
-                        </rule>
-                    </rules>
-                </switcherConfig>
-            </settings>
-            <formElements>
-                <select>
-                    <settings>
-                        <options class="Magento\Config\Model\Config\Source\Yesno"/>
-                    </settings>
-                </select>
-            </formElements>
-        </field>
-        <field name="request" formElement="multiselect" sortOrder="30">
+        <field name="request" formElement="select" sortOrder="30">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="source" xsi:type="string">audit</item>
@@ -94,15 +55,15 @@
                     <rule name="required-entry" xsi:type="boolean">true</rule>
                 </validation>
                 <dataType>array</dataType>
-                <label translate="true">Audit Types</label>
+                <label translate="true">Languages</label>
                 <dataScope>request</dataScope>
             </settings>
             <formElements>
-                <multiselect>
+                <select>
                     <settings>
-                        <options class="Crealoz\EasyAudit\Ui\Request\Form\AuditTypes"/>
+                        <options class="Crealoz\EasyAudit\Ui\Request\Form\Languages"/>
                     </settings>
-                </multiselect>
+                </select>
             </formElements>
         </field>
     </fieldset>
