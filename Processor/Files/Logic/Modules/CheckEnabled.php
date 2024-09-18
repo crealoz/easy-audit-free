@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Processor\Logic\Modules;
+namespace Crealoz\EasyAudit\Processor\Files\Logic\Modules;
 
 use Crealoz\EasyAudit\Exception\Processor\Modules\EnabledStatusIrretrievableException;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;

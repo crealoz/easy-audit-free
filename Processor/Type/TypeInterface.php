@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Type;
+namespace Crealoz\EasyAudit\Processor\Type;
 
 use Symfony\Component\Console\Output\OutputInterface;
 

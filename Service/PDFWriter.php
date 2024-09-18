@@ -161,6 +161,8 @@ class PDFWriter
                 $sectionName = $entries['specificSections'];
                 unset($entries['specificSections']);
                 if (!isset($this->specificSections[$sectionName]) || !$this->specificSections[$sectionName] instanceof SectionInterface) {
+                    dump($this->specificSections);
+                    dump($this->specificSections[$sectionName] instanceof SectionInterface);
                     throw new \InvalidArgumentException("Specific section $sectionName is not valid");
                 }
                 $this->specificSections[$sectionName]->writeSection($this, $entries);

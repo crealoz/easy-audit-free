@@ -1,29 +1,47 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Processor\Code;
+namespace Crealoz\EasyAudit\Processor\Files\Code;
 
-use Crealoz\EasyAudit\Service\Processor\AbstractProcessor;
-use Crealoz\EasyAudit\Service\Processor\ProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
+use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 
 class BlockViewModelRatio extends AbstractProcessor implements ProcessorInterface
 {
-    protected string $processorName = 'Block vs ViewModel Ratio';
 
-    protected string $auditSection = 'Code';
+    public function getProcessorName(): string
+    {
+        return __('Block vs ViewModel Ratio');
+    }
 
-    protected array $results = [
-        'hasErrors' => false,
-        'errors' => [],
-        'warnings' => [
-            'blockViewModelRatio' => [
-                'title' => 'Block vs ViewModel Ratio',
-                'explanation' => 'The ratio of Block files to ViewModel files is too high. This can be a sign of poor code organization.',
-                'files' => [],
-                'specificSections' => 'manageBlockVMRatio'
+    public function getAuditSection(): string
+    {
+        return __('Code');
+    }
+
+    protected function prepopulateResults(): void
+    {
+        $this->results = [
+            'hasErrors' => false,
+            'errors' => [],
+            'warnings' => [
+                'blockViewModelRatio' => $this->getBVMWarningEntry(),
             ],
-        ],
-        'suggestions' => []
-    ];
+            'suggestions' => []
+        ];
+
+    }
+
+    private function getBVMWarningEntry(): array
+    {
+        $title = __('Block vs ViewModel Ratio');
+        $explanation = __('The ratio of Block files to ViewModel files is too high. This can be a sign of poor code organization.');
+        return [
+            'title' => $title,
+            'explanation' => $explanation,
+            'files' => [],
+            'specificSections' => 'manageBlockVMRatio'
+        ];
+    }
 
     public function run($input)
     {

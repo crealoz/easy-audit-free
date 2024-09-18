@@ -3,11 +3,11 @@
 namespace Crealoz\EasyAudit\Test\Unit\Processors;
 
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
-use Crealoz\EasyAudit\Service\Processor\View\Cacheable;
+use Crealoz\EasyAudit\Processor\Files\View\Cacheable;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Crealoz\EasyAudit\Service\Processor\View\Cacheable
+ * @covers \Crealoz\EasyAudit\Processor\Files\View\Cacheable
  */
 class CacheableTest extends TestCase
 {

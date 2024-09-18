@@ -1,30 +1,30 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Processor;
+namespace Crealoz\EasyAudit\Processor\Files;
 
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
 
 abstract class AbstractProcessor implements ProcessorInterface
 {
-    protected string $processorName = '';
 
     protected array $results = [];
-
-    protected string $auditSection = '';
 
     protected array $erroneousFiles = [];
 
     abstract public function run($input);
 
+    abstract protected function prepopulateResults(): void;
+
     /**
      * @throws GeneralAuditException
      */
-    public function getProcessorName(): string
+    abstract public function getProcessorName(): string;
+
+    abstract public function getAuditSection(): string;
+
+    public function __construct()
     {
-        if ($this->processorName === '') {
-            throw new GeneralAuditException(__('Processor name is not set'));
-        }
-        return $this->processorName;
+        $this->prepopulateResults();
     }
 
     /**
@@ -41,14 +41,6 @@ abstract class AbstractProcessor implements ProcessorInterface
             throw new GeneralAuditException(__('Results are malformed for processor %1. Please check the processor implementation.', $this->getProcessorName()));
         }
         return $this->results;
-    }
-
-    public function getAuditSection(): string
-    {
-        if ($this->auditSection === '') {
-            throw new GeneralAuditException(__('Audit section is not set'));
-        }
-        return $this->auditSection;
     }
 
     public function getErroneousFiles(): array

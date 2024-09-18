@@ -2,8 +2,8 @@
 
 namespace Crealoz\EasyAudit\Service;
 
-use Crealoz\EasyAudit\Service\Results\ResultProcessorInterface;
-use Crealoz\EasyAudit\Service\Type\TypeFactory;
+use Crealoz\EasyAudit\Processor\Results\ResultProcessorInterface;
+use Crealoz\EasyAudit\Processor\Type\TypeFactory;
 use Magento\Framework\Exception\FileSystemException;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -31,21 +31,18 @@ class Audit
     /**
      * @throws FileSystemException
      */
-    public function run(OutputInterface $output = null, string $language = null, $filename = "audit.pdf"): string
+    public function run(OutputInterface $output = null, string $language = null, $filename = "audit"): string
     {
         $this->results = [];
         // if the filename is not valid unix filename, throw an exception
         if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $filename)) {
-            throw new FileSystemException(__('Invalid filename'));
+            throw new FileSystemException(__('Invalid filename %1', $filename));
         }
         $erroneousFiles = [];
-        dump(array_keys($this->processors));
         foreach ($this->processors as $typeName => $subTypes) {
-            dump(count($subTypes));
             $type = $this->typeFactory->create($typeName);
             $this->results[$typeName] = $type->process($subTypes, $typeName, $output);
             $erroneousFiles[$typeName] = $type->getErroneousFiles();
-            break;
         }
         $consolidatedErroneousFiles = [];
         foreach ($erroneousFiles as $files) {
@@ -75,7 +72,6 @@ class Audit
         if ($output instanceof OutputInterface) {
             $output->writeln(PHP_EOL . 'Creating PDF...');
         }
-        return '';
         return $this->pdfWriter->createdPDF($this->results, $language, $filename);
     }
 

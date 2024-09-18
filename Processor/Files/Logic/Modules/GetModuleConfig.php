@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Processor\Logic\Modules;
+namespace Crealoz\EasyAudit\Processor\Files\Logic\Modules;
 
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\DriverInterface;

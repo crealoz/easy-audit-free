@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Processor;
+namespace Crealoz\EasyAudit\Processor\Files;
 
 /**
  * @author Christophe Ferreboeuf <christophe@crealoz.fr>

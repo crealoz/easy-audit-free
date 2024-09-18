@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Results;
+namespace Crealoz\EasyAudit\Processor\Results;
 
 interface ResultProcessorInterface
 {

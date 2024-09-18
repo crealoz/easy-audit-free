@@ -1,8 +1,8 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\Type;
+namespace Crealoz\EasyAudit\Processor\Type;
 
-use Crealoz\EasyAudit\Service\Processor\ProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class Logic extends AbstractType implements TypeInterface
