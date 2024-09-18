@@ -2,11 +2,11 @@
 
 namespace Crealoz\EasyAudit\Test\Integration\Service;
 
+use Crealoz\EasyAudit\Processor\Type\TypeFactory;
+use Crealoz\EasyAudit\Processor\Type\TypeInterface;
 use Crealoz\EasyAudit\Service\ArrayTools;
 use Crealoz\EasyAudit\Service\Audit;
 use Crealoz\EasyAudit\Service\PDFWriter;
-use Crealoz\EasyAudit\Service\Type\TypeFactory;
-use Crealoz\EasyAudit\Service\Type\TypeInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -24,9 +24,9 @@ class AuditTest extends TestCase
      * @var array
      */
     protected array $typeMapping = [
-        'php' => 'Crealoz\EasyAudit\Service\Type\PHPCode',
-        'xml' => 'Crealoz\EasyAudit\Service\Type\Xml',
-        'logic' => 'Crealoz\EasyAudit\Service\Type\Logic'
+        'php' => 'Crealoz\EasyAudit\Processor\Type\PHPCode',
+        'xml' => 'Crealoz\EasyAudit\Processor\Type\Xml',
+        'logic' => 'Crealoz\EasyAudit\Processor\Type\Logic'
     ];
 
     /**
@@ -35,12 +35,12 @@ class AuditTest extends TestCase
     protected array $processors = [
         'xml' => [
             'di' => [
-                'plugins' => 'Crealoz\EasyAudit\Service\Processor\Di\Plugins',
+                'plugins' => 'Crealoz\EasyAudit\Processor\Files\Di\Plugins',
                 'preferences' => 'Crealoz\EasyAudit\Service\Processor\Di\Preferences',
                 'commands' => 'Crealoz\EasyAudit\Service\Processor\Di\Commands'
             ],
             'layout' => [
-                'cacheable' => 'Crealoz\EasyAudit\Service\Processor\View\Cacheable'
+                'cacheable' => 'Crealoz\EasyAudit\Processor\Files\View\Cacheable'
             ]
         ],
         'php' => [
@@ -48,16 +48,16 @@ class AuditTest extends TestCase
                 'general' => 'Crealoz\EasyAudit\Service\Processor\Code\Helpers'
             ],
             'php' => [
-                'sql' => 'Crealoz\EasyAudit\Service\Processor\Code\HardWrittenSQL',
+                'sql' => 'Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL',
                 'objectManager' => 'Crealoz\EasyAudit\Service\Processor\Code\UseOfObjectManager'
             ]
         ],
         'logic' => [
             'blockvm' => [
-                'ratio' => 'Crealoz\EasyAudit\Service\Processor\Code\BlockViewModelRatio'
+                'ratio' => 'Crealoz\EasyAudit\Processor\Files\Code\BlockViewModelRatio'
             ],
             'localunusedmodules' => [
-                'configphp' => 'Crealoz\EasyAudit\Service\Processor\Logic\UnusedModules'
+                'configphp' => 'Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules'
             ],
             'vendorunusedmodules' => [
                 'configphp' => 'Crealoz\EasyAudit\Service\Processor\Logic\VendorUnusedModules',

@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <!-- Preferences-->
-        <preference for="Crealoz\EasyAudit\Api\Data\AuditInterface" type="Crealoz\EasyAudit\Model\Audit"/>
         <preference for="Crealoz\EasyAudit\Api\Data\AuditRequestInterface" type="Crealoz\EasyAudit\Model\AuditRequest"/>
-        <preference for="Crealoz\EasyAudit\Api\AuditRepositoryInterface" type="Crealoz\EasyAudit\Model\AuditRepository"/>
         <preference for="Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface" type="Crealoz\EasyAudit\Model\AuditRequestRepository"/>
      <!-- End of Preferences -->
     <!-- Command -->
@@ -29,7 +27,7 @@
             </argument>
         </arguments>
     </virtualType>
-    <type name="Crealoz\EasyAudit\Service\Processor\Di\Plugins">
+    <type name="Crealoz\EasyAudit\Processor\Files\Di\Plugins">
         <arguments>
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
@@ -41,25 +39,28 @@
             <argument name="processors" xsi:type="array">
                 <item name="xml" xsi:type="array">
                     <item name="di" xsi:type="array">
-                        <item name="plugins" xsi:type="object">Crealoz\EasyAudit\Service\Processor\Di\Plugins</item>
+                        <item name="plugins" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Di\Plugins</item>
                     </item>
                     <item name="layout" xsi:type="array">
-                        <item name="cacheable" xsi:type="object">Crealoz\EasyAudit\Service\Processor\View\Cacheable</item>
+                        <item name="cacheable" xsi:type="object">Crealoz\EasyAudit\Processor\Files\View\Cacheable</item>
                     </item>
                 </item>
                 <item name="php" xsi:type="array">
                     <item name="php" xsi:type="array">
-                        <item name="sql" xsi:type="object">Crealoz\EasyAudit\Service\Processor\Code\HardWrittenSQL</item>
+                        <item name="sql" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL</item>
                     </item>
                 </item>
                 <item name="logic" xsi:type="array">
                     <item name="blockvm" xsi:type="array">
-                        <item name="ratio" xsi:type="object">Crealoz\EasyAudit\Service\Processor\Code\BlockViewModelRatio</item>
+                        <item name="ratio" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\BlockViewModelRatio</item>
                     </item>
                     <item name="localunusedmodules" xsi:type="array">
-                        <item name="configphp" xsi:type="object">Crealoz\EasyAudit\Service\Processor\Logic\UnusedModules</item>
+                        <item name="configphp" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules</item>
                     </item>
                 </item>
+            </argument>
+            <argument name="resultProcessors" xsi:type="array">
+                <item name="erroneous_files" xsi:type="object">Crealoz\EasyAudit\Processor\Results\ErroneousFiles</item>
             </argument>
         </arguments>
     </type>
@@ -121,43 +122,37 @@
         </arguments>
     </type>
     <!-- End of Files getters -->
-    <type name="Crealoz\EasyAudit\Service\Type\TypeFactory">
+    <type name="Crealoz\EasyAudit\Processor\Type\TypeFactory">
         <arguments>
             <argument name="typeMapping" xsi:type="array">
-                <item name="php" xsi:type="string">Crealoz\EasyAudit\Service\Type\PHPCode</item>
-                <item name="xml" xsi:type="string">Crealoz\EasyAudit\Service\Type\Xml</item>
-                <item name="logic" xsi:type="string">Crealoz\EasyAudit\Service\Type\Logic</item>
+                <item name="php" xsi:type="string">Crealoz\EasyAudit\Processor\Type\PHPCode</item>
+                <item name="xml" xsi:type="string">Crealoz\EasyAudit\Processor\Type\Xml</item>
+                <item name="logic" xsi:type="string">Crealoz\EasyAudit\Processor\Type\Logic</item>
             </argument>
         </arguments>
     </type>
     <!-- change default preference of DriverInterface -->
-    <type name="Crealoz\EasyAudit\Service\Processor\Code\Helpers">
-        <arguments>
-            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
-            <argument name="io" xsi:type="object">Magento\Framework\Filesystem\Io\File\Proxy</argument>
-        </arguments>
-    </type>
-    <type name="Crealoz\EasyAudit\Service\Processor\Di\Plugins\AroundChecker">
+    <type name="Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundChecker">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
     </type>
-    <type name="Crealoz\EasyAudit\Service\Processor\Code\HardWrittenSQL">
+    <type name="Crealoz\EasyAudit\Controller\Adminhtml\Request\Download">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
     </type>
-    <type name="Crealoz\EasyAudit\Service\Processor\Code\UseOfObjectManager">
+    <type name="Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
     </type>
-    <type name="Crealoz\EasyAudit\Service\Processor\Logic\Modules\GetModuleConfig">
+    <type name="Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
     </type>
-    <type name="Crealoz\EasyAudit\Service\Processor\Logic\Modules\CheckEnabled">
+    <type name="Crealoz\EasyAudit\Processor\Files\Logic\Modules\CheckEnabled">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
@@ -169,7 +164,19 @@
         </arguments>
     </type>
     <!-- End of change default preference of DriverInterface -->
-
+    <!-- PDF Writer -->
+    <type name="Crealoz\EasyAudit\Service\PDFWriter">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Proxy</argument>
+            <argument name="sizeCalculation" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation\Proxy</argument>
+            <argument name="moduleReader" xsi:type="object">Magento\Framework\Module\Dir\Reader\Proxy</argument>
+            <argument name="cliTranslator" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\CliTranslator\Proxy</argument>
+            <argument name="specificSections" xsi:type="array">
+                <item name="manageBlockVMRatio" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\BlockVMRatio</item>
+                <item name="manageUnusedModules" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\UnusedModules</item>
+            </argument>
+        </arguments>
+    </type>
     <!-- DataSources for the grids -->
     <!-- Audit -->
     <virtualType name="Crealoz\EasyAudit\Ui\DataProvider\Audit" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">

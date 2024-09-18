@@ -10,6 +10,8 @@ interface AuditRequestInterface
     const CREATED_AT = 'created_at';
     const REQUEST = 'request';
 
+    const FILE_PATH = 'filepath';
+
     /**
      * Get username
      *
@@ -69,4 +71,19 @@ interface AuditRequestInterface
      * @return $this
      */
     public function setRequest(string $request);
+
+    /**
+     * Get file path
+     *
+     * @return string|null
+     */
+    public function getFilePath(): ?string;
+
+    /**
+     * Set file path
+     *
+     * @param string $filePath
+     * @return $this
+     */
+    public function setFilePath(string $filePath);
 }

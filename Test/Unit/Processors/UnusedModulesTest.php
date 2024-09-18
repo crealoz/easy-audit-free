@@ -3,8 +3,8 @@
 namespace Crealoz\EasyAudit\Test\Unit\Processors;
 
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
-use Crealoz\EasyAudit\Service\Processor\Logic\UnusedModules;
-use Crealoz\EasyAudit\Service\Processor\Logic\Modules\GetModuleConfig;
+use Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig;
+use Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules;
 use PHPUnit\Framework\TestCase;
 
 /**

@@ -11,11 +11,11 @@ class SizeCalculation
         }
         $size = 0;
         $size += 44;
-        $size += $this->calculateIntroSize(reset($subResults));
+        $size += $this->calculateSectionIntroSize(reset($subResults));
         return $size;
     }
 
-    public function calculateIntroSize($subsection): int
+    public function calculateSectionIntroSize($subsection): int
     {
         $size = 0;
         if (isset($subsection['title'])) {
@@ -46,5 +46,13 @@ class SizeCalculation
         } elseif (isset($subResults['suggestions'])) {
             return $subResults['suggestions'];
         }
+    }
+
+    public function calculateIntroSize($intro): int
+    {
+        $size = 0;
+        $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', $intro['summary']), 9) * 15;
+
+        return $size;
     }
 }

@@ -68,11 +68,31 @@
             </settings>
         </column>
 
-        <column name="execution_time" class="Magento\Ui\Component\Listing\Columns\Date" component="Magento_Ui/js/grid/columns/date" sortOrder="100">
+        <column name="created_at" class="Magento\Ui\Component\Listing\Columns\Date" component="Magento_Ui/js/grid/columns/date" sortOrder="30">
+            <settings>
+                <filter>dateRange</filter>
+                <dataType>date</dataType>
+                <label translate="true">Request time</label>
+            </settings>
+        </column>
+
+        <column name="execution_time" class="Magento\Ui\Component\Listing\Columns\Date" component="Magento_Ui/js/grid/columns/date" sortOrder="40">
             <settings>
                 <filter>dateRange</filter>
                 <dataType>date</dataType>
                 <label translate="true">Execution time</label>
+            </settings>
+        </column>
+
+        <column name="filepath" component="Magento_Ui/js/grid/columns/link" class="Crealoz\EasyAudit\Ui\Audit\Listing\FileColumn" sortOrder="50">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="link" xsi:type="string">link</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Filename</label>
+                <sortable>false</sortable>
             </settings>
         </column>
 

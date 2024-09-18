@@ -57,4 +57,15 @@ class AuditRequest extends AbstractModel implements AuditRequestInterface
         $this->setData(self::REQUEST, $request);
         return $this;
     }
+
+    public function getFilePath(): ?string
+    {
+        return $this->getData(self::FILE_PATH);
+    }
+
+    public function setFilePath(string $filePath)
+    {
+        $this->setData(self::FILE_PATH, $filePath);
+        return $this;
+    }
 }
