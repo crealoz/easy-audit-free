@@ -18,8 +18,9 @@ class BlockViewModelRatio extends AbstractProcessor implements ProcessorInterfac
         return __('Code');
     }
 
-    protected function prepopulateResults(): void
+    public function prepopulateResults(): void
     {
+        parent::prepopulateResults();
         $this->results = [
             'hasErrors' => false,
             'errors' => [],

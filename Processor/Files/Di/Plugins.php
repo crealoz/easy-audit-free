@@ -37,11 +37,11 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         private readonly Files               $filesUtility
     )
     {
-        parent::__construct();
     }
 
-    protected function prepopulateResults(): void
+    public function prepopulateResults(): void
     {
+        parent::prepopulateResults();
         $this->results = [
             'hasErrors' => false,
             'errors' => [
@@ -141,7 +141,7 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
                     if ($pluginDisabled === 'true') {
                         continue;
                     }
-                    $this->process($pluggingClassName, $pluggedClassName);
+                    $this->processPlugin($pluggingClassName, $pluggedClassName);
                 }
             }
         } catch (FileSystemException $e) {
@@ -150,7 +150,12 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         }
     }
 
-    protected function process($pluggingClass, $pluggedInClass): void
+    /**
+     * @param $pluggingClass
+     * @param $pluggedInClass
+     * @return void
+     */
+    protected function processPlugin($pluggingClass, $pluggedInClass): void
     {
         try {
             $this->isSameModulePlugin($pluggingClass, $pluggedInClass);

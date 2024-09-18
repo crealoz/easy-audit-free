@@ -23,11 +23,11 @@ class UnusedModules extends AbstractProcessor implements ProcessorInterface
         private readonly GetModuleConfig $getModuleConfig
     )
     {
-        parent::__construct();
     }
 
-    protected function prepopulateResults(): void
+    public function prepopulateResults(): void
     {
+        parent::prepopulateResults();
         $this->results = [
             'hasErrors' => false,
             'errors' => [],

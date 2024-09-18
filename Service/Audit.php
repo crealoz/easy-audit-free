@@ -39,8 +39,9 @@ class Audit
             throw new FileSystemException(__('Invalid filename %1', $filename));
         }
         $erroneousFiles = [];
+        $this->initializeProcessorsResults();
         foreach ($this->processors as $typeName => $subTypes) {
-            $type = $this->typeFactory->create($typeName);
+            $type = $this->typeFactory->get($typeName);
             $this->results[$typeName] = $type->process($subTypes, $typeName, $output);
             $erroneousFiles[$typeName] = $type->getErroneousFiles();
         }
@@ -73,6 +74,14 @@ class Audit
             $output->writeln(PHP_EOL . 'Creating PDF...');
         }
         return $this->pdfWriter->createdPDF($this->results, $language, $filename);
+    }
+
+    private function initializeProcessorsResults(): void
+    {
+        foreach ($this->processors as $typeName => $subTypes) {
+            $type = $this->typeFactory->create($typeName);
+            $type->initResults($subTypes);
+        }
     }
 
     public function getAvailableProcessors(): array

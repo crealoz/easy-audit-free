@@ -25,11 +25,11 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
         protected readonly DriverInterface $driver
     )
     {
-        parent::__construct();
     }
 
-    protected function prepopulateResults(): void
+    public function prepopulateResults(): void
     {
+        parent::prepopulateResults();
         $this->results = [
             'hasErrors' => false,
             'errors' => [

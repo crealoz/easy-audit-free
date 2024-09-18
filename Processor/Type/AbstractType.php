@@ -20,16 +20,12 @@ abstract class AbstractType implements TypeInterface
         protected readonly FileGetterFactory $fileGetterFactory,
         protected readonly LoggerInterface $logger
     ) {
-        if (!empty($this->erroneousFiles)) {
-            dd($this->erroneousFiles);
-        }
-        if (!empty($this->results)) {
-            dd($this->results);
-        }
     }
 
     public function process(array $subTypes, string $type, OutputInterface $output = null): array
     {
+        $this->results = [];
+        $this->erroneousFiles = [];
         foreach ($subTypes as $subType => $processors) {
             $fileGetter = $this->getFileGetter($subType);
             $files = $fileGetter->execute();
@@ -49,6 +45,15 @@ abstract class AbstractType implements TypeInterface
             }
         }
         return $this->results;
+    }
+
+    public function initResults(array $subTypes): void
+    {
+        foreach ($subTypes as $subType => $processors) {
+            foreach ($processors as $processor) {
+                $processor->prepopulateResults();
+            }
+        }
     }
 
     abstract protected function doProcess(array $processors, array $files, ProgressBar $progressBar = null): void;

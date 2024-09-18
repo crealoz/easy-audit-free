@@ -19,8 +19,9 @@ class Cacheable extends AbstractProcessor implements ProcessorInterface
         return __('Views');
     }
 
-    protected function prepopulateResults(): void
+    public function prepopulateResults(): void
     {
+        parent::prepopulateResults();
         $this->results = [
             'hasErrors' => false,
             'errors' => [],

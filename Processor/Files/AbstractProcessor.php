@@ -13,7 +13,9 @@ abstract class AbstractProcessor implements ProcessorInterface
 
     abstract public function run($input);
 
-    abstract protected function prepopulateResults(): void;
+    public function prepopulateResults(): void {
+        $this->erroneousFiles = [];
+    }
 
     /**
      * @throws GeneralAuditException
@@ -21,11 +23,6 @@ abstract class AbstractProcessor implements ProcessorInterface
     abstract public function getProcessorName(): string;
 
     abstract public function getAuditSection(): string;
-
-    public function __construct()
-    {
-        $this->prepopulateResults();
-    }
 
     /**
      * @throws GeneralAuditException
