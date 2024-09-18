@@ -23,6 +23,8 @@ class PDFWriter
 
     private ?\Zend_Pdf_Resource_Image $logo;
 
+    const MEDIA_FOLDER = '/crealoz';
+
     public function __construct(
         private readonly Filesystem       $filesystem,
         private readonly SizeCalculation  $sizeCalculation,
@@ -77,14 +79,14 @@ class PDFWriter
             }
         }
         //Get media directory in filesystem
-        if (!$this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist('/crealoz')) {
-            $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->create('/crealoz');
+        if (!$this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist(self::MEDIA_FOLDER)) {
+            $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->create(self::MEDIA_FOLDER);
         }
-        $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath('/crealoz/' . $filename . '.pdf');
+        $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath(self::MEDIA_FOLDER . DIRECTORY_SEPARATOR . $filename . '.pdf');
         // Check if the file already exists
-        if (file_exists($filePath)) {
+        if ($this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist(self::MEDIA_FOLDER . DIRECTORY_SEPARATOR . $filename . '.pdf')) {
             $filename = $filename . '_' . time();
-            $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath('/crealoz/' . $filename . '.pdf');
+            $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath(self::MEDIA_FOLDER . DIRECTORY_SEPARATOR . $filename . '.pdf');
         }
         $this->pdf->save($filePath);
         return $filePath;
