@@ -6,7 +6,6 @@ use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
 use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
 use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
-use Crealoz\EasyAudit\Service\Parser\ConstructorArguments;
 use Magento\Framework\Exception\FileSystemException;
 
 class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
@@ -15,7 +14,7 @@ class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly ClassNameGetter $classNameGetter,
-        private readonly ConstructorArguments $constructorArgumentsGetter
+        private readonly \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
     )
     {
     }
@@ -62,24 +61,16 @@ class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
             return;
         }
 
-        try {
-            $reflection = new \ReflectionClass($className);
-        } catch (\ReflectionException $e) {
-            return;
-        }
-
         // We get the constructor arguments
-        $arguments = $this->constructorArgumentsGetter->execute($reflection);
+        $arguments = $this->definitions->getParameters($className);
         if (empty($arguments)) {
             return;
         }
-        $fileErrorLevel = 0;
         foreach ($arguments as $argument) {
             if ($argument === null) {
                 continue;
             }
-            $argumentName = $argument->getName();
-            if ($argumentName === 'Magento\Framework\Registry') {
+            if ($argument[1] === 'Magento\Framework\Registry') {
                 $this->results['hasErrors'] = true;
                 $this->results['errors']['useOfRegistry']['files'][] = $className;
             }

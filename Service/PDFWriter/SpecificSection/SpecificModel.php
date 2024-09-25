@@ -4,7 +4,7 @@ namespace Crealoz\EasyAudit\Service\PDFWriter\SpecificSection;
 
 use Crealoz\EasyAudit\Service\PDFWriter;
 
-class SpecificClass implements SectionInterface
+class SpecificModel implements SectionInterface
 {
 
     public function writeSection(PDFWriter $pdfWriter, array $subresults): void
@@ -12,7 +12,10 @@ class SpecificClass implements SectionInterface
         $pdfWriter->writeSubSectionIntro($subresults);
         $pdfWriter->writeLine('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
-            $pdfWriter->writeLine('-' . $file . '(potential issues count : ' . count($arguments) . ')');
+            $pdfWriter->writeLine($file);
+            foreach ($arguments as $argument) {
+                $pdfWriter->writeLine('-' . $argument , 0, 6);
+            }
         }
     }
 }

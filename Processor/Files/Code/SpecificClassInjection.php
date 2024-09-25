@@ -6,8 +6,8 @@ use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
 use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
 use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Crealoz\EasyAudit\Service\Audit;
+use Crealoz\EasyAudit\Service\Classes\HasModelAnInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
-use Crealoz\EasyAudit\Service\Parser\ConstructorArguments;
 use Magento\Framework\Exception\FileSystemException;
 
 /**
@@ -19,14 +19,13 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
     private array $ignoredClass = [
         'Magento\Framework\Escaper',
         'Magento\Framework\Data\Collection\AbstractDb',
-        'Magento\Framework\App\State',
-        ''
-
+        'Magento\Framework\App\State'
     ];
 
     public function __construct(
         private readonly ClassNameGetter $classNameGetter,
-        private readonly ConstructorArguments $constructorArgumentsGetter
+        private readonly \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
+        private readonly HasModelAnInterface $hasModelAnInterface
     )
     {
     }
@@ -39,12 +38,12 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
             'errors' => [
                 'collectionMustUseFactory' => $this->getCollectionMustUseFactoryEntry(),
                 'repositoryMustUseInterface' => $this->getRepositoryMustUseInterfaceEntry(),
-            ],
-            'warnings' => [
                 'specificModelInjection' => $this->getSpecificModelAsArgumentEntry(),
-                'specificClassInjection' => $this->getSpecificClassAsArgumentEntry()
             ],
-            'suggestions' => []
+            'warnings' => [],
+            'suggestions' => [
+                'specificClassInjection' => $this->getSpecificClassAsArgumentEntry()
+            ]
         ];
     }
 
@@ -73,19 +72,18 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
     private function getSpecificModelAsArgumentEntry(): array
     {
         $title = __('Specific Model Injection');
-        $explanation = __('A class, most of the time, must not be injected in constructor as a specific class. In all the cases, a factory or an interface should be used.');
+        $explanation = __('The classes below seem to implement an API interface. It is recommended to inject the interface instead of the class to prevent preferences to be ignored and respect the coding standards.');
         return [
             'title' => $title,
             'explanation' => $explanation,
             'files' => [],
-            'specificSections' => 'manageSpecificClassInjection'
         ];
     }
 
     private function getSpecificClassAsArgumentEntry(): array
     {
         $title = __('Specific Class Injection');
-        $explanation = __('A class should not be injected in constructor as a specific class. In all the cases, a factory, a builder or an interface should be used.');
+        $explanation = __('A class should not be injected in constructor as a specific class. In most of the cases, a factory, a builder or an interface should be used. This automatic scan can not be 100% accurate, please verify manually.');
         return [
             'title' => $title,
             'explanation' => $explanation,
@@ -113,23 +111,16 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
             return;
         }
 
-        try {
-            $reflection = new \ReflectionClass($className);
-        } catch (\ReflectionException $e) {
-            return;
-        }
-
-        // We get the constructor arguments
-        $arguments = $this->constructorArgumentsGetter->execute($reflection);
+        $arguments = $this->definitions->getParameters($className);
         if (empty($arguments)) {
             return;
         }
         $fileErrorLevel = 0;
         foreach ($arguments as $argument) {
-            if ($argument === null) {
+            if ($argument === null || !is_array($argument) || count($argument) < 2 || !is_string($argument[1])) {
                 continue;
             }
-            $argumentName = $argument->getName();
+            $argumentName = $argument[1];
             if (in_array($argumentName, $this->ignoredClass)) {
                 continue;
             }
@@ -149,7 +140,12 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
                     $this->results['errors']['repositoryMustUseInterface']['files'][$className][] = $argumentName;
                     continue;
                 }
-                /** @todo check if the model of the argument implements an API interface */
+                if ($this->hasModelAnInterface->execute($argumentName)) {
+                    $fileErrorLevel +=3;
+                    $this->results['hasErrors'] = true;
+                    $this->results['errors']['specificModelInjection']['files'][$className][] = $argumentName;
+                    continue;
+                }
             }
             $this->results['hasErrors'] = true;
             $this->results['warnings']['specificClassInjection']['files'][$className][] = $argumentName;
@@ -177,7 +173,7 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
             || $this->isArgumentSerializer($argumentName);
     }
 
-    private function isArgumentModel($argumentName)
+    private function isArgumentModel(string $argumentName): bool
     {
         return str_contains($argumentName, 'Model');
     }
@@ -188,32 +184,32 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
      * @param $argument
      * @return bool
      */
-    private function isArgumentAnInterfaceOrFactory($argumentName)
+    private function isArgumentAnInterfaceOrFactory(string $argumentName): bool
     {
         return str_ends_with($argumentName, 'Factory') || str_ends_with($argumentName, 'Interface');
     }
 
-    private function isArgumentMagentoModel($argumentName)
+    private function isArgumentMagentoModel(string $argumentName): bool
     {
         return str_contains($argumentName, 'Magento\Framework\Model');
     }
 
-    private function isArgumentBasicType($argumentName)
+    private function isArgumentBasicType(string $argumentName): bool
     {
         return in_array($argumentName, ['string', 'int', 'float', 'bool', 'array']);
     }
 
-    private function isArgumentContext($argumentName)
+    private function isArgumentContext(string $argumentName): bool
     {
         return str_contains($argumentName, 'Context');
     }
 
-    private function isArgumentStdLib($argumentName)
+    private function isArgumentStdLib(string $argumentName): bool
     {
         return str_contains($argumentName, 'StdLib');
     }
 
-    private function isArgumentSerializer($argumentName)
+    private function isArgumentSerializer(string $argumentName): bool
     {
         return str_contains($argumentName, 'Serializer');
     }
@@ -223,7 +219,7 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
      * @param $argumentName
      * @return bool
      */
-    private function isArgumentRegistry($argumentName)
+    private function isArgumentRegistry(string $argumentName): bool
     {
         return $argumentName === 'Magento\Framework\Registry';
     }
@@ -234,7 +230,7 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
      * @param $argumentName
      * @return bool
      */
-    private function isArgumentSession($argumentName)
+    private function isArgumentSession(string $argumentName): bool
     {
         return str_contains($argumentName, 'Session');
     }
@@ -244,7 +240,7 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
      * @param $argumentName
      * @return bool
      */
-    private function isArgumentHelper($argumentName)
+    private function isArgumentHelper(string $argumentName): bool
     {
         return str_contains($argumentName, 'Helper');
     }
@@ -255,17 +251,17 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
      * @param $argumentName
      * @return bool
      */
-    private function isArgumentFileSystem($argumentName)
+    private function isArgumentFileSystem(string $argumentName): bool
     {
         return str_contains($argumentName, 'Magento\Framework\Filesystem');
     }
 
-    private function isArgumentCollection($argumentName)
+    private function isArgumentCollection(string $argumentName): bool
     {
         return str_contains($argumentName, 'Collection');
     }
 
-    private function isArgumentRepository($argumentName)
+    private function isArgumentRepository(string $argumentName): bool
     {
         return str_contains($argumentName, 'Repository');
     }
