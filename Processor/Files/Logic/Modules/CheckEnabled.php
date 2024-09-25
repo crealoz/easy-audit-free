@@ -2,6 +2,7 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Logic\Modules;
 
+use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
 use Crealoz\EasyAudit\Exception\Processor\Modules\EnabledStatusIrretrievableException;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
 use Magento\Framework\App\Config\ScopeConfigInterface;
@@ -77,11 +78,12 @@ class CheckEnabled
      * @throws EnabledStatusIrretrievableException
      * @throws \ReflectionException
      * @throws FileSystemException
+     * @throws NotAClassException
      */
     private function invokeGenericEnabledFunctions(string $configFile): bool
     {
         $isEnabled = false;
-        $className = $this->classNameGetter->getClassName($configFile);
+        $className = $this->classNameGetter->getClassFullNameFromFile($configFile);
         $class = new \ReflectionClass($className);
         try {
             $method = $class->getMethod('isEnabled');
