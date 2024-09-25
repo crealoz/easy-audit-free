@@ -163,8 +163,6 @@ class PDFWriter
                 $sectionName = $entries['specificSections'];
                 unset($entries['specificSections']);
                 if (!isset($this->specificSections[$sectionName]) || !$this->specificSections[$sectionName] instanceof SectionInterface) {
-                    dump($this->specificSections);
-                    dump($this->specificSections[$sectionName] instanceof SectionInterface);
                     throw new \InvalidArgumentException("Specific section $sectionName is not valid");
                 }
                 $this->specificSections[$sectionName]->writeSection($this, $entries);
@@ -193,7 +191,7 @@ class PDFWriter
         }
     }
 
-    public function writeLine($text, $depth = 0, $size = 9, $r = 0, $g = 0, $b = 0): void
+    public function writeLine($text, $depth = 0, $size = 8, $r = 0, $g = 0, $b = 0): void
     {
         $translatedText = $text;
         if ($depth == 0) {

@@ -48,6 +48,8 @@
                 <item name="php" xsi:type="array">
                     <item name="php" xsi:type="array">
                         <item name="sql" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL</item>
+                        <item name="specificclassinjection" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\SpecificClassInjection</item>
+                        <item name="useofregistry" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\UseOfRegistry</item>
                     </item>
                 </item>
                 <item name="logic" xsi:type="array">
@@ -84,12 +86,6 @@
             <argument name="pattern" xsi:type="string">/^.+\/templates\/.*\.phtml$/i</argument>
         </arguments>
     </virtualType>
-    <virtualType name="Crealoz\EasyAudit\Service\FileSystem\HelpersGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
-        <arguments>
-            <argument name="path" xsi:type="string">app/code/</argument>
-            <argument name="pattern" xsi:type="string">/^.+\/Helper\/.*\.php$/i</argument>
-        </arguments>
-    </virtualType>
     <virtualType name="Crealoz\EasyAudit\Service\FileSystem\PhpGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
         <arguments>
             <argument name="path" xsi:type="string">app/code/</argument>
@@ -114,7 +110,6 @@
                 <item name="di" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\DiXmlGetter</item>
                 <item name="layout" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\LayoutXmlGetter</item>
                 <item name="phtml" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\PhtmlGetter</item>
-                <item name="helpers" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\HelpersGetter</item>
                 <item name="php" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\PhpGetter</item>
                 <item name="blockvm" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\BlockVmGetter</item>
                 <item name="localunusedmodules" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\ModuleXmlGetter</item>
@@ -174,6 +169,7 @@
             <argument name="specificSections" xsi:type="array">
                 <item name="manageBlockVMRatio" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\BlockVMRatio</item>
                 <item name="manageUnusedModules" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\UnusedModules</item>
+                <item name="manageSpecificClassInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificClass</item>
             </argument>
         </arguments>
     </type>
