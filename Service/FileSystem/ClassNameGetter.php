@@ -16,7 +16,8 @@ class ClassNameGetter
     public function __construct(
         protected readonly DriverInterface $driver,
         protected readonly File $io,
-        private readonly GetModuleConfig $getModuleConfig
+        private readonly GetModuleConfig $getModuleConfig,
+        private readonly ModuleXmlPath $moduleXmlPath
     )
     {
     }
@@ -64,7 +65,7 @@ class ClassNameGetter
     private function getNamespaceForVendorModule(string $filePath): string
     {
         $parts = explode('/', $filePath);
-        $moduleXmlPath = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . 'etc/module.xml';
+        $moduleXmlPath = $this->moduleXmlPath->getDeclarationXml($filePath, true);
         $moduleName = $this->getModuleConfig->getModuleName($moduleXmlPath);
         $namespaceParts = explode('_', $moduleName);
         $namespace = $namespaceParts[0] . DIRECTORY_SEPARATOR . $namespaceParts[1];

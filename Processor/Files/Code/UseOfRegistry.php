@@ -5,6 +5,7 @@ namespace Crealoz\EasyAudit\Processor\Files\Code;
 use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
 use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
 use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Service\Classes\ConstructorService;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
 use Magento\Framework\Exception\FileSystemException;
 
@@ -15,6 +16,7 @@ class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
     public function __construct(
         private readonly ClassNameGetter $classNameGetter,
         private readonly \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
+        private readonly ConstructorService $constructorService
     )
     {
     }
@@ -58,6 +60,14 @@ class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
         try {
             $className = $this->classNameGetter->getClassFullNameFromFile($input);
         } catch (NotAClassException|FileSystemException $e) {
+            return;
+        }
+
+        try {
+            if (!$this->constructorService->isConstructorOverridden($className)) {
+                return;
+            }
+        } catch (\ReflectionException $e) {
             return;
         }
 

@@ -6,6 +6,8 @@ use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
 use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
 use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Crealoz\EasyAudit\Service\Audit;
+use Crealoz\EasyAudit\Service\Classes\ArgumentTypeChecker;
+use Crealoz\EasyAudit\Service\Classes\ConstructorService;
 use Crealoz\EasyAudit\Service\Classes\HasModelAnInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
 use Magento\Framework\Exception\FileSystemException;
@@ -19,13 +21,16 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
     private array $ignoredClass = [
         'Magento\Framework\Escaper',
         'Magento\Framework\Data\Collection\AbstractDb',
-        'Magento\Framework\App\State'
+        'Magento\Framework\App\State',
+        'Magento\Eav\Model\Validator\Attribute\Backend'
     ];
 
     public function __construct(
         private readonly ClassNameGetter $classNameGetter,
         private readonly \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
-        private readonly HasModelAnInterface $hasModelAnInterface
+        private readonly HasModelAnInterface $hasModelAnInterface,
+        private readonly ArgumentTypeChecker $argumentTypeChecker,
+        private readonly ConstructorService $constructorService
     )
     {
     }
@@ -39,6 +44,7 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
                 'collectionMustUseFactory' => $this->getCollectionMustUseFactoryEntry(),
                 'repositoryMustUseInterface' => $this->getRepositoryMustUseInterfaceEntry(),
                 'specificModelInjection' => $this->getSpecificModelAsArgumentEntry(),
+                'resourceModelInjection' => $this->getResourceModelInjectionEntry()
             ],
             'warnings' => [],
             'suggestions' => [
@@ -92,6 +98,17 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
         ];
     }
 
+    private function getResourceModelInjectionEntry(): array
+    {
+        $title = __('Resource Model Injection');
+        $explanation = __('A resource model must not be injected in constructor as a specific class. When a resource model is needed, a repository of it must be injected and used. It assures a better separation of concerns, a better code quality and improves the code maintainability.');
+        return [
+            'title' => $title,
+            'explanation' => $explanation,
+            'files' => []
+        ];
+    }
+
     public function getProcessorName(): string
     {
         return __('Specific Class Injection');
@@ -101,13 +118,20 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
     {
         return __('PHP');
     }
-
     public function run($input)
     {
         // First we get class name from the input that represents the file's path
         try {
             $className = $this->classNameGetter->getClassFullNameFromFile($input);
         } catch (NotAClassException|FileSystemException $e) {
+            return;
+        }
+
+        try {
+            if (!$this->constructorService->isConstructorOverridden($className)) {
+                return;
+            }
+        } catch (\ReflectionException $e) {
             return;
         }
 
@@ -127,14 +151,14 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
             if ($this->isArgumentIgnored($argumentName)) {
                 continue;
             }
-            if ($this->isArgumentModel($argumentName)) {
-                if ($this->isArgumentCollection($argumentName)) {
+            if ($this->argumentTypeChecker->isArgumentModel($argumentName)) {
+                if ($this->argumentTypeChecker->isArgumentCollection($argumentName)) {
                     $fileErrorLevel +=3;
                     $this->results['hasErrors'] = true;
                     $this->results['errors']['collectionMustUseFactory']['files'][$className][] = $argumentName;
                     continue;
                 }
-                if ($this->isArgumentRepository($argumentName)) {
+                if ($this->argumentTypeChecker->isArgumentRepository($argumentName)) {
                     $fileErrorLevel +=3;
                     $this->results['hasErrors'] = true;
                     $this->results['errors']['repositoryMustUseInterface']['files'][$className][] = $argumentName;
@@ -144,6 +168,12 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
                     $fileErrorLevel +=3;
                     $this->results['hasErrors'] = true;
                     $this->results['errors']['specificModelInjection']['files'][$className][] = $argumentName;
+                    continue;
+                }
+                if ($this->argumentTypeChecker->isArgumentResourceModel($argumentName) && !$this->isClassRepository($argumentName)) {
+                    $fileErrorLevel +=3;
+                    $this->results['hasErrors'] = true;
+                    $this->results['errors']['resourceModelInjection']['files'][$className][] = $argumentName;
                     continue;
                 }
             }
@@ -161,108 +191,22 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
 
     private function isArgumentIgnored($argumentName)
     {
-        return $this->isArgumentBasicType($argumentName)
-            || $this->isArgumentAnInterfaceOrFactory($argumentName)
-            || $this->isArgumentMagentoModel($argumentName)
-            || $this->isArgumentContext($argumentName)
-            || $this->isArgumentRegistry($argumentName)
-            || $this->isArgumentSession($argumentName)
-            || $this->isArgumentHelper($argumentName)
-            || $this->isArgumentStdLib($argumentName)
-            || $this->isArgumentFileSystem($argumentName)
-            || $this->isArgumentSerializer($argumentName);
+        return $this->argumentTypeChecker->isArgumentBasicType($argumentName)
+            || $this->argumentTypeChecker->isArgumentAnInterfaceOrFactory($argumentName)
+            || $this->argumentTypeChecker->isArgumentMagentoModel($argumentName)
+            || $this->argumentTypeChecker->isArgumentContext($argumentName)
+            || $this->argumentTypeChecker->isArgumentRegistry($argumentName)
+            || $this->argumentTypeChecker->isArgumentSession($argumentName)
+            || $this->argumentTypeChecker->isArgumentHelper($argumentName)
+            || $this->argumentTypeChecker->isArgumentStdLib($argumentName)
+            || $this->argumentTypeChecker->isArgumentFileSystem($argumentName)
+            || $this->argumentTypeChecker->isArgumentSerializer($argumentName)
+            || $this->argumentTypeChecker->isArgumentGenerator($argumentName);
     }
 
-    private function isArgumentModel(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Model');
-    }
-
-    /**
-     * Check if type finishes by Factory or Interface
-     *
-     * @param $argument
-     * @return bool
-     */
-    private function isArgumentAnInterfaceOrFactory(string $argumentName): bool
-    {
-        return str_ends_with($argumentName, 'Factory') || str_ends_with($argumentName, 'Interface');
-    }
-
-    private function isArgumentMagentoModel(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Magento\Framework\Model');
-    }
-
-    private function isArgumentBasicType(string $argumentName): bool
-    {
-        return in_array($argumentName, ['string', 'int', 'float', 'bool', 'array']);
-    }
-
-    private function isArgumentContext(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Context');
-    }
-
-    private function isArgumentStdLib(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'StdLib');
-    }
-
-    private function isArgumentSerializer(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Serializer');
-    }
-
-    /**
-     * Registry is managed elsewhere
-     * @param $argumentName
-     * @return bool
-     */
-    private function isArgumentRegistry(string $argumentName): bool
-    {
-        return $argumentName === 'Magento\Framework\Registry';
-    }
-
-    /**
-     * Session is managed elsewhere it must use a proxy
-     * @todo manage session
-     * @param $argumentName
-     * @return bool
-     */
-    private function isArgumentSession(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Session');
-    }
-
-    /**
-     * Helper is managed elsewhere
-     * @param $argumentName
-     * @return bool
-     */
-    private function isArgumentHelper(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Helper');
-    }
-
-    /**
-     * Filesystem is managed elsewhere
-     * @todo: manage filesystem
-     * @param $argumentName
-     * @return bool
-     */
-    private function isArgumentFileSystem(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Magento\Framework\Filesystem');
-    }
-
-    private function isArgumentCollection(string $argumentName): bool
-    {
-        return str_contains($argumentName, 'Collection');
-    }
-
-    private function isArgumentRepository(string $argumentName): bool
+    private function isClassRepository($argumentName): bool
     {
         return str_contains($argumentName, 'Repository');
     }
+
 }

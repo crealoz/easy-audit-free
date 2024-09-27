@@ -5,6 +5,7 @@ namespace Crealoz\EasyAudit\Service;
 use Crealoz\EasyAudit\Processor\Results\ResultProcessorInterface;
 use Crealoz\EasyAudit\Processor\Type\TypeFactory;
 use Magento\Framework\Exception\FileSystemException;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class Audit
@@ -21,6 +22,7 @@ class Audit
         protected readonly PDFWriter   $pdfWriter,
         protected readonly TypeFactory $typeFactory,
         private readonly ArrayTools    $arrayTools,
+        protected readonly LoggerInterface $logger,
         protected array                $processors = [],
         protected array                $resultProcessors = []
     )
@@ -29,9 +31,13 @@ class Audit
     }
 
     /**
+     * @param OutputInterface|null $output
+     * @param string|null $language
+     * @param string $filename
+     * @return string
      * @throws FileSystemException
      */
-    public function run(OutputInterface $output = null, string $language = null, $filename = "audit"): string
+    public function run(OutputInterface $output = null, string $language = null, string $filename = "audit"): string
     {
         $this->results = [];
         // if the filename is not valid unix filename, throw an exception
@@ -42,9 +48,10 @@ class Audit
         $this->initializeProcessorsResults();
         foreach ($this->processors as $typeName => $subTypes) {
             $type = $this->typeFactory->get($typeName);
-            $this->results[$typeName] = $type->process($subTypes, $typeName, $output);
+            $this->results = array_merge_recursive($type->process($subTypes, $typeName, $output), $this->results);
             $erroneousFiles[$typeName] = $type->getErroneousFiles();
         }
+
         $consolidatedErroneousFiles = [];
         foreach ($erroneousFiles as $files) {
             foreach ($files as $file => $score) {
@@ -73,7 +80,13 @@ class Audit
         if ($output instanceof OutputInterface) {
             $output->writeln(PHP_EOL . 'Creating PDF...');
         }
-        return $this->pdfWriter->createdPDF($this->results, $language, $filename);
+        try {
+            return $this->pdfWriter->createdPDF($this->results, $language, $filename);
+        } catch (FileSystemException $e) {
+            $this->logger->error(__('Error while creating or reading the PDF file: %1', $e->getMessage()));
+        } catch (\Zend_Pdf_Exception $e) {
+            $this->logger->error(__('Error while generating the PDF definition: %1', $e->getMessage()));
+        }
     }
 
     private function initializeProcessorsResults(): void

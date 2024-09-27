@@ -6,6 +6,7 @@ use Crealoz\EasyAudit\Service\PDFWriter\CliTranslator;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
 use Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SectionInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\Dir\Reader;
 
@@ -19,37 +20,49 @@ class PDFWriter
 
     public \Zend_Pdf_Page $currentPage;
 
-    public int $y;
+    public int $y = 0;
 
     private ?\Zend_Pdf_Resource_Image $logo;
 
     const MEDIA_FOLDER = '/crealoz';
+    private int $columnWidth;
+    private int $currentColumn = 0;
+    private int $columnX;
+
+    private int $columnY = 800;
+
+    private int $annexNumber = 1;
+    private array $annexes = [];
 
     public function __construct(
         private readonly Filesystem       $filesystem,
         private readonly SizeCalculation  $sizeCalculation,
-        private readonly Reader           $moduleReader,
         private readonly CliTranslator    $cliTranslator,
+        private readonly \Psr\Log\LoggerInterface $logger,
         private readonly array $specificSections = [],
-        public int                        $x = 50
+        public int                        $x = 50,
+        public int                        $columnCount = 2
     )
     {
-
+        $this->columnWidth = (int)((595 - 2 * $this->x) / $this->columnCount); // A4 width is 595 points
+        $this->columnX = $this->x;
     }
 
     /**
      * Entry point for the PDF creation
      *
+     * @throws FileSystemException
+     * @throws \Zend_Pdf_Exception
      */
     public function createdPDF($results, $locale, $filename): string
     {
         $this->pdf = new \Zend_Pdf();
-        $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
+/*        $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
         try {
             $this->logo = \Zend_Pdf_Image::imageWithPath($imagePath);
         } catch (\Zend_Pdf_Exception $e) {
             $this->logo = null;
-        }
+        }*/
         $this->cliTranslator->initLanguage($locale);
         $erroneousFiles = $results['erroneousFiles'];
         $introductions = $results['introduction'] ?? [];
@@ -59,25 +72,24 @@ class PDFWriter
         }
         unset($results['introduction']);
         unset($results['erroneousFiles']);
-        foreach ($results as $type => $result) {
-            foreach ($result as $section => $sectionResults) {
-                $isFirst = true;
-                foreach ($sectionResults as $subsection => $subResults) {
-                    if (is_array($subResults) && !empty($subResults) && ($subResults['hasErrors'])) {
-                        if ($isFirst) {
-                            $this->addPage();
-                            $this->writeTitle($section, 40);
-                            $isFirst = false;
-                        }
-                        if ($this->y < 140 + $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize($subResults, true)) {
-                            $this->addPage();
-                        }
-                        $this->writeSectionTitle($subsection);
-                        $this->manageSubResult($subResults);
+        foreach ($results as $section => $sectionResults) {
+            $isFirst = true;
+            foreach ($sectionResults as $subsection => $subResults) {
+                if (is_array($subResults) && !empty($subResults) && ($subResults['hasErrors'])) {
+                    if ($isFirst) {
+                        $this->addPage();
+                        $this->writeTitle($section, 40);
+                        $isFirst = false;
                     }
+                    if ($this->y < 140 + $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize($subResults, true)) {
+                        $this->addPage();
+                    }
+                    $this->writeSectionTitle($subsection);
+                    $this->manageSubResult($subResults);
                 }
             }
         }
+        $this->writeAnnexes();
         //Get media directory in filesystem
         if (!$this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist(self::MEDIA_FOLDER)) {
             $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->create(self::MEDIA_FOLDER);
@@ -95,37 +107,63 @@ class PDFWriter
     /**
      * Display the header of the PDF with the logo of the company.
      * @return void
+     * @throws \Zend_Pdf_Exception
      */
     private function makeHeaderAndFooter(): void
     {
         $this->currentPage->drawText(__('EasyAudit Report by Crealoz'), 20, 20);
         // Get the image path
-        if ($this->logo !== null) {
+/*        if ($this->logo !== null) {
             $this->currentPage->drawImage($this->logo, 500, 800, 550, 820);
-        }
+        }*/
         $this->currentPage->drawText('Created on : ' . date('Y-m-d H:i:s'), 420, 20);
     }
 
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
     private function manageIntroduction(array $introduction): void
     {
+        if ($this->columnCount !== 1) {
+            $this->setColumnCount(1);
+        }
         $this->writeLine($introduction['summary']);
-        foreach ($introduction['files'] ?? [] as $file => $score) {
-            if ($score >= 10) {
-                $this->writeLine($file . ' (' . $score . ')', 0, 7, 0.85, 0, 0);
-            } elseif ($score >= 5) {
-                $this->writeLine($file . ' (' . $score . ')', 0, 6, 0.85, 0.45, 0);
-            } else {
-                $this->writeLine($file . ' (' . $score . ')', 0, 5, 0.85, 0.85, 0);
+        $this->setColumnCount(2);
+        foreach ($introduction['files'] ?? [] as $scope => $files) {
+            if ($this->y < 50) {
+                $this->switchColumnOrAddPage();
+            }
+            $this->writeLine(ucfirst($scope) . ' files:');
+            foreach ($files as $file => $score) {
+                $file = $this->stripVendorOrApp($file);
+                if ($score >= 10) {
+                    $this->writeLine($file . ' (' . $score . ')', 8, 0, 0.85);
+                } elseif ($score >= 5) {
+                    $this->writeLine($file . ' (' . $score . ')', 7, 0, 0.85, 0.45);
+                } else {
+                    $this->writeLine($file . ' (' . $score . ')', 6, 0, 0.85, 0.85);
+                }
             }
         }
+    }
+
+    private function stripVendorOrApp($path): string
+    {
+        $pathParts = explode(DIRECTORY_SEPARATOR, $path);
+        if (isset($pathParts[0]) && in_array($pathParts[0], ['vendor', 'app'])) {
+            $offset = $pathParts[0] === 'vendor' ? 1 : 2;
+            return implode(DIRECTORY_SEPARATOR, array_slice($pathParts, $offset));
+        }
+        return $path;
     }
 
     /**
      * Manage the subresult of a section
      *
      * @param array $subResults
+     * @throws \Zend_Pdf_Exception
      */
-    private function manageSubResult($subResults): void
+    private function manageSubResult(array $subResults): void
     {
         if (!empty($subResults['errors'])) {
             if ($this->y < $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize($subResults['errors'])) {
@@ -154,9 +192,15 @@ class PDFWriter
         }
     }
 
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
     private function displaySection(string $title, array $section): void
     {
         $translatedTitle = $this->cliTranslator->translate($title);
+        if ($this->columnCount !== 1) {
+            $this->setColumnCount(1);
+        }
         $this->currentPage->drawText($translatedTitle, 44, $this->y);
         foreach ($section as $type => $entries) {
             if (isset($entries['specificSections'])) {
@@ -172,26 +216,92 @@ class PDFWriter
         }
     }
 
-    private function manageSubsection($subresults): void
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    private function manageSubsection($subResults): void
     {
-        if ($subresults['files'] === []) {
+        if ($subResults['files'] === []) {
             return;
         }
-        $this->writeSubSectionIntro($subresults);
-        $this->writeLine('Files:');
-        foreach ($subresults['files'] as $key => $files) {
+        $this->writeSubSectionIntro($subResults);
+        $this->logger->debug('Number of files for the section: ' . count($subResults['files']));
+        $numberOfPages = $this->sizeCalculation->getNumberOfPagesForFiles($subResults['files']);
+        if ($numberOfPages > 10 && is_array($subResults['files'])) {
+            $this->delegateToAnnex($numberOfPages, $subResults['files'], $subResults['title'] ?? '');
+        } else {
+            $this->writeLine('Files:');
+            $this->manageFiles($numberOfPages, $subResults['files']);
+        }
+        if ($this->columnCount !== 1) {
+            $this->setColumnCount(1);
+        }
+    }
+
+    /**
+     * @param $numberOfPages
+     * @param $key
+     * @param $files
+     * @return void
+     * @throws \Zend_Pdf_Exception
+     */
+    private function manageFiles($numberOfPages, $resultFiles): void
+    {
+        if ($numberOfPages > 1) {
+            $this->setColumnCount(2);
+        }
+        foreach ($resultFiles as $key => $files) {
             if (is_array($files)) {
                 $this->writeLine($key);
                 foreach ($files as $file) {
-                    $this->writeLine('-' . $file, 0, 6, 0.2, 0.2, 0.2);
+                    $file = $this->stripVendorOrApp($file);
+                    $this->writeLine('-' . $file, 8, 0, 0.2, 0.2, 0.2);
                 }
+                $this->y -= 5;
             } else {
                 $this->writeLine('-' . $files);
             }
         }
     }
 
-    public function writeLine($text, $depth = 0, $size = 8, $r = 0, $g = 0, $b = 0): void
+    /**
+     * @param int $pages
+     * @param $key
+     * @param $files
+     * @return void
+     * @throws \Zend_Pdf_Exception
+     */
+    public function delegateToAnnex(int $pages, $files, $description): void
+    {
+        if (!is_array($files)) {
+            throw new \InvalidArgumentException('Files must be an array to be delegated to annex.');
+        }
+        $this->annexes[$this->annexNumber] = ['pages' => $pages, 'files' => $files, 'description' => $description];
+        $this->writeLine(__('See annexe %1 for more details.', $this->annexNumber));
+        $this->annexNumber++;
+    }
+
+    /**
+     * @return void
+     * @throws \Zend_Pdf_Exception
+     */
+    private function writeAnnexes(): void
+    {
+        foreach ($this->annexes as $annexNumber => $annex) {
+            $this->addPage();
+            $this->writeTitle('Annex ' . $annexNumber);
+            $this->writeLine($annex['description']);
+            $this->manageFiles($annex['pages'], $annex['files']);
+            if ($this->columnCount !== 1) {
+                $this->setColumnCount(1);
+            }
+        }
+    }
+
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    public function writeLine($text, $size = 9, $depth = 0, $r = 0, $g = 0, $b = 0): void
     {
         $translatedText = $text;
         if ($depth == 0) {
@@ -204,17 +314,57 @@ class PDFWriter
             $lines = explode("--SPLIT--", $wrappedText);
             $depth++;
             foreach ($lines as $line) {
-                $this->writeLine($line, $depth);
+                $this->writeLine($line, $size, $depth, $r, $g, $b);
             }
             return;
         }
-        $this->currentPage->drawText($translatedText, $this->x, $this->y);
+        $this->currentPage->drawText($translatedText, $this->columnX, $this->y);
         $this->y -= floor($size * 1.3);
         if ($this->y < 50) {
-            $this->addPage();
+            $this->switchColumnOrAddPage();
         }
     }
 
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    public function switchColumnOrAddPage(): void
+    {
+        $this->currentColumn++;
+        if ($this->currentColumn >= $this->columnCount) {
+            $this->addPage();
+            $this->currentColumn = 0;
+            $this->y = 800;
+            $this->columnY = $this->y;
+        } else {
+            $this->y = $this->columnY;
+        }
+        $this->columnX = $this->x + $this->currentColumn * $this->columnWidth;
+    }
+
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    public function setColumnCount(int $columnCount): void
+    {
+        if ($columnCount !== $this->columnCount) {
+            if ($columnCount == 1 && $this->columnCount > 1) {
+                $this->addPage();
+            }
+            $this->logger->info('Setting column count to ' . $columnCount . '. The call is from ' . debug_backtrace()[1]['function']);
+            $this->columnCount = $columnCount;
+            $this->columnWidth = (int)((595 - 2 * $this->x) / $this->columnCount); // A4 width is 595 points
+            $this->columnY = $this->y;
+            $this->currentColumn = 0;
+            $this->columnX = $this->x;
+        }
+    }
+
+
+
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
     private function writeTitle($text, $x = null): void
     {
         $translatedText = $this->cliTranslator->translate($text);
@@ -230,12 +380,16 @@ class PDFWriter
         $this->setGeneralStyle();
     }
 
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
     public function writeSubSectionIntro($subsection): void
     {
         if ($this->y < $this->sizeCalculation->calculateSectionIntroSize($subsection)) {
             $this->addPage();
         }
         if (isset($subsection['title'])) {
+            $this->logger->info('Writing subsection title: ' . $subsection['title']);
             $this->y -= 20;
             $this->setSubTitleStyle();
             $translatedTitle = $this->cliTranslator->translate($subsection['title']);
@@ -249,10 +403,13 @@ class PDFWriter
         }
         if (isset($subsection['caution'])) {
             $subsection['caution'] = preg_replace('/\s+/', ' ', $subsection['caution']);
-            $this->writeLine($subsection['caution'],0, 8, 0.85, 0, 0);
+            $this->writeLine($subsection['caution'], 8, 0, 0.85, 0, 0);
         }
     }
 
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
     private function writeSectionTitle($text): void
     {
         $this->setTitleStyle(15);
@@ -266,16 +423,24 @@ class PDFWriter
         $this->setGeneralStyle();
     }
 
-    public function addPage()
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    public function addPage(): void
     {
-        $this->currentPage = $this->pdf->newPage(\Zend_Pdf_Page::SIZE_A4);
-        $this->pdf->pages[] = $this->currentPage;
-        $this->setGeneralStyle();
-        $this->y = 850 - 50;
-        $this->makeHeaderAndFooter();
+        if ($this->y !== 800) {
+            $this->currentPage = $this->pdf->newPage(\Zend_Pdf_Page::SIZE_A4);
+            $this->pdf->pages[] = $this->currentPage;
+            $this->setGeneralStyle();
+            $this->y = 800;
+            $this->makeHeaderAndFooter();
+        }
     }
 
-    public function setGeneralStyle($size = 9, $r = 0, $g = 0, $b = 0)
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    public function setGeneralStyle($size = 9, $r = 0, $g = 0, $b = 0): void
     {
         $style = new \Zend_Pdf_Style();
         $style->setLineColor(new \Zend_Pdf_Color_Rgb($r, $g, $b));
@@ -285,7 +450,10 @@ class PDFWriter
         $this->currentPage->setStyle($style);
     }
 
-    private function setTitleStyle($size = 20)
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    private function setTitleStyle($size = 20): void
     {
         $style = new \Zend_Pdf_Style();
         // Blue color
@@ -296,7 +464,10 @@ class PDFWriter
         $this->currentPage->setStyle($style);
     }
 
-    private function setSubTitleStyle($size = 12)
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    private function setSubTitleStyle($size = 12): void
     {
         $style = new \Zend_Pdf_Style();
         // Blue color
@@ -307,7 +478,10 @@ class PDFWriter
         $this->currentPage->setStyle($style);
     }
 
-    private function setErrorStyle($size = 11)
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    private function setErrorStyle($size = 11): void
     {
         $style = new \Zend_Pdf_Style();
         // Red color
@@ -318,7 +492,10 @@ class PDFWriter
         $this->currentPage->setStyle($style);
     }
 
-    private function setWarningStyle($size = 11)
+    /**
+     * @throws \Zend_Pdf_Exception
+     */
+    private function setWarningStyle($size = 11): void
     {
         $style = new \Zend_Pdf_Style();
         // Orange color
@@ -327,5 +504,25 @@ class PDFWriter
         $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
         $style->setFont($font, $size);
         $this->currentPage->setStyle($style);
+    }
+
+    public function getColumnY(): int
+    {
+        return $this->columnY;
+    }
+
+    public function setColumnY(int $columnY): void
+    {
+        $this->columnY = $columnY;
+    }
+
+    public function getColumnX(): int
+    {
+        return $this->columnX;
+    }
+
+    public function setColumnX(int $columnX): void
+    {
+        $this->columnX = $columnX;
     }
 }
