@@ -170,6 +170,7 @@
                 <item name="manageBlockVMRatio" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\BlockVMRatio</item>
                 <item name="manageUnusedModules" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\UnusedModules</item>
                 <item name="manageSpecificClassInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificClass</item>
+                <item name="manageSpecificModelInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificModel</item>
             </argument>
         </arguments>
     </type>

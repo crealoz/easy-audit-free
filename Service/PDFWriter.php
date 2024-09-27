@@ -183,7 +183,7 @@ class PDFWriter
             if (is_array($files)) {
                 $this->writeLine($key);
                 foreach ($files as $file) {
-                    $this->writeLine('-' . $file, 0, 8, 0.2, 0.2, 0.2);
+                    $this->writeLine('-' . $file, 0, 6, 0.2, 0.2, 0.2);
                 }
             } else {
                 $this->writeLine('-' . $files);
