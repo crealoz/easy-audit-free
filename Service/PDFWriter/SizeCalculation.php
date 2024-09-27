@@ -4,6 +4,13 @@ namespace Crealoz\EasyAudit\Service\PDFWriter;
 
 class SizeCalculation
 {
+    public function __construct(
+        private readonly \Psr\Log\LoggerInterface $logger
+    )
+    {
+
+    }
+
     public function calculateTitlePlusFirstSubsectionSize($subResults, $getFirstSection = false): int
     {
         if ($getFirstSection) {
@@ -19,14 +26,14 @@ class SizeCalculation
     {
         $size = 0;
         if (isset($subsection['title'])) {
-            $size += 20;
+            $size += 25;
         }
         if (isset($subsection['explanation'])) {
-            $size += 10;
+            $size += 15;
             $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', $subsection['explanation']), 9) * 15;
         }
         if (isset($subsection['caution'])) {
-            $size += 10;
+            $size += 15;
             $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', $subsection['caution']), 9) * 15;
         }
         return $size;
@@ -54,5 +61,25 @@ class SizeCalculation
         $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', $intro['summary']), 9) * 15;
 
         return $size;
+    }
+
+    public function getNumberOfPagesForFiles($files, $mainLineSize = 9): int
+    {
+        $size = 0;
+        if (is_string($files)) {
+            $size = $this->calculateNumberOfLines($files, $mainLineSize) * 15;
+        } else {
+            foreach ($files ?? [] as $file) {
+                if (is_array($file)) {
+                    foreach ($file as $subFile) {
+                        $size += $this->calculateNumberOfLines($subFile, $mainLineSize - 1) * 15;
+                    }
+                } else {
+                    $size += $this->calculateNumberOfLines($file, $mainLineSize) * 15;
+                }
+            }
+        }
+        $this->logger->info('Size of files: ' . $size);
+        return ceil($size / 800);
     }
 }

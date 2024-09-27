@@ -14,7 +14,7 @@ class SpecificModel implements SectionInterface
         foreach ($subresults['files'] as $file => $arguments) {
             $pdfWriter->writeLine($file);
             foreach ($arguments as $argument) {
-                $pdfWriter->writeLine('-' . $argument , 0, 6);
+                $pdfWriter->writeLine('-' . $argument , 6);
             }
         }
     }

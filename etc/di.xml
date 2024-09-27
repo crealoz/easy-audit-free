@@ -32,6 +32,11 @@
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
     </type>
+    <type name="Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation">
+        <arguments>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
+        </arguments>
+    </type>
     <!-- End of Logger -->
     <!-- Processors -->
     <type name="Crealoz\EasyAudit\Service\Audit">
@@ -64,6 +69,7 @@
             <argument name="resultProcessors" xsi:type="array">
                 <item name="erroneous_files" xsi:type="object">Crealoz\EasyAudit\Processor\Results\ErroneousFiles</item>
             </argument>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
     </type>
     <!-- End of Processors -->
@@ -172,6 +178,7 @@
                 <item name="manageSpecificClassInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificClass</item>
                 <item name="manageSpecificModelInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificModel</item>
             </argument>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
     </type>
     <!-- DataSources for the grids -->

@@ -12,23 +12,27 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Processor\Results\ResultProce
      */
     public function processResults(array $results): array
     {
-        $scoreHigherThan10 = [];
+        $scoreHigherThan10 = [
+            'vendor' => [],
+            'code' => [],
+            'design' => [],
+        ];
         $scoreHigherThan5 = [];
         $fileList = [];
         foreach ($results['erroneousFiles'] as $file => $score) {
-            if ($score > 10) {
-                $scoreHigherThan10[] = $file;
-            } elseif ($score > 5) {
-                $scoreHigherThan5[] = $file;
+            $scope = $this->getScope($file);
+            if ($score >= 10) {
+                $scoreHigherThan10[$scope][] = $file;
+            } elseif ($score >= 5) {
+                $scoreHigherThan5[$scope][] = $file;
             } else {
                 continue;
             }
-            $fileList[$file] = $score;
+            $fileList[$scope][$file] = $score;
         }
 
-        $summary = __('%1 files have a score higher than 10. These files must have really bad design pattern and/or
-         not follow coding standards. Please check them with high priority. Beside that, %2 files have a score higher
-          than 5. These files must be checked with medium priority.', count($scoreHigherThan10), count($scoreHigherThan5));
+        $summary = __('%1 files have a score equal to or higher than 10. These files must have really bad design pattern and/or not follow coding standards. Please check them with high priority.
+         Beside that, %2 files have a score equal to or higher than 5. These files must be checked with medium priority.', count($scoreHigherThan10), count($scoreHigherThan5));
 
         $erroneousFiles = [
             'summary' => $summary,
@@ -39,5 +43,25 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Processor\Results\ResultProce
 
         return $results;
 
+    }
+
+    /**
+     * Returns vendor, code or design scope based on file path, if it is not in any of these scopes, it returns 'other'
+     * it uses str_contains to check if the file path contains 'vendor', 'code' or 'design'
+     * @param $file
+     * @return string
+     */
+    private function getScope($file) : string
+    {
+        if (str_contains($file, 'vendor')) {
+            return 'vendor';
+        }
+        if (str_contains($file, 'code')) {
+            return 'code';
+        }
+        if (str_contains($file, 'design')) {
+            return 'design';
+        }
+        return 'other';
     }
 }
