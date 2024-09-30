@@ -15,7 +15,7 @@ class BlockViewModelRatio extends AbstractProcessor implements ProcessorInterfac
 
     public function getAuditSection(): string
     {
-        return __('Code');
+        return __('PHP');
     }
 
     public function prepopulateResults(): void

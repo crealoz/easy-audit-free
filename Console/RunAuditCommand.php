@@ -2,6 +2,7 @@
 namespace Crealoz\EasyAudit\Console;
 
 use Composer\Console\Input\InputOption;
+use Magento\Framework\Exception\FileSystemException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -26,6 +27,9 @@ class RunAuditCommand extends Command
         ;
     }
 
+    /**
+     * @throws FileSystemException
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $start = microtime(true);
