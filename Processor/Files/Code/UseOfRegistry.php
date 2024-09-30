@@ -55,7 +55,7 @@ class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
         return __('PHP');
     }
 
-    public function run($input)
+    public function run($input): void
     {
         try {
             $className = $this->classNameGetter->getClassFullNameFromFile($input);

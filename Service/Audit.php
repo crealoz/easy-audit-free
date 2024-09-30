@@ -45,6 +45,7 @@ class Audit
             throw new FileSystemException(__('Invalid filename %1', $filename));
         }
         $erroneousFiles = [];
+        $this->logger->debug(__('Starting audit service...'));
         $this->initializeProcessorsResults();
         foreach ($this->processors as $typeName => $subTypes) {
             $type = $this->typeFactory->get($typeName);
@@ -52,6 +53,7 @@ class Audit
             $erroneousFiles[$typeName] = $type->getErroneousFiles();
         }
 
+        $this->logger->debug(__('Audit service has been run successfully.'));
         $consolidatedErroneousFiles = [];
         foreach ($erroneousFiles as $files) {
             foreach ($files as $file => $score) {

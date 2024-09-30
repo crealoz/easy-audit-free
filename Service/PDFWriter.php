@@ -39,9 +39,10 @@ class PDFWriter
         private readonly SizeCalculation  $sizeCalculation,
         private readonly CliTranslator    $cliTranslator,
         private readonly \Psr\Log\LoggerInterface $logger,
+        private readonly Reader           $moduleReader,
         private readonly array $specificSections = [],
         public int                        $x = 50,
-        public int                        $columnCount = 2
+        public int                        $columnCount = 1
     )
     {
         $this->columnWidth = (int)((595 - 2 * $this->x) / $this->columnCount); // A4 width is 595 points
@@ -56,50 +57,60 @@ class PDFWriter
      */
     public function createdPDF($results, $locale, $filename): string
     {
+        $this->logger->debug('Starting to create the PDF');
         $this->pdf = new \Zend_Pdf();
-/*        $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
+        $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
         try {
             $this->logo = \Zend_Pdf_Image::imageWithPath($imagePath);
         } catch (\Zend_Pdf_Exception $e) {
+            $this->logger->error('Error while loading the logo: ' . $e->getMessage());
             $this->logo = null;
-        }*/
+        }
         $this->cliTranslator->initLanguage($locale);
         $erroneousFiles = $results['erroneousFiles'];
         $introductions = $results['introduction'] ?? [];
         $this->addPage();
+        $this->logger->debug('Starting to write the introduction');
         foreach ($introductions as $introduction) {
             $this->manageIntroduction($introduction);
         }
         unset($results['introduction']);
         unset($results['erroneousFiles']);
+        $this->logger->debug('Starting to write the sections');
         foreach ($results as $section => $sectionResults) {
             $isFirst = true;
             foreach ($sectionResults as $subsection => $subResults) {
                 if (is_array($subResults) && !empty($subResults) && ($subResults['hasErrors'])) {
                     if ($isFirst) {
-                        $this->addPage();
+                        if ($this->columnCount !== 1) {
+                            $this->setColumnCount(1);
+                        } else {
+                            $this->addPage();
+                        }
+                        $this->logger->debug('Writing section title: ' . $section);
                         $this->writeTitle($section, 40);
                         $isFirst = false;
-                    }
-                    if ($this->y < 140 + $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize($subResults, true)) {
-                        $this->addPage();
                     }
                     $this->writeSectionTitle($subsection);
                     $this->manageSubResult($subResults);
                 }
             }
         }
+        $this->logger->debug('Writing annexes');
         $this->writeAnnexes();
         //Get media directory in filesystem
         if (!$this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist(self::MEDIA_FOLDER)) {
             $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->create(self::MEDIA_FOLDER);
         }
+        $this->logger->debug('Saving the PDF file in the media folder');
         $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath(self::MEDIA_FOLDER . DIRECTORY_SEPARATOR . $filename . '.pdf');
         // Check if the file already exists
         if ($this->filesystem->getDirectoryRead(DirectoryList::MEDIA)->isExist(self::MEDIA_FOLDER . DIRECTORY_SEPARATOR . $filename . '.pdf')) {
+            $this->logger->debug('File already exists, adding timestamp to the filename');
             $filename = $filename . '_' . time();
             $filePath = $this->filesystem->getDirectoryWrite(DirectoryList::MEDIA)->getAbsolutePath(self::MEDIA_FOLDER . DIRECTORY_SEPARATOR . $filename . '.pdf');
         }
+        $this->logger->debug('Saving the PDF file in ' . $filePath);
         $this->pdf->save($filePath);
         return $filePath;
     }
@@ -113,9 +124,9 @@ class PDFWriter
     {
         $this->currentPage->drawText(__('EasyAudit Report by Crealoz'), 20, 20);
         // Get the image path
-/*        if ($this->logo !== null) {
+        if ($this->logo !== null) {
             $this->currentPage->drawImage($this->logo, 500, 800, 550, 820);
-        }*/
+        }
         $this->currentPage->drawText('Created on : ' . date('Y-m-d H:i:s'), 420, 20);
     }
 
@@ -259,7 +270,8 @@ class PDFWriter
                 }
                 $this->y -= 5;
             } else {
-                $this->writeLine('-' . $files);
+                $file = $this->stripVendorOrApp($files);
+                $this->writeLine('-' . $file);
             }
         }
     }
@@ -309,11 +321,14 @@ class PDFWriter
         }
         $this->setGeneralStyle($size, $r, $g, $b);
         // If line is too long, we split it
-        if (strlen($text) > 130) {
-            $wrappedText = wordwrap($text, 130, "--SPLIT--");
+        $availableWidth = 130 / $this->columnCount;
+        if ($depth == 0 && strlen($text) > $availableWidth) {
+            $this->logger->debug('Spliting line');
+            $wrappedText = wordwrap($text, $availableWidth, "--SPLIT--");
             $lines = explode("--SPLIT--", $wrappedText);
             $depth++;
             foreach ($lines as $line) {
+                $this->logger->debug('Writing line: ' . $line);
                 $this->writeLine($line, $size, $depth, $r, $g, $b);
             }
             return;
@@ -351,7 +366,6 @@ class PDFWriter
             if ($columnCount == 1 && $this->columnCount > 1) {
                 $this->addPage();
             }
-            $this->logger->info('Setting column count to ' . $columnCount . '. The call is from ' . debug_backtrace()[1]['function']);
             $this->columnCount = $columnCount;
             $this->columnWidth = (int)((595 - 2 * $this->x) / $this->columnCount); // A4 width is 595 points
             $this->columnY = $this->y;
@@ -389,7 +403,7 @@ class PDFWriter
             $this->addPage();
         }
         if (isset($subsection['title'])) {
-            $this->logger->info('Writing subsection title: ' . $subsection['title']);
+            $this->logger->debug('Writing subsection title: ' . $subsection['title']);
             $this->y -= 20;
             $this->setSubTitleStyle();
             $translatedTitle = $this->cliTranslator->translate($subsection['title']);
