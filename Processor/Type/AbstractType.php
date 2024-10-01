@@ -49,7 +49,7 @@ abstract class AbstractType implements TypeInterface
 
     public function initResults(array $subTypes): void
     {
-        foreach ($subTypes as $subType => $processors) {
+        foreach ($subTypes as $processors) {
             foreach ($processors as $processor) {
                 $processor->prepopulateResults();
             }

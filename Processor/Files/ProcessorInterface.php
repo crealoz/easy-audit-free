@@ -25,4 +25,6 @@ interface ProcessorInterface
     public function getAuditSection(): string;
 
     public function getErroneousFiles(): array;
+
+    public function prepopulateResults(): void;
 }
