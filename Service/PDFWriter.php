@@ -87,7 +87,6 @@ class PDFWriter
                         } else {
                             $this->addPage();
                         }
-                        $this->logger->debug('Writing section title: ' . $section);
                         $this->writeTitle($section, 40);
                         $isFirst = false;
                     }
@@ -138,7 +137,13 @@ class PDFWriter
         if ($this->columnCount !== 1) {
             $this->setColumnCount(1);
         }
-        $this->writeLine($introduction['summary']);
+        if (!is_array($introduction['summary'])) {
+            throw new \InvalidArgumentException('Introduction summary must be an array');
+        }
+        $paragraphs = $introduction['summary'];
+        foreach ($paragraphs as $paragraph) {
+            $this->writeLine($paragraph);
+        }
         $this->setColumnCount(2);
         foreach ($introduction['files'] ?? [] as $scope => $files) {
             if ($this->y < 50) {
@@ -148,11 +153,11 @@ class PDFWriter
             foreach ($files as $file => $score) {
                 $file = $this->stripVendorOrApp($file);
                 if ($score >= 10) {
-                    $this->writeLine($file . ' (' . $score . ')', 8, 0, 0.85);
+                    $this->writeLine($file . ' (' . $score . ')', true,8, 0, 0.85);
                 } elseif ($score >= 5) {
-                    $this->writeLine($file . ' (' . $score . ')', 7, 0, 0.85, 0.45);
+                    $this->writeLine($file . ' (' . $score . ')', true, 7, 0, 0.85, 0.45);
                 } else {
-                    $this->writeLine($file . ' (' . $score . ')', 6, 0, 0.85, 0.85);
+                    $this->writeLine($file . ' (' . $score . ')', true, 6, 0, 0.85, 0.85);
                 }
             }
         }
@@ -236,7 +241,6 @@ class PDFWriter
             return;
         }
         $this->writeSubSectionIntro($subResults);
-        $this->logger->debug('Number of files for the section: ' . count($subResults['files']));
         $numberOfPages = $this->sizeCalculation->getNumberOfPagesForFiles($subResults['files']);
         if ($numberOfPages > 10 && is_array($subResults['files'])) {
             $this->delegateToAnnex($numberOfPages, $subResults['files'], $subResults['title'] ?? '');
@@ -263,15 +267,15 @@ class PDFWriter
         }
         foreach ($resultFiles as $key => $files) {
             if (is_array($files)) {
-                $this->writeLine($key);
+                $this->writeLine($key, true);
                 foreach ($files as $file) {
                     $file = $this->stripVendorOrApp($file);
-                    $this->writeLine('-' . $file, 8, 0, 0.2, 0.2, 0.2);
+                    $this->writeLine('-' . $file, true, 8, 0, 0.2, 0.2, 0.2);
                 }
                 $this->y -= 5;
             } else {
                 $file = $this->stripVendorOrApp($files);
-                $this->writeLine('-' . $file);
+                $this->writeLine('-' . $file, true);
             }
         }
     }
@@ -313,9 +317,9 @@ class PDFWriter
     /**
      * @throws \Zend_Pdf_Exception
      */
-    public function writeLine($text, $size = 9, $depth = 0, $r = 0, $g = 0, $b = 0): void
+    public function writeLine($text, $isFile = false, $size = 9, $depth = 0, $r = 0, $g = 0, $b = 0): void
     {
-        $translatedText = $text;
+        $translatedText = trim($text);
         if ($depth == 0) {
             $translatedText = $this->cliTranslator->translate($text);
         }
@@ -323,13 +327,20 @@ class PDFWriter
         // If line is too long, we split it
         $availableWidth = 130 / $this->columnCount;
         if ($depth == 0 && strlen($text) > $availableWidth) {
-            $this->logger->debug('Spliting line');
-            $wrappedText = wordwrap($text, $availableWidth, "--SPLIT--");
-            $lines = explode("--SPLIT--", $wrappedText);
+            if ($isFile) {
+                $lastSlashPos = strrpos(substr($text, 0, $availableWidth), '/');
+                if ($lastSlashPos !== false) {
+                    $lines = [substr($text, 0, $lastSlashPos + 1), substr($text, $lastSlashPos + 1)];
+                } else {
+                    $lines = str_split($text, $availableWidth - 30);
+                }
+            } else {
+                $wrappedText = wordwrap($text, $availableWidth, "--SPLIT--");
+                $lines = explode("--SPLIT--", $wrappedText);
+            }
             $depth++;
             foreach ($lines as $line) {
-                $this->logger->debug('Writing line: ' . $line);
-                $this->writeLine($line, $size, $depth, $r, $g, $b);
+                $this->writeLine($line, $isFile, $size, $depth, $r, $g, $b);
             }
             return;
         }
@@ -403,7 +414,6 @@ class PDFWriter
             $this->addPage();
         }
         if (isset($subsection['title'])) {
-            $this->logger->debug('Writing subsection title: ' . $subsection['title']);
             $this->y -= 20;
             $this->setSubTitleStyle();
             $translatedTitle = $this->cliTranslator->translate($subsection['title']);
@@ -417,7 +427,7 @@ class PDFWriter
         }
         if (isset($subsection['caution'])) {
             $subsection['caution'] = preg_replace('/\s+/', ' ', $subsection['caution']);
-            $this->writeLine($subsection['caution'], 8, 0, 0.85, 0, 0);
+            $this->writeLine($subsection['caution'], false, 8, 0, 0.85, 0, 0);
         }
     }
 

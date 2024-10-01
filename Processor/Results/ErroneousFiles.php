@@ -12,27 +12,23 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Processor\Results\ResultProce
      */
     public function processResults(array $results): array
     {
-        $scoreHigherThan10 = [
-            'vendor' => [],
-            'code' => [],
-            'design' => [],
-        ];
-        $scoreHigherThan5 = [];
+        $countHigherThan10 = 0;
+        $countHigherThan5 = 0;
         $fileList = [];
         foreach ($results['erroneousFiles'] as $file => $score) {
             $scope = $this->getScope($file);
             if ($score >= 10) {
-                $scoreHigherThan10[$scope][] = $file;
+                $countHigherThan10++;
             } elseif ($score >= 5) {
-                $scoreHigherThan5[$scope][] = $file;
+                $countHigherThan5++;
             } else {
                 continue;
             }
             $fileList[$scope][$file] = $score;
         }
 
-        $summary = __('%1 files have a score equal to or higher than 10. These files must have really bad design pattern and/or not follow coding standards. Please check them with high priority.
-         Beside that, %2 files have a score equal to or higher than 5. These files must be checked with medium priority.', count($scoreHigherThan10), count($scoreHigherThan5));
+        $summary[] = __('%1 files have a score equal to or higher than 10. These files must have really bad design pattern and/or not follow coding standards. Please check them with high priority.', $countHigherThan10);
+        $summary[] = __('Beside that, %2 files have a score equal to or higher than 5. These files must be checked with medium priority.', $countHigherThan5);
 
         $erroneousFiles = [
             'summary' => $summary,

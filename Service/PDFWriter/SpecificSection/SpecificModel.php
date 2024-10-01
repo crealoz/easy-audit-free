@@ -12,9 +12,9 @@ class SpecificModel implements SectionInterface
         $pdfWriter->writeSubSectionIntro($subresults);
         $pdfWriter->writeLine('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
-            $pdfWriter->writeLine($file);
+            $pdfWriter->writeLine($file, true);
             foreach ($arguments as $argument) {
-                $pdfWriter->writeLine('-' . $argument , 6);
+                $pdfWriter->writeLine('-' . $argument , true, 8);
             }
         }
     }
