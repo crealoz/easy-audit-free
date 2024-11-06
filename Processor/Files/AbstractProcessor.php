@@ -11,6 +11,11 @@ abstract class AbstractProcessor implements ProcessorInterface
 
     protected array $erroneousFiles = [];
 
+    public function hasErrors(): bool
+    {
+        return array_key_exists('hasErrors', $this->results) && $this->results['hasErrors'];
+    }
+
     abstract public function run($input);
 
     public function prepopulateResults(): void {

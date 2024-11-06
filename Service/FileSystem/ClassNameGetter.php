@@ -11,8 +11,6 @@ use Magento\Framework\Filesystem\Io\File;
 class ClassNameGetter
 {
 
-    protected array $declaredClasses = [];
-
     public function __construct(
         protected readonly DriverInterface $driver,
         protected readonly File $io,
@@ -46,7 +44,6 @@ class ClassNameGetter
         $fullClassName = str_replace('/', '\\', $fullClassName);
         // Class name is the last part of the string
         $parts = explode('\\', $fullClassName);
-        $partsBefore = $parts;
         $parts = array_map('ucfirst', $parts);
         $className = array_pop($parts);
         $namespace = implode('\\', $parts);
@@ -62,6 +59,12 @@ class ClassNameGetter
         return $fullClassName;
     }
 
+    /**
+     * Get the namespace for a vendor module
+     * @param string $filePath
+     * @return string
+     * @throws FileSystemException
+     */
     private function getNamespaceForVendorModule(string $filePath): string
     {
         $parts = explode('/', $filePath);
@@ -77,16 +80,31 @@ class ClassNameGetter
         return $namespace;
     }
 
+    /**
+     * Check if the file is a module registration file
+     * @param string $filePath
+     * @return bool
+     */
     public function isModuleRegistrationFile(string $filePath): bool
     {
         return str_contains($filePath, 'registration.php');
     }
 
+    /**
+     * Check if the class is in the vendor folder
+     * @param string $className
+     * @return bool
+     */
     public function isVendorClass(string $className): bool
     {
         return str_contains($className, 'vendor');
     }
 
+    /**
+     * Check if the class is in the app/code folder
+     * @param string $className
+     * @return bool
+     */
     public function isAppClass(string $className): bool
     {
         return str_contains($className, 'app/code');

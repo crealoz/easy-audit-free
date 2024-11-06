@@ -8,8 +8,12 @@ use Symfony\Component\Console\Helper\ProgressBar;
 class Xml extends AbstractType implements TypeInterface
 {
 
-    protected function doProcess(array $processors, array $files, ProgressBar $progressBar = null): void
+    /**
+     * @inheritDoc
+     */
+    protected function doProcess(array $processors, array $files, ProgressBar $progressBar = null): bool
     {
+        $hasErrors = false;
         foreach ($files as $xmlFile) {
             $xml = simplexml_load_file($xmlFile);
             $progressBar?->advance();
@@ -22,7 +26,11 @@ class Xml extends AbstractType implements TypeInterface
                     throw new \InvalidArgumentException('Processor must implement ProcessorInterface');
                 }
                 $processor->run($xml);
+                if ($hasErrors === false && $processor->hasErrors()) {
+                    $hasErrors = true;
+                }
             }
         }
+        return $hasErrors;
     }
 }

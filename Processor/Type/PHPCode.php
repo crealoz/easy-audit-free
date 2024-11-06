@@ -7,10 +7,12 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class PHPCode extends AbstractType implements TypeInterface
 {
-
-
-    protected function doProcess(array $processors, array $files, ProgressBar $progressBar = null): void
+    /**
+     * @inheritDoc
+     */
+    protected function doProcess(array $processors, array $files, ProgressBar $progressBar = null): bool
     {
+        $hasErrors = false;
         foreach ($files as $codeFile) {
             $progressBar?->advance();
             foreach ($processors as $processor) {
@@ -18,7 +20,11 @@ class PHPCode extends AbstractType implements TypeInterface
                     throw new \InvalidArgumentException('Processor must implement ProcessorInterface');
                 }
                 $processor->run($codeFile);
+                if ($hasErrors === false && $processor->hasErrors()) {
+                    $hasErrors = true;
+                }
             }
         }
+        return $hasErrors;
     }
 }
