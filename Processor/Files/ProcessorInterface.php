@@ -27,4 +27,6 @@ interface ProcessorInterface
     public function getErroneousFiles(): array;
 
     public function prepopulateResults(): void;
+
+    public function hasErrors(): bool;
 }

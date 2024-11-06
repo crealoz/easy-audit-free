@@ -105,5 +105,3 @@ Contributions are welcome. Please make sure to update tests as appropriate.
 ## License
 
 [OSL-3.0](https://opensource.org/licenses/OSL-3.0)
-
-Please note that you should replace the placeholders with the actual information about your module.

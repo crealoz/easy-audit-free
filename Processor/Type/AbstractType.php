@@ -16,12 +16,28 @@ abstract class AbstractType implements TypeInterface
 
     protected array $erroneousFiles = [];
 
+    protected bool $hasErrors = false;
+
     public function __construct(
         protected readonly FileGetterFactory $fileGetterFactory,
         protected readonly LoggerInterface $logger
     ) {
     }
 
+    public function hasErrors(): bool
+    {
+        return $this->hasErrors;
+    }
+
+    /**
+     * Processes the files of the given subtypes against the given processors. If any of the processor is erroneous,
+     * the hasErrors flag is set to true.
+     *
+     * @param array $subTypes
+     * @param string $type
+     * @param OutputInterface|null $output
+     * @return array
+     */
     public function process(array $subTypes, string $type, OutputInterface $output = null): array
     {
         $this->results = [];
@@ -37,7 +53,10 @@ abstract class AbstractType implements TypeInterface
                     $progressBar = new ProgressBar($output, count($files));
                     $progressBar->start();
                 }
-                $this->doProcess($processors, $files, $progressBar);
+                $errors = $this->doProcess($processors, $files, $progressBar);
+                if ($this->hasErrors === false && $errors) {
+                    $this->hasErrors = true;
+                }
                 $this->manageResults($processors);
                 if ($output) {
                     $progressBar->finish();
@@ -47,6 +66,12 @@ abstract class AbstractType implements TypeInterface
         return $this->results;
     }
 
+    /**
+     * Initializes the results array to avoid malformed results.
+     *
+     * @param array $subTypes
+     * @return void
+     */
     public function initResults(array $subTypes): void
     {
         foreach ($subTypes as $processors) {
@@ -56,8 +81,22 @@ abstract class AbstractType implements TypeInterface
         }
     }
 
-    abstract protected function doProcess(array $processors, array $files, ProgressBar $progressBar = null): void;
+    /**
+     * Processes the files against the processors.
+     *
+     * @param array $processors
+     * @param array $files
+     * @param ProgressBar|null $progressBar
+     * @return bool
+     */
+    abstract protected function doProcess(array $processors, array $files, ProgressBar $progressBar = null): bool;
 
+    /**
+     * Returns the file getter for the given type. If the file getter is not already created, it will be created.
+     *
+     * @param string $type
+     * @return FileGetterInterface
+     */
     protected function getFileGetter(string $type): FileGetterInterface
     {
         if (!isset($this->fileGetters[$type])) {
@@ -66,6 +105,13 @@ abstract class AbstractType implements TypeInterface
         return $this->fileGetters[$type];
     }
 
+    /**
+     * Consolidate the results of the processors and the erroneous files. It will set a score for each erroneous file
+     * depending on the number and severity of errors found.
+     *
+     * @param array $processors
+     * @return void
+     */
     protected function manageResults(array $processors) : void
     {
         foreach ($processors as $processor) {
@@ -80,6 +126,11 @@ abstract class AbstractType implements TypeInterface
         }
     }
 
+    /**
+     * Returns the results of the processors.
+     *
+     * @return array
+     */
     public function getErroneousFiles(): array
     {
         return $this->erroneousFiles;

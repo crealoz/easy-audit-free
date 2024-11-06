@@ -12,4 +12,6 @@ interface TypeInterface
     public function getErroneousFiles(): array;
 
     public function initResults(array $subTypes): void;
+
+    public function hasErrors(): bool;
 }

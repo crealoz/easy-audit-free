@@ -23,6 +23,11 @@ class FileGetter implements FileGetterInterface
     {
     }
 
+    /**
+     * This function will return an array of files from the directory. If a filter is set, it will be used to filter the
+     * files. Time of execution is displayed in the console.
+     * @return array
+     */
     public function execute(): array
     {
         $files = [];
@@ -30,28 +35,7 @@ class FileGetter implements FileGetterInterface
         $iterator = new \RecursiveIteratorIterator($directory);
         $regex = new RegexIterator($iterator, $this->pattern, RegexIterator::GET_MATCH);
         if ($this->filter !== '') {
-            $this->ignoredFolders = $this->filterGetter->getFilter($this->filter);
-            $progressBar = null;
-            if (php_sapi_name() === 'cli') {
-                $output = new \Symfony\Component\Console\Output\ConsoleOutput();
-                $output->writeln(PHP_EOL.'Filtering files...');
-                $progressBar = new \Symfony\Component\Console\Helper\ProgressBar($output, iterator_count($regex));
-            }
-            foreach ($regex as $file) {
-                $progressBar?->advance();
-                $file = $file[0];
-                $isIgnored = false;
-                foreach ($this->ignoredFolders as $ignoredFolder) {
-                    if (str_contains($file, $ignoredFolder)) {
-                        $isIgnored = true;
-                        break;
-                    }
-                }
-                if (!$isIgnored) {
-                    $files[] = $file;
-                }
-            }
-            $progressBar?->finish();
+            $files = $this->applyFilter($regex);
         } else {
             foreach ($regex as $file) {
                 $files[] = $file[0];
@@ -60,5 +44,39 @@ class FileGetter implements FileGetterInterface
         return $files;
     }
 
+    private function applyFilter($regex): array
+    {
+        $files = [];
+        $progressBar = null;
+        if (php_sapi_name() === 'cli') {
+            $output = new \Symfony\Component\Console\Output\ConsoleOutput();
+            $output->writeln(PHP_EOL.'Filtering files...');
+            $start = microtime(true);
+            $progressBar = new \Symfony\Component\Console\Helper\ProgressBar($output, iterator_count($regex));
+        }
+        $this->ignoredFolders = $this->filterGetter->getFilter($this->filter);
+        if (isset($start)) {
+            $output->writeln('It took '.round(microtime(true) - $start, 2).'s to get the filters');
+        }
+        foreach ($regex as $file) {
+            $progressBar?->advance();
+            $file = $file[0];
+            $isIgnored = false;
+            foreach ($this->ignoredFolders as $ignoredFolder) {
+                if (str_contains($file, $ignoredFolder)) {
+                    $isIgnored = true;
+                    break;
+                }
+            }
+            if (!$isIgnored) {
+                $files[] = $file;
+            }
+        }
+        if (isset($start)) {
+            $output->writeln(PHP_EOL.'Files filtered in '.round(microtime(true) - $start, 2).'s');
+        }
+        $progressBar?->finish();
+        return $files;
+    }
 
 }
