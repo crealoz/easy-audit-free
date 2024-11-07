@@ -10,7 +10,7 @@ use Magento\Framework\Exception\FileSystemException;
 /**
  * @author Christophe Ferreboeuf <christophe@crealoz.fr>
  */
-class AroundChecker
+abstract class AroundChecker
 {
     public function __construct(
         protected readonly Functions $functionsParser,
@@ -46,36 +46,20 @@ class AroundChecker
         }
     }
 
-    /**
-     * @throws AroundToAfterPluginException
-     * @throws AroundToBeforePluginException
-     */
-    protected function checkAroundMethod($class, $filePath, $aroundMethod): void
+    protected function getFunctionLines($class, $filePath, $aroundMethod): string
     {
         $functionContent = $this->functionsParser->getFunctionContent($class, $filePath, $aroundMethod);
         preg_match('/\{(.*)\}/s', $functionContent, $matches);
-        $interior = trim($matches[1]);
-
-        $lines = explode("\n", $interior);
-        $filteredLines = array_filter($lines, function($line) {
-            $line = trim($line);
-            return $line !== '' && !preg_match('/^(try|if)/', $line);
-        });
-        if (isset($filteredLines[1]) && str_contains($filteredLines[1], 'proceed')) {
-            throw new AroundToAfterPluginException(__('An around method should not contain $proceed as first statement'), $class);
-        }
-        $lines = array_reverse(explode("\n", $interior));
-        $lastReturn = '';
-
-        foreach ($lines as $line) {
-            $line = trim($line);
-            if (str_contains($line, 'return')) {
-                $lastReturn = $line;
-                break;
-            }
-        }
-        if (str_contains($lastReturn, '$proceed')) {
-            throw new AroundToBeforePluginException(__('An around method should not return $proceed as last statement'), $class);
-        }
+        return trim($matches[1]);
     }
+
+    /**
+     * @param $class
+     * @param $filePath
+     * @param $aroundMethod
+     * @return void
+     * @throws AroundToBeforePluginException|AroundToAfterPluginException
+     */
+    abstract protected function checkAroundMethod($class, $filePath, $aroundMethod): void;
+
 }
