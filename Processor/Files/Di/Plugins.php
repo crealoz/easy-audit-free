@@ -6,10 +6,10 @@ use Crealoz\EasyAudit\Exception\Processor\Plugins\AroundToAfterPluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\AroundToBeforePluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\ConfigProviderPluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\MagentoFrameworkPluginExtension;
-use Crealoz\EasyAudit\Exception\Processor\Plugins\PluginFileDoesNotExistException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\SameModulePluginException;
 use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
-use Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundChecker;
+use Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundToAfter;
+use Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundToBefore;
 use Crealoz\EasyAudit\Processor\Files\Di\Plugins\CheckConfigProvider;
 use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Crealoz\EasyAudit\Service\Audit;
@@ -31,7 +31,8 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
     }
 
     public function __construct(
-        protected AroundChecker              $aroundChecker,
+        private readonly AroundToAfter       $aroundToAfter,
+        private readonly AroundToBefore      $aroundToBefore,
         private readonly CheckConfigProvider $checkConfigProvider,
         private readonly LoggerInterface     $logger,
         private readonly Files               $filesUtility
@@ -174,21 +175,28 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
             $this->results['errors']['magentoFrameworkPlugin']['files'][$e->getPluggedFile()][] = $e->getErroneousFile();
             $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
         }
+
+        if (!$this->filesUtility->classFileExists($pluggingClass)) {
+            $this->results['hasErrors'] = true;
+            $this->results['warnings']['nonExistentPluginFile']['files'][] = $pluggingClass;
+            $this->addErroneousFile($pluggingClass, Audit::PRIORITY_AVERAGE);
+        }
         try {
-            $this->checkPluginFile($pluggingClass);
-        } catch (PluginFileDoesNotExistException $e) {
-            $this->results['hasErrors'] = true;
-            $this->results['warnings']['nonExistentPluginFile']['files'][] = $e->getErroneousFile();
-            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_AVERAGE);
-        } catch (AroundToBeforePluginException $e) {
-            $this->results['hasErrors'] = true;
-            $this->results['warnings']['aroundToBeforePlugin']['files'][] = $e->getErroneousFile();
-            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
+            $this->checkAroundToAfter($pluggingClass);
         } catch (AroundToAfterPluginException $e) {
             $this->results['hasErrors'] = true;
             $this->results['warnings']['aroundToAfterPlugin']['files'][] = $e->getErroneousFile();
             $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
         }
+
+        try {
+            $this->checkAroundToBefore($pluggingClass);
+        } catch (AroundToBeforePluginException $e) {
+            $this->results['hasErrors'] = true;
+            $this->results['warnings']['aroundToBeforePlugin']['files'][] = $e->getErroneousFile();
+            $this->addErroneousFile($e->getErroneousFile(), Audit::PRIORITY_HIGH);
+        }
+
         try {
             $this->isCheckoutConfigProviderPlugin($pluggedInClass, $pluggingClass);
         } catch (ConfigProviderPluginException $e) {
@@ -198,6 +206,12 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         }
     }
 
+    /**
+     * @param string $pluggingClass
+     * @param string $pluggedInClass
+     * @return void
+     * @throws SameModulePluginException
+     */
     private function isSameModulePlugin(string $pluggingClass, string $pluggedInClass): void
     {
         $pluggingClassParts = explode('\\', $pluggingClass);
@@ -210,6 +224,12 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         }
     }
 
+    /**
+     *
+     * @param string $pluggingClass
+     * @param string $pluggedInClass
+     * @throws MagentoFrameworkPluginExtension
+     */
     private function isMagentoFrameworkClass(string $pluggingClass, string $pluggedInClass): void
     {
         if (str_starts_with($pluggedInClass, 'Magento\\Framework\\')) {
@@ -220,21 +240,40 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         }
     }
 
-    private function checkPluginFile(string $pluggingClass): void
+    /**
+     * @param string $pluggingClass
+     * @return void
+     * @throws AroundToAfterPluginException
+     */
+    private function checkAroundToAfter(string $pluggingClass): void
     {
-        if (!$this->filesUtility->classFileExists($pluggingClass)) {
-            throw new PluginFileDoesNotExistException(
-                __("Plugin file does not exist: $pluggingClass"),
-                $pluggingClass
-            );
-        }
         try {
-            $this->aroundChecker->execute($pluggingClass);
-        } catch (FileSystemException|\ReflectionException $e) {
+            $this->aroundToAfter->execute($pluggingClass);
+        } catch (FileSystemException|\ReflectionException|AroundToBeforePluginException $e) {
             $this->logger->error($e->getMessage());
         }
     }
 
+    /**
+     * @param string $pluggingClass
+     * @return void
+     * @throws AroundToBeforePluginException
+     */
+    private function checkAroundToBefore(string $pluggingClass): void
+    {
+        try {
+            $this->aroundToBefore->execute($pluggingClass);
+        } catch (FileSystemException|\ReflectionException|AroundToAfterPluginException $e) {
+            $this->logger->error($e->getMessage());
+        }
+    }
+
+    /**
+     * @param string $pluggedInClass
+     * @param string $pluggingClass
+     * @return void
+     * @throws ConfigProviderPluginException
+     */
     private function isCheckoutConfigProviderPlugin(string $pluggedInClass, string $pluggingClass): void
     {
         try {

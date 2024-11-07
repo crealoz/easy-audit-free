@@ -15,6 +15,14 @@ For more details on the processors used in the EasyAudit project, refer to the [
 
 ## Installation
 
+The package is available on Packagist, so you can install it via Composer:
+
+```bash
+composer require crealoz/easy-audit-free
+```
+
+If you want to install the module manually (for participation), follow these steps:
+
 1. Clone the repository:
 ```bash
 git clone git@github.com:crealoz/easy-audit.git
