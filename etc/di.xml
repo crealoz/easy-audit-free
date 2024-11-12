@@ -182,30 +182,6 @@
         </arguments>
     </type>
     <!-- DataSources for the grids -->
-    <!-- Audit -->
-    <virtualType name="Crealoz\EasyAudit\Ui\DataProvider\Audit" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
-        <arguments>
-            <argument name="collection" xsi:type="object" shared="false">Crealoz\EasyAudit\Model\ResourceModel\Audit\Grid\Collection</argument>
-            <argument name="filterPool" xsi:type="object" shared="false">Crealoz\EasyAudit\Ui\FilterPool\Audit</argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="Crealoz\EasyAudit\Ui\FilterPool\Audit" type="Magento\Framework\View\Element\UiComponent\DataProvider\FilterPool">
-        <arguments>
-            <argument name="appliers" xsi:type="array">
-                <item name="regular" xsi:type="object">Magento\Framework\View\Element\UiComponent\DataProvider\RegularFilter</item>
-                <item name="fulltext" xsi:type="object">Magento\Framework\View\Element\UiComponent\DataProvider\FulltextFilter</item>
-            </argument>
-        </arguments>
-    </virtualType>
-
-    <virtualType name="Crealoz\EasyAudit\Model\ResourceModel\Audit\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
-        <arguments>
-            <argument name="mainTable" xsi:type="string">crealoz_easyaudit</argument>
-            <argument name="resourceModel" xsi:type="string">Crealoz\EasyAudit\Model\ResourceModel\Audit</argument>
-        </arguments>
-    </virtualType>
-    <!-- End of Audit -->
 
     <!-- AuditRequest -->
     <virtualType name="Crealoz\EasyAudit\Ui\DataProvider\AuditRequest" type="Magento\Framework\View\Element\UiComponent\DataProvider\DataProvider">
@@ -236,7 +212,6 @@
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
-                <item name="crealoz_easyaudit_audit_listing_data_source" xsi:type="string">Crealoz\EasyAudit\Model\ResourceModel\Audit\Grid\Collection</item>
                 <item name="crealoz_easyaudit_request_listing_data_source" xsi:type="string">Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\Grid\Collection</item>
             </argument>
         </arguments>
