@@ -3,7 +3,7 @@
 [![Latest Stable Version](https://img.shields.io/packagist/v/crealoz/easy-audit-free.svg?style=flat-square)](https://packagist.org/packages/crealoz/easy-audit-free)
 [![License: MIT](https://img.shields.io/github/license/crealoz/easy-audit-free.svg?style=flat-square)](./LICENSE)
 [![Packagist](https://img.shields.io/packagist/dt/crealoz/easy-audit-free.svg?style=flat-square)](https://packagist.org/packages/crealoz/easy-audit-free/stats)
-[![Packagist]https://img.shields.io/packagist/dm/crealoz/easy-audit-free.svg?style=flat-square](https://packagist.org/packages/crealoz/easy-audit-free/stats)
+[![Packagist](https://img.shields.io/packagist/dm/crealoz/easy-audit-free.svg?style=flat-square)](https://packagist.org/packages/crealoz/easy-audit-free/stats)
 
 This module is designed to provide auditing capabilities for Magento applications.
 
