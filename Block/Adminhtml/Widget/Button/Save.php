@@ -10,7 +10,7 @@ class Save extends Button implements ButtonProviderInterface
     public function getButtonData()
     {
         return [
-            'label' => __('Save'),
+            'label' => __('Request Audit'),
             'class' => 'save primary',
             'data_attribute' => [
                 'mage-init' => ['button' => ['event' => 'save']],
