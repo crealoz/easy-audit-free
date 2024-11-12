@@ -151,6 +151,7 @@
     <type name="Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+            <argument name="moduleXmlPath" xsi:type="object">Crealoz\EasyAudit\Service\FileSystem\ModuleXmlPath\Proxy</argument>
         </arguments>
     </type>
     <type name="Crealoz\EasyAudit\Processor\Files\Logic\Modules\CheckEnabled">

@@ -8,6 +8,7 @@ use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Crealoz\EasyAudit\Service\Classes\ConstructorService;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\ObjectManager\DefinitionInterface;
 
 class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
 {
@@ -15,7 +16,7 @@ class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
 
     public function __construct(
         private readonly ClassNameGetter $classNameGetter,
-        private readonly \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
+        private readonly DefinitionInterface $definitions,
         private readonly ConstructorService $constructorService
     )
     {

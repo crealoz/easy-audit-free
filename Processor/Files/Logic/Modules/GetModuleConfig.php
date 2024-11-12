@@ -2,6 +2,7 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Logic\Modules;
 
+use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Module\FullModuleList;
@@ -18,7 +19,8 @@ class GetModuleConfig
     public function __construct(
         protected readonly DriverInterface     $driver,
         private readonly FullModuleList        $fullModuleList,
-        private readonly ModuleList            $moduleList
+        private readonly ModuleList            $moduleList,
+        private readonly ModulePaths $moduleXmlPath
     )
     {
     }
@@ -53,6 +55,15 @@ class GetModuleConfig
         $content = $this->driver->fileGetContents($input);
         $xml = new \SimpleXMLElement($content);
         return (string)$xml->module['name'];
+    }
+
+    /**
+     * @throws FileSystemException
+     */
+    public function getModuleNameByAnyFile(string $filePath, bool $isVendor = false): string
+    {
+        $input = $this->moduleXmlPath->getDeclarationXml($filePath, $isVendor);
+        return $this->getModuleName($input);
     }
 
     /**

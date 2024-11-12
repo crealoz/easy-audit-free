@@ -15,7 +15,7 @@ class ClassNameGetter
         protected readonly DriverInterface $driver,
         protected readonly File $io,
         private readonly GetModuleConfig $getModuleConfig,
-        private readonly ModuleXmlPath $moduleXmlPath
+        private readonly ModulePaths $moduleXmlPath
     )
     {
     }

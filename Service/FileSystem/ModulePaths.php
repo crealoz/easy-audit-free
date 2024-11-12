@@ -4,7 +4,7 @@ namespace Crealoz\EasyAudit\Service\FileSystem;
 
 use Magento\Framework\Filesystem;
 
-class ModuleXmlPath
+class ModulePaths
 {
     public function __construct(
         private readonly Filesystem       $filesystem,
@@ -12,7 +12,7 @@ class ModuleXmlPath
     {
     }
 
-    public function getDeclarationXml(string $filePath, bool $isVendor): string
+    public function getDeclarationXml(string $filePath, bool $isVendor = false): string
     {
         $parts = explode('/', $filePath);
         $moduleXmlPath = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . $parts[3] . DIRECTORY_SEPARATOR . 'etc/module.xml';
@@ -22,13 +22,9 @@ class ModuleXmlPath
         return $moduleXmlPath;
     }
 
-    public function getDiXml(string $filePath, bool $isVendor): array
+    public function getDiXml(string $filePath, bool $isVendor = false): array
     {
-        $parts = explode('/', $filePath);
-        $baseDir = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . $parts[3];
-        if ($isVendor) {
-            $baseDir = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2];
-        }
+        $baseDir = $this->getModuleBaseDir($filePath, $isVendor);
         $diXmlPath = [];
         if ($this->filesystem->getDirectoryReadByPath($baseDir . DIRECTORY_SEPARATOR . 'etc')->isExist('di.xml')) {
             $diXmlPath['general'] = $baseDir . DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'di.xml';
@@ -40,5 +36,25 @@ class ModuleXmlPath
             $diXmlPath['adminhtml'] = $baseDir . DIRECTORY_SEPARATOR . 'etc' . DIRECTORY_SEPARATOR . 'adminhtml' . DIRECTORY_SEPARATOR . 'di.xml';
         }
         return $diXmlPath;
+    }
+
+    /**
+     * @param string $filePath
+     * @param bool $isVendor
+     * @return string
+     */
+    public function getFrontendPath(string $filePath, bool $isVendor = false): string
+    {
+        return $this->getModuleBaseDir($filePath, $isVendor) . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'frontend';
+    }
+
+    public function getModuleBaseDir(string $filePath, bool $isVendor = false): string
+    {
+        $parts = explode('/', $filePath);
+        $baseDir = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . $parts[3];
+        if ($isVendor) {
+            $baseDir = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2];
+        }
+        return $baseDir;
     }
 }
