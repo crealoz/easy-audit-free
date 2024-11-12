@@ -114,7 +114,3 @@ Add your new file getter to the `fileGetters` array in `di.xml`:
 ## Contributing
 
 Contributions are welcome. Please make sure to update tests as appropriate.
-
-## License
-
-[OSL-3.0](https://opensource.org/licenses/OSL-3.0)
