@@ -6,6 +6,7 @@ use Crealoz\EasyAudit\Exception\Processor\Plugins\AroundToAfterPluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\AroundToBeforePluginException;
 use Crealoz\EasyAudit\Service\Parser\Functions;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Filesystem\DriverInterface;
 
 /**
  * @author Christophe Ferreboeuf <christophe@crealoz.fr>
@@ -14,7 +15,7 @@ abstract class AroundChecker
 {
     public function __construct(
         protected readonly Functions $functionsParser,
-        protected readonly \Magento\Framework\Filesystem\DriverInterface $driver
+        protected readonly DriverInterface $driver
     )
     {
 

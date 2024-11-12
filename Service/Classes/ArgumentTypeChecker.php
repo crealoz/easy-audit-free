@@ -57,7 +57,6 @@ class ArgumentTypeChecker
 
     /**
      * Session is managed elsewhere it must use a proxy
-     * @todo manage session
      * @param $argumentName
      * @return bool
      */
