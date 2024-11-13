@@ -2,9 +2,10 @@
 
 namespace Crealoz\EasyAudit\Processor\Files;
 
+use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
 
-abstract class AbstractProcessor implements ProcessorInterface
+abstract class AbstractAuditProcessor implements AuditProcessorInterface
 {
 
     protected array $results = [];
@@ -16,7 +17,7 @@ abstract class AbstractProcessor implements ProcessorInterface
         return array_key_exists('hasErrors', $this->results) && $this->results['hasErrors'];
     }
 
-    abstract public function run($input);
+    abstract public function run(): void;
 
     public function prepopulateResults(): void {
         $this->erroneousFiles = [];

@@ -2,7 +2,7 @@
 
 namespace Crealoz\EasyAudit\Service;
 
-use Crealoz\EasyAudit\Processor\Results\ResultProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\ResultProcessorInterface;
 use Crealoz\EasyAudit\Processor\Type\TypeFactory;
 use Magento\Framework\Exception\FileSystemException;
 use Psr\Log\LoggerInterface;

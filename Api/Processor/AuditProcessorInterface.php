@@ -1,16 +1,16 @@
 <?php
 
-namespace Crealoz\EasyAudit\Processor\Files;
+namespace Crealoz\EasyAudit\Api\Processor;
 
 /**
  * @author Christophe Ferreboeuf <christophe@crealoz.fr>
  */
-interface ProcessorInterface
+interface AuditProcessorInterface
 {
     /**
      * @param $input
      */
-    public function run($input);
+    public function run(): void;
 
     /**
      * @return string

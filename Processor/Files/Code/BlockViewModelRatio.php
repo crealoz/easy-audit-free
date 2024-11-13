@@ -2,10 +2,11 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Code;
 
-use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\Audit\ArrayProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\AbstractArrayProcessor;
+use Crealoz\EasyAudit\Processor\Files\AbstractAuditProcessor;
 
-class BlockViewModelRatio extends AbstractProcessor implements ProcessorInterface
+class BlockViewModelRatio extends AbstractArrayProcessor implements ArrayProcessorInterface
 {
 
     public function getProcessorName(): string
@@ -44,12 +45,9 @@ class BlockViewModelRatio extends AbstractProcessor implements ProcessorInterfac
         ];
     }
 
-    public function run($input)
+    public function run(): void
     {
-        if (!is_array($input)) {
-            throw new \InvalidArgumentException('Input must be an array');
-        }
-        $files = $this->segregateFilesByModule($input);
+        $files = $this->segregateFilesByModule($this->getArray());
         foreach ($files as $module => $moduleFiles) {
             $blockViewModelRatio = $this->getBlockViewModelRatio($moduleFiles);
             if ($blockViewModelRatio > 0.5) {

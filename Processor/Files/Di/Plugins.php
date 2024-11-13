@@ -2,22 +2,22 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Di;
 
+use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\AroundToAfterPluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\AroundToBeforePluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\ConfigProviderPluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\MagentoFrameworkPluginExtension;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\SameModulePluginException;
-use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
+use Crealoz\EasyAudit\Processor\Files\AbstractXmlProcessor;
 use Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundToAfter;
 use Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundToBefore;
 use Crealoz\EasyAudit\Processor\Files\Di\Plugins\CheckConfigProvider;
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Crealoz\EasyAudit\Service\Audit;
 use Magento\Framework\App\Utility\Files;
 use Magento\Framework\Exception\FileSystemException;
 use Psr\Log\LoggerInterface;
 
-class Plugins extends AbstractProcessor implements ProcessorInterface
+class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
 {
 
     public function getProcessorName(): string
@@ -123,31 +123,22 @@ class Plugins extends AbstractProcessor implements ProcessorInterface
         ];
     }
 
-    public function run($input)
+    public function run(): void
     {
-        if (!($input instanceof \SimpleXMLElement)) {
-            throw new \InvalidArgumentException("Input must be an instance of SimpleXMLElement");
-        }
 
-        $typeNodes = $input->xpath('//type[plugin]');
+        $typeNodes = $this->getContent()->xpath('//type[plugin]');
+        foreach ($typeNodes as $typeNode) {
+            $pluginNodes = $typeNode->xpath('plugin');
+            $pluggedClassName = (string)$typeNode['name'];
 
-        try {
-            foreach ($typeNodes as $typeNode) {
-                $pluginNodes = $typeNode->xpath('plugin');
-                $pluggedClassName = (string)$typeNode['name'];
-
-                foreach ($pluginNodes as $pluginNode) {
-                    $pluggingClassName = (string)$pluginNode['type'];
-                    $pluginDisabled = (string)$pluginNode['disabled'] ?? 'false';
-                    if ($pluginDisabled === 'true') {
-                        continue;
-                    }
-                    $this->processPlugin($pluggingClassName, $pluggedClassName);
+            foreach ($pluginNodes as $pluginNode) {
+                $pluggingClassName = (string)$pluginNode['type'];
+                $pluginDisabled = (string)$pluginNode['disabled'] ?? 'false';
+                if ($pluginDisabled === 'true') {
+                    continue;
                 }
+                $this->processPlugin($pluggingClassName, $pluggedClassName);
             }
-        } catch (FileSystemException $e) {
-            $this->results['warnings']['insufficientPermissions']['files'][] = $e->getMessage();
-            $this->addErroneousFile($input, Audit::PRIORITY_HIGH);
         }
     }
 

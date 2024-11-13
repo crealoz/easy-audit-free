@@ -2,7 +2,8 @@
 
 namespace Crealoz\EasyAudit\Processor\Type;
 
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\Audit\ArrayProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class Logic extends AbstractType implements TypeInterface
@@ -16,14 +17,22 @@ class Logic extends AbstractType implements TypeInterface
         $hasErrors = false;
         foreach ($processors as $processor) {
             $progressBar?->advance();
-            if (!$processor instanceof ProcessorInterface) {
+            if (!$processor instanceof AuditProcessorInterface) {
                 throw new \InvalidArgumentException('Processor must implement ProcessorInterface');
             }
-            $processor->run($files);
+            if ($processor instanceof ArrayProcessorInterface) {
+                $processor->setArray($files);
+            }
+            $processor->run();
             if ($hasErrors === false && $processor->hasErrors()) {
                 $hasErrors = true;
             }
         }
         return $hasErrors;
+    }
+
+    protected function getProgressBarCount(array $processors, array $files): int
+    {
+        return count($processors);
     }
 }

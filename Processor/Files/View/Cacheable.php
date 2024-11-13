@@ -2,10 +2,10 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\View;
 
-use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\AbstractXmlProcessor;
 
-class Cacheable extends AbstractProcessor implements ProcessorInterface
+class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
 {
     protected array $allowedAreas = ['sales', 'customer', 'gift', 'message'];
 
@@ -43,13 +43,9 @@ class Cacheable extends AbstractProcessor implements ProcessorInterface
         ];
     }
 
-    public function run($input)
+    public function run(): void
     {
-        if (!$input instanceof \SimpleXMLElement) {
-            throw new \InvalidArgumentException('Input is not an instance of SimpleXMLElement');
-        }
-
-        $blocksNotCached = $input->xpath('//block[@cacheable="false"]');
+        $blocksNotCached = $this->getXml()->xpath('//block[@cacheable="false"]');
         if (count($blocksNotCached) > 0) {
             $this->results['hasErrors'] = true;
             foreach ($blocksNotCached as $block) {

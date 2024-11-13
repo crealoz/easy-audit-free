@@ -2,13 +2,13 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Code;
 
-use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\AbstractFileProcessor;
 use Crealoz\EasyAudit\Service\Audit;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\DriverInterface;
 
-class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
+class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInterface
 {
 
     public function getProcessorName(): string
@@ -104,8 +104,9 @@ class HardWrittenSQL extends AbstractProcessor implements ProcessorInterface
     /**
      * @throws FileSystemException
      */
-    public function run($input)
+    public function run(): void
     {
+        $input = $this->getFile();
         $code = $this->driver->fileGetContents($input);
         if (str_contains($code, 'SELECT')) {
             /**
