@@ -20,7 +20,7 @@ class GetModuleConfig
         protected readonly DriverInterface     $driver,
         private readonly FullModuleList        $fullModuleList,
         private readonly ModuleList            $moduleList,
-        private readonly ModulePaths $moduleXmlPath
+        private readonly ModulePaths $modulePath
     )
     {
     }
@@ -62,7 +62,7 @@ class GetModuleConfig
      */
     public function getModuleNameByAnyFile(string $filePath, bool $isVendor = false): string
     {
-        $input = $this->moduleXmlPath->getDeclarationXml($filePath, $isVendor);
+        $input = $this->modulePath->getDeclarationXml($filePath, $isVendor);
         return $this->getModuleName($input);
     }
 

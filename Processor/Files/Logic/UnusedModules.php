@@ -2,12 +2,12 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Logic;
 
-use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
+use Crealoz\EasyAudit\Api\Processor\Audit\ArrayProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\AbstractArrayProcessor;
 use Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig;
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
 use Magento\Framework\Exception\FileSystemException;
 
-class UnusedModules extends AbstractProcessor implements ProcessorInterface
+class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInterface
 {
     public function getAuditSection(): string
     {
@@ -53,9 +53,9 @@ class UnusedModules extends AbstractProcessor implements ProcessorInterface
     /**
      * @throws FileSystemException
      */
-    public function run($input)
+    public function run(): void
     {
-        $unusedModules = $this->getModuleConfig->process($input);
+        $unusedModules = $this->getModuleConfig->process($this->getArray());
         if (!empty($unusedModules)) {
             foreach ($unusedModules as $module) {
                 $this->results['hasErrors'] = true;

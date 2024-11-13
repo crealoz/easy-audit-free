@@ -2,7 +2,7 @@
 
 namespace Crealoz\EasyAudit\Processor\Results;
 
-class ErroneousFiles implements \Crealoz\EasyAudit\Processor\Results\ResultProcessorInterface
+class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessorInterface
 {
     /**
      * Checks results for erroneous files entries where score is superior to 5 then gets the ones where score is

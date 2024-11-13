@@ -42,6 +42,11 @@ class SizeCalculation
 
     private function calculateNumberOfLines($text, $columnCount = 1): int
     {
+        if (!is_string($text)) {
+            debug_print_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            dd($text);
+
+        }
         return ceil(strlen($text) / (130 / $columnCount));
     }
 

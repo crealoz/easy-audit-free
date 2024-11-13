@@ -2,7 +2,8 @@
 
 namespace Crealoz\EasyAudit\Processor\Type;
 
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 class Xml extends AbstractType implements TypeInterface
@@ -15,22 +16,25 @@ class Xml extends AbstractType implements TypeInterface
     {
         $hasErrors = false;
         foreach ($files as $xmlFile) {
-            $xml = simplexml_load_file($xmlFile);
-            $progressBar?->advance();
-            if ($xml === false) {
-                $this->logger->error("Failed to load XML file: $xmlFile");
-                continue;
-            }
             foreach ($processors as $processor) {
-                if (!$processor instanceof ProcessorInterface) {
+                if (!$processor instanceof AuditProcessorInterface) {
                     throw new \InvalidArgumentException('Processor must implement ProcessorInterface');
                 }
-                $processor->run($xml);
+                if ($processor instanceof FileProcessorInterface) {
+                    $processor->setFile($xmlFile);
+                }
+                $processor->run();
+                $progressBar?->advance();
                 if ($hasErrors === false && $processor->hasErrors()) {
                     $hasErrors = true;
                 }
             }
         }
         return $hasErrors;
+    }
+
+    protected function getProgressBarCount(array $processors, array $files): int
+    {
+        return count($processors) * count($files);
     }
 }

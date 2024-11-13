@@ -50,7 +50,7 @@ abstract class AbstractType implements TypeInterface
                 if ($output) {
                     $output->writeln("\r\nProcessing $subType files...");
                     /** if we are in command line, we display a bar */
-                    $progressBar = new ProgressBar($output, count($files));
+                    $progressBar = new ProgressBar($output, $this->getProgressBarCount($processors, $files));
                     $progressBar->start();
                 }
                 $errors = $this->doProcess($processors, $files, $progressBar);
@@ -65,6 +65,8 @@ abstract class AbstractType implements TypeInterface
         }
         return $this->results;
     }
+
+    abstract protected function getProgressBarCount(array $processors, array $files): int;
 
     /**
      * Initializes the results array to avoid malformed results.

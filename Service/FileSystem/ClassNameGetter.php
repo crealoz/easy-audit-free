@@ -15,7 +15,7 @@ class ClassNameGetter
         protected readonly DriverInterface $driver,
         protected readonly File $io,
         private readonly GetModuleConfig $getModuleConfig,
-        private readonly ModulePaths $moduleXmlPath
+        private readonly ModulePaths $modulePaths
     )
     {
     }
@@ -68,7 +68,7 @@ class ClassNameGetter
     private function getNamespaceForVendorModule(string $filePath): string
     {
         $parts = explode('/', $filePath);
-        $moduleXmlPath = $this->moduleXmlPath->getDeclarationXml($filePath, true);
+        $moduleXmlPath = $this->modulePaths->getDeclarationXml($filePath, true);
         $moduleName = $this->getModuleConfig->getModuleName($moduleXmlPath);
         $namespaceParts = explode('_', $moduleName);
         $namespace = $namespaceParts[0] . DIRECTORY_SEPARATOR . $namespaceParts[1];

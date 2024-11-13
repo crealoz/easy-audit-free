@@ -2,9 +2,11 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Code;
 
+use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
+use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
-use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\AbstractAuditProcessor;
+use Crealoz\EasyAudit\Processor\Files\AbstractFileProcessor;
 use Crealoz\EasyAudit\Service\Audit;
 use Crealoz\EasyAudit\Service\Classes\ArgumentTypeChecker;
 use Crealoz\EasyAudit\Service\Classes\ConstructorService;
@@ -16,7 +18,7 @@ use Magento\Framework\Exception\FileSystemException;
  * A class must not be injected in controller as a specific class. In all the cases, a factory or an interface should be used.
  * @author Christophe Ferreboeuf <christophe@crealoz.fr>
  */
-class SpecificClassInjection extends AbstractProcessor implements ProcessorInterface
+class SpecificClassInjection extends AbstractFileProcessor implements FileProcessorInterface
 {
     private array $ignoredClass = [
         'Magento\Framework\Escaper',
@@ -118,11 +120,11 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
     {
         return __('PHP');
     }
-    public function run($input)
+    public function run(): void
     {
         // First we get class name from the input that represents the file's path
         try {
-            $className = $this->classNameGetter->getClassFullNameFromFile($input);
+            $className = $this->classNameGetter->getClassFullNameFromFile($this->getFile());
         } catch (NotAClassException|FileSystemException $e) {
             return;
         }
@@ -141,7 +143,7 @@ class SpecificClassInjection extends AbstractProcessor implements ProcessorInter
         }
         $fileErrorLevel = 0;
         foreach ($arguments as $argument) {
-            if ($argument === null || !is_array($argument) || count($argument) < 2 || !is_string($argument[1])) {
+            if (!is_array($argument) || count($argument) < 2 || !is_string($argument[1])) {
                 continue;
             }
             $argumentName = $argument[1];

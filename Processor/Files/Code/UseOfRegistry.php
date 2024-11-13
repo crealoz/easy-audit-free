@@ -2,15 +2,15 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Code;
 
+use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
 use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
-use Crealoz\EasyAudit\Processor\Files\AbstractProcessor;
-use Crealoz\EasyAudit\Processor\Files\ProcessorInterface;
+use Crealoz\EasyAudit\Processor\Files\AbstractFileProcessor;
 use Crealoz\EasyAudit\Service\Classes\ConstructorService;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\ObjectManager\DefinitionInterface;
 
-class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
+class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterface
 {
 
 
@@ -56,10 +56,10 @@ class UseOfRegistry extends AbstractProcessor implements ProcessorInterface
         return __('PHP');
     }
 
-    public function run($input): void
+    public function run(): void
     {
         try {
-            $className = $this->classNameGetter->getClassFullNameFromFile($input);
+            $className = $this->classNameGetter->getClassFullNameFromFile($this->getFile());
         } catch (NotAClassException|FileSystemException $e) {
             return;
         }
