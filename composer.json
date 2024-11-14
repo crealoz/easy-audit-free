@@ -8,7 +8,7 @@
         "phpunit/phpunit": "*"
     },
     "type": "magento2-module",
-    "version": "0.0.8-b",
+    "version": "0.0.9-b",
     "license": [
         "OSL-3.0"
     ],
