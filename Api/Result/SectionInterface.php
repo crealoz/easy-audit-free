@@ -6,6 +6,21 @@ use Crealoz\EasyAudit\Service\PDFWriter;
 
 interface SectionInterface
 {
-    public function writeSection(PDFWriter $pdfWriter, array $subresults): void;
+    /**
+     * @param PDFWriter $pdfWriter
+     * @param array $subresults
+     * @param bool $isAnnex
+     * @return void
+     * @throws \Zend_Pdf_Exception
+     */
+    public function writeSection(PDFWriter $pdfWriter, array $subresults, bool $isAnnex = false): void;
+
+    /**
+     * Calculate the size of the section
+     *
+     * @param array $subresults
+     * @return int
+     */
+    public function calculateSize(array $subresults): int;
 
 }

@@ -11,6 +11,9 @@ use Magento\Framework\Filesystem;
 use Magento\Framework\Module\Dir\Reader;
 
 /**
+ * Class PDFWriter
+ * It is responsible for writing the PDF file. It will manage the creation of the PDF, the writing of the different sections.
+ *
  * @author Christophe Ferreboeuf <christophe@crealoz.fr>
  */
 class PDFWriter
@@ -67,7 +70,6 @@ class PDFWriter
             $this->logo = null;
         }
         $this->cliTranslator->initLanguage($locale);
-        $erroneousFiles = $results['erroneousFiles'];
         $introductions = $results['introduction'] ?? [];
         $this->addPage();
         $this->logger->debug('Starting to write the introduction');
@@ -130,6 +132,10 @@ class PDFWriter
     }
 
     /**
+     * Manage the introduction of the PDF. It will display disclaimers, introduction and the most problematic files
+     * using a score.
+     *
+     * @param array $introduction
      * @throws \Zend_Pdf_Exception
      */
     private function manageIntroduction(array $introduction): void
@@ -163,7 +169,13 @@ class PDFWriter
         }
     }
 
-    private function stripVendorOrApp($path): string
+    /**
+     * Remove the vendor or app part of a path
+     *
+     * @param string $path
+     * @return string
+     */
+    public function stripVendorOrApp(string $path): string
     {
         $pathParts = explode(DIRECTORY_SEPARATOR, $path);
         if (isset($pathParts[0]) && in_array($pathParts[0], ['vendor', 'app'])) {
@@ -209,6 +221,10 @@ class PDFWriter
     }
 
     /**
+     * Display a section of the PDF. If the section is too big, it will be displayed in an annex.
+     *
+     * @param string $title the title of the section
+     * @param array $section the section to display
      * @throws \Zend_Pdf_Exception
      */
     private function displaySection(string $title, array $section): void
@@ -225,7 +241,12 @@ class PDFWriter
                 if (!isset($this->specificSections[$sectionName]) || !$this->specificSections[$sectionName] instanceof SectionInterface) {
                     throw new \InvalidArgumentException("Specific section $sectionName is not valid");
                 }
-                $this->specificSections[$sectionName]->writeSection($this, $entries);
+                $numberOfPages = $this->specificSections[$sectionName]->calculateSize($entries) / 800;
+                if ($numberOfPages > 10) {
+                    $this->delegateToAnnex($numberOfPages, $entries, $title, $sectionName);
+                } else {
+                    $this->specificSections[$sectionName]->writeSection($this, $entries);
+                }
             } else {
                 $this->manageSubsection($entries);
             }
@@ -233,9 +254,12 @@ class PDFWriter
     }
 
     /**
+     * The generic function to write subsections. It displays the title, the explanation and the files.
+     *
+     * @param array $subResults
      * @throws \Zend_Pdf_Exception
      */
-    private function manageSubsection($subResults): void
+    private function manageSubsection(array $subResults): void
     {
         if ($subResults['files'] === []) {
             return;
@@ -254,13 +278,14 @@ class PDFWriter
     }
 
     /**
-     * @param $numberOfPages
-     * @param $key
-     * @param $files
+     * Function to manage the files to display in a section. It is use for main sections and annexes
+     *
+     * @param int $numberOfPages the number of pages the section will take
+     * @param array|string $resultFiles the files to display (can be other things than files)
      * @return void
      * @throws \Zend_Pdf_Exception
      */
-    private function manageFiles($numberOfPages, $resultFiles): void
+    private function manageFiles(int $numberOfPages, array|string $resultFiles): void
     {
         if ($numberOfPages > 1) {
             $this->setColumnCount(2);
@@ -281,18 +306,16 @@ class PDFWriter
     }
 
     /**
-     * @param int $pages
-     * @param $key
-     * @param $files
+     * @param int $pages the number of pages the annex will take
+     * @param array $files the files to display (can be other things than files)
+     * @param string $description the description of the annex
+     * @param null $specificSection in case a specific display for the section is needed
      * @return void
      * @throws \Zend_Pdf_Exception
      */
-    public function delegateToAnnex(int $pages, $files, $description): void
+    public function delegateToAnnex(int $pages, array $files, string $description, $specificSection = null): void
     {
-        if (!is_array($files)) {
-            throw new \InvalidArgumentException('Files must be an array to be delegated to annex.');
-        }
-        $this->annexes[$this->annexNumber] = ['pages' => $pages, 'files' => $files, 'description' => $description];
+        $this->annexes[$this->annexNumber] = ['pages' => $pages, 'files' => $files, 'description' => $description, 'specificSection' => $specificSection];
         $this->writeLine(__('See annexe %1 for more details.', $this->annexNumber));
         $this->annexNumber++;
     }
@@ -307,7 +330,13 @@ class PDFWriter
             $this->addPage();
             $this->writeTitle('Annex ' . $annexNumber);
             $this->writeLine($annex['description']);
-            $this->manageFiles($annex['pages'], $annex['files']);
+            if (isset($annex['specificSection']) && isset($this->specificSections[$annex['specificSection']])) {
+                /** @var SectionInterface $specificSection */
+                $specificSection = $this->specificSections[$annex['specificSection']];
+                $specificSection->writeSection($this, $annex['files'], true);
+            } else {
+                $this->manageFiles($annex['pages'], $annex['files']);
+            }
             if ($this->columnCount !== 1) {
                 $this->setColumnCount(1);
             }
@@ -315,9 +344,20 @@ class PDFWriter
     }
 
     /**
+     * Write a line of text in the PDF. If the line is too long, it will be split in multiple lines. Using the translator,
+     * it will try to translate the text.
+     *
+     * @param string $text text to write
+     * @param bool $isFile either the text is a file path or not
+     * @param int $size font size
+     * @param int $depth depth of the recursion
+     * @param float $r red color balance between 0 and 1
+     * @param float $g green color balance between 0 and 1
+     * @param float $b blue color balance between 0 and 1
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
-    public function writeLine($text, $isFile = false, $size = 9, $depth = 0, $r = 0, $g = 0, $b = 0): void
+    public function writeLine(string $text, bool $isFile = false, int $size = 9, int $depth = 0, float $r = 0, float $g = 0, float $b = 0): void
     {
         $translatedText = trim($text);
         if ($depth == 0) {
@@ -352,6 +392,9 @@ class PDFWriter
     }
 
     /**
+     * Check if we need to switch column or add a new page.
+     *
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
     public function switchColumnOrAddPage(): void
@@ -369,6 +412,10 @@ class PDFWriter
     }
 
     /**
+     * Change the number of columns. If the number of columns is reduced to 1, a new page is added.
+     *
+     * @param int $columnCount
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
     public function setColumnCount(int $columnCount): void
@@ -386,8 +433,12 @@ class PDFWriter
     }
 
 
-
     /**
+     * Try to translate the title and write it in the PDF.
+     *
+     * @param $text
+     * @param $x
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
     private function writeTitle($text, $x = null): void
@@ -406,9 +457,13 @@ class PDFWriter
     }
 
     /**
+     * Write the introduction of a subsection. It will display the title, the explanation and the caution if any relevant.
+     *
+     * @param array $subsection
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
-    public function writeSubSectionIntro($subsection): void
+    public function writeSubSectionIntro(array $subsection): void
     {
         if ($this->y < $this->sizeCalculation->calculateSectionIntroSize($subsection)) {
             $this->addPage();
@@ -432,9 +487,13 @@ class PDFWriter
     }
 
     /**
+     * Write the title of a section. It will be displayed in blue.
+     *
+     * @param string $text
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
-    private function writeSectionTitle($text): void
+    private function writeSectionTitle(string $text): void
     {
         $this->setTitleStyle(15);
         $this->y -= 15;
@@ -448,6 +507,9 @@ class PDFWriter
     }
 
     /**
+     * Adds a page to the pdf and adds the footer and header to it.
+     *
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
     public function addPage(): void
@@ -462,9 +524,16 @@ class PDFWriter
     }
 
     /**
+     * Sets the general style of the text. It will be black by default.
+     *
+     * @param int $size font size
+     * @param float $r red color balance between 0 and 1
+     * @param float $g green color balance between 0 and 1
+     * @param float $b blue color balance between 0 and 1
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
-    public function setGeneralStyle($size = 9, $r = 0, $g = 0, $b = 0): void
+    public function setGeneralStyle(int $size = 9, float $r = 0, float $g = 0, float $b = 0): void
     {
         $style = new \Zend_Pdf_Style();
         $style->setLineColor(new \Zend_Pdf_Color_Rgb($r, $g, $b));
@@ -475,9 +544,13 @@ class PDFWriter
     }
 
     /**
+     * Sets the style of the title. It will be blue.
+     *
+     * @param int $size
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
-    private function setTitleStyle($size = 20): void
+    private function setTitleStyle(int $size = 20): void
     {
         $style = new \Zend_Pdf_Style();
         // Blue color
@@ -489,9 +562,13 @@ class PDFWriter
     }
 
     /**
+     * Sets the style of the subtitle. It will be greenish blue.
+     *
+     * @param int $size
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
-    private function setSubTitleStyle($size = 12): void
+    private function setSubTitleStyle(int $size = 12): void
     {
         $style = new \Zend_Pdf_Style();
         // Blue color
@@ -503,9 +580,13 @@ class PDFWriter
     }
 
     /**
+     * Sets the style of the error. It will be red.
+     *
+     * @param int $size
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
-    private function setErrorStyle($size = 11): void
+    private function setErrorStyle(int $size = 11): void
     {
         $style = new \Zend_Pdf_Style();
         // Red color
@@ -517,6 +598,10 @@ class PDFWriter
     }
 
     /**
+     * Sets the style of the warning. It will be orange.
+     *
+     * @param int $size
+     * @return void
      * @throws \Zend_Pdf_Exception
      */
     private function setWarningStyle($size = 11): void
@@ -530,21 +615,43 @@ class PDFWriter
         $this->currentPage->setStyle($style);
     }
 
+    /**
+     * Public getter for the columnY property
+     *
+     * @return int
+     */
     public function getColumnY(): int
     {
         return $this->columnY;
     }
 
+    /**
+     * Public setter for the columnY property
+     *
+     * @param int $columnY
+     * @return void
+     */
     public function setColumnY(int $columnY): void
     {
         $this->columnY = $columnY;
     }
 
+    /**
+     * Public getter for the columnX property
+     *
+     * @return int
+     */
     public function getColumnX(): int
     {
         return $this->columnX;
     }
 
+    /**
+     * Public setter for the columnX property
+     *
+     * @param int $columnX
+     * @return void
+     */
     public function setColumnX(int $columnX): void
     {
         $this->columnX = $columnX;

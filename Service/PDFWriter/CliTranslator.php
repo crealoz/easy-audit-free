@@ -17,7 +17,6 @@ class CliTranslator
         'other' => 'en_US'
     ];
     private bool $isLanguageInitialized = false;
-    private string $language;
     private array $translationData;
     public function __construct(
         private readonly Localization        $localization,
@@ -28,6 +27,12 @@ class CliTranslator
 
     }
 
+    /**
+     * Translate a string
+     *
+     * @param string $string
+     * @return string
+     */
     public function translate(string $string): string
     {
         if (!$this->isLanguageInitialized) {
@@ -36,7 +41,13 @@ class CliTranslator
         return $this->translationData[$string] ?? $string;
     }
 
-    public function initLanguage($locale)
+    /**
+     * Initialize the language
+     *
+     * @param string $locale
+     * @return void
+     */
+    public function initLanguage(string $locale): void
     {
         try {
             $this->appState->setAreaCode('adminhtml');
@@ -49,18 +60,24 @@ class CliTranslator
         $this->isLanguageInitialized = true;
     }
 
-
-    private function getLanguageFallback(string $language): string
+    /**
+     * Get the language fallback. It tries to get the language from the available languages, if it is not available it
+     * tries to get the language without the region, if it is not available it uses the default language (en_US).
+     *
+     * @param string $locale
+     * @return string
+     */
+    private function getLanguageFallback(string $locale): string
     {
-        $this->language = 'en_US';
+        $fallbackLocale = 'en_US';
         $availableLanguages = $this->localization->getAvailableLanguages();
-        if (in_array($language, $availableLanguages)) {
-            $this->language = $language;
+        if (in_array($locale, $availableLanguages)) {
+            $fallbackLocale = $locale;
         }
-        $languageWithoutRegion = substr($language, 0, 2);
+        $languageWithoutRegion = substr($locale, 0, 2);
         if (isset($this->languages[$languageWithoutRegion])) {
-            $this->language = $this->languages[$languageWithoutRegion];
+            $fallbackLocale = $this->languages[$languageWithoutRegion];
         }
-        return $this->language;
+        return $fallbackLocale;
     }
 }
