@@ -2,9 +2,9 @@
 
 namespace Crealoz\EasyAudit\Service;
 
+use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\PDFWriter\CliTranslator;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
-use Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SectionInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;

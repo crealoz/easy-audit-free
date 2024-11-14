@@ -2,6 +2,7 @@
 
 namespace Crealoz\EasyAudit\Service\FileSystem;
 
+use Crealoz\EasyAudit\Api\FileSystem\FileGetterInterface;
 use Magento\Framework\ObjectManagerInterface;
 
 class FileGetterFactory

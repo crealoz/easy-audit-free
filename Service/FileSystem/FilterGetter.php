@@ -2,6 +2,8 @@
 
 namespace Crealoz\EasyAudit\Service\FileSystem;
 
+use Crealoz\EasyAudit\Api\FileSystem\FilterInterface;
+
 class FilterGetter
 {
     private array $filters = [];
