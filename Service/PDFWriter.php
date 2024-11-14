@@ -229,17 +229,24 @@ class PDFWriter
      */
     private function displaySection(string $title, array $section): void
     {
-        $translatedTitle = $this->cliTranslator->translate($title);
         if ($this->columnCount !== 1) {
             $this->setColumnCount(1);
         }
-        $this->currentPage->drawText($translatedTitle, 44, $this->y);
-        foreach ($section as $type => $entries) {
+        if ($this->shouldDisplaySectionTitle($section)) {
+            $translatedTitle = $this->cliTranslator->translate($title);
+            $this->currentPage->drawText($translatedTitle, 44, $this->y);
+        } else {
+            return;
+        }
+        foreach ($section as $entries) {
             if (isset($entries['specificSections'])) {
                 $sectionName = $entries['specificSections'];
                 unset($entries['specificSections']);
                 if (!isset($this->specificSections[$sectionName]) || !$this->specificSections[$sectionName] instanceof SectionInterface) {
                     throw new \InvalidArgumentException("Specific section $sectionName is not valid");
+                }
+                if ($entries['files'] === []) {
+                    continue;
                 }
                 $numberOfPages = $this->specificSections[$sectionName]->calculateSize($entries) / 800;
                 if ($numberOfPages > 10) {
@@ -251,6 +258,18 @@ class PDFWriter
                 $this->manageSubsection($entries);
             }
         }
+    }
+
+    private function shouldDisplaySectionTitle(array $section): bool
+    {
+        $shouldDisplay = false;
+        foreach ($section as $entries) {
+            if (!empty($entries['files'])) {
+                $shouldDisplay = true;
+                break;
+            }
+        }
+        return $shouldDisplay;
     }
 
     /**
