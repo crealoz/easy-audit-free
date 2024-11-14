@@ -2,8 +2,8 @@
 
 namespace Crealoz\EasyAudit\Processor\Type;
 
+use Crealoz\EasyAudit\Api\FileSystem\FileGetterInterface;
 use Crealoz\EasyAudit\Service\FileSystem\FileGetterFactory;
-use Crealoz\EasyAudit\Service\FileSystem\FileGetterInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;

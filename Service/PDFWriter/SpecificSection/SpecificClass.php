@@ -2,6 +2,7 @@
 
 namespace Crealoz\EasyAudit\Service\PDFWriter\SpecificSection;
 
+use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\PDFWriter;
 
 class SpecificClass implements SectionInterface

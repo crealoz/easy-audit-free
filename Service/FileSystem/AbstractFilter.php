@@ -2,6 +2,9 @@
 
 namespace Crealoz\EasyAudit\Service\FileSystem;
 
+use Crealoz\EasyAudit\Api\FileSystem\FileGetterInterface;
+use Crealoz\EasyAudit\Api\FileSystem\FilterInterface;
+
 abstract class AbstractFilter implements FilterInterface
 {
     protected readonly FileGetter $fileGetter;

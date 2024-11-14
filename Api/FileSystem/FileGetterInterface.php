@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Service\FileSystem;
+namespace Crealoz\EasyAudit\Api\FileSystem;
 
 interface FileGetterInterface
 {

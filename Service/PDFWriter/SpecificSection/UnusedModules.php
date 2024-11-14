@@ -2,8 +2,8 @@
 
 namespace Crealoz\EasyAudit\Service\PDFWriter\SpecificSection;
 
+use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\PDFWriter;
-use Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SectionInterface;
 
 class UnusedModules implements SectionInterface
 {
