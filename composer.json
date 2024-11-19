@@ -12,10 +12,22 @@
     "license": [
         "OSL-3.0"
     ],
+    "homepage": "https://crealoz.fr/crealoz-easy-audit/",
     "autoload": {
         "files": [ "registration.php" ],
         "psr-4": {
             "Crealoz\\EasyAudit\\": ""
         }
+    },
+    "authors": [
+        {
+            "name": "Christophe Ferreboeuf",
+            "email": "christophe@crealoz.fr",
+            "homepage": "https://www.linkedin.com/in/cferreboeuf/",
+            "role": "lead"
+        }
+    ],
+    "archive": {
+        "exclude": ["/docs"]
     }
 }
