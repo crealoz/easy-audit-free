@@ -177,12 +177,19 @@ class PDFWriter
      */
     public function stripVendorOrApp(string $path): string
     {
+        $path = $this->removeBaseNameFromPath($path);
         $pathParts = explode(DIRECTORY_SEPARATOR, $path);
         if (isset($pathParts[0]) && in_array($pathParts[0], ['vendor', 'app'])) {
             $offset = $pathParts[0] === 'vendor' ? 1 : 2;
             return implode(DIRECTORY_SEPARATOR, array_slice($pathParts, $offset));
         }
         return $path;
+    }
+
+    public function removeBaseNameFromPath(string $path): string
+    {
+        $magentoInstallationPath = $this->filesystem->getDirectoryRead(DirectoryList::ROOT)->getAbsolutePath();
+        return str_replace($magentoInstallationPath, '', $path);
     }
 
     /**
