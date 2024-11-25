@@ -8,6 +8,7 @@ use Crealoz\EasyAudit\Exception\Processor\Plugins\AroundToBeforePluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\ConfigProviderPluginException;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\MagentoFrameworkPluginExtension;
 use Crealoz\EasyAudit\Exception\Processor\Plugins\SameModulePluginException;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\AbstractXmlProcessor;
 use Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundToAfter;
 use Crealoz\EasyAudit\Processor\Files\Di\Plugins\AroundToBefore;
@@ -31,6 +32,7 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
     }
 
     public function __construct(
+        AuditStorage $auditStorage,
         private readonly AroundToAfter       $aroundToAfter,
         private readonly AroundToBefore      $aroundToBefore,
         private readonly CheckConfigProvider $checkConfigProvider,
@@ -38,6 +40,7 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
         private readonly Files               $filesUtility
     )
     {
+        parent::__construct($auditStorage);
     }
 
     public function prepopulateResults(): void
@@ -123,6 +126,10 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
         ];
     }
 
+    /**
+     * @return void
+     * @todo ignore modules
+     */
     public function run(): void
     {
 

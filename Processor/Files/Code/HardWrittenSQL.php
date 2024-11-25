@@ -3,6 +3,7 @@
 namespace Crealoz\EasyAudit\Processor\Files\Code;
 
 use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\AbstractFileProcessor;
 use Crealoz\EasyAudit\Service\Audit;
 use Magento\Framework\Exception\FileSystemException;
@@ -22,9 +23,11 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
     }
 
     public function __construct(
+        AuditStorage $auditStorage,
         protected readonly DriverInterface $driver
     )
     {
+        parent::__construct($auditStorage);
     }
 
     public function prepopulateResults(): void
@@ -103,6 +106,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
 
     /**
      * @throws FileSystemException
+     * @todo ignore modules
      */
     public function run(): void
     {

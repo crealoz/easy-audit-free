@@ -4,6 +4,11 @@
         <preference for="Crealoz\EasyAudit\Api\Data\AuditRequestInterface" type="Crealoz\EasyAudit\Model\AuditRequest"/>
         <preference for="Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface" type="Crealoz\EasyAudit\Model\AuditRequestRepository"/>
      <!-- End of Preferences -->
+    <type name="Crealoz\EasyAudit\Model\AuditStorage" shared="true">
+        <arguments>
+            <argument name="moduleReader" xsi:type="object">Magento\Framework\Module\Dir\Reader\Proxy</argument>
+        </arguments>
+    </type>
     <!-- Command -->
     <type name="Magento\Framework\Console\CommandList">
         <arguments>
@@ -149,6 +154,11 @@
         </arguments>
     </type>
     <type name="Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig">
+        <arguments>
+            <argument name="modulelPath" xsi:type="object">Crealoz\EasyAudit\Service\ModuleTools\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Crealoz\EasyAudit\Service\ModuleTools">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
             <argument name="modulelPath" xsi:type="object">Crealoz\EasyAudit\Service\FileSystem\ModulePath\Proxy</argument>

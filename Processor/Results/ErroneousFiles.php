@@ -2,8 +2,17 @@
 
 namespace Crealoz\EasyAudit\Processor\Results;
 
+use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
+
 class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessorInterface
 {
+
+    public function __construct(
+        private readonly ModulePaths $modulePaths
+    )
+    {
+    }
+
     /**
      * Checks results for erroneous files entries where score is superior to 5 then gets the ones where score is
      * superior to 10.
@@ -17,6 +26,7 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessor
         $fileList = [];
         foreach ($results['erroneousFiles'] as $file => $score) {
             $scope = $this->getScope($file);
+            $filename = $this->modulePaths->stripVendorOrApp($file);
             if ($score >= 10) {
                 $countHigherThan10++;
             } elseif ($score >= 5) {
@@ -24,7 +34,7 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessor
             } else {
                 continue;
             }
-            $fileList[$scope][$file] = $score;
+            $fileList[$scope][$filename] = $score;
         }
 
         if (!empty($fileList)) {

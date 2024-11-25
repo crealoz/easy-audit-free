@@ -3,6 +3,7 @@
 namespace Crealoz\EasyAudit\Processor\Files\Logic;
 
 use Crealoz\EasyAudit\Api\Processor\Audit\ArrayProcessorInterface;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\AbstractArrayProcessor;
 use Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig;
 use Magento\Framework\Exception\FileSystemException;
@@ -20,9 +21,11 @@ class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInte
     }
 
     public function __construct(
+        AuditStorage $auditStorage,
         private readonly GetModuleConfig $getModuleConfig
     )
     {
+        parent::__construct($auditStorage);
     }
 
     public function prepopulateResults(): void

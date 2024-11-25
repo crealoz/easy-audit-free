@@ -2,6 +2,7 @@
 
 namespace Crealoz\EasyAudit\Service\FileSystem;
 
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 
 class ModulePaths
@@ -14,7 +15,14 @@ class ModulePaths
 
     public function getDeclarationXml(string $filePath, bool $isVendor = false): string
     {
+        $filePath = $this->removeBaseNameFromPath($filePath);
         $parts = explode('/', $filePath);
+        if (!isset($parts[3])) {
+            return '';
+        }
+        if (!isset($parts[2])) {
+            return '';
+        }
         $moduleXmlPath = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . $parts[3] . DIRECTORY_SEPARATOR . 'etc/module.xml';
         if ($isVendor) {
             $moduleXmlPath = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . 'etc/module.xml';
@@ -56,5 +64,28 @@ class ModulePaths
             $baseDir = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2];
         }
         return $baseDir;
+    }
+
+    /**
+     * Remove the vendor or app part of a path
+     *
+     * @param string $path
+     * @return string
+     */
+    public function stripVendorOrApp(string $path): string
+    {
+        $path = $this->removeBaseNameFromPath($path);
+        $pathParts = explode(DIRECTORY_SEPARATOR, $path);
+        if (isset($pathParts[0]) && in_array($pathParts[0], ['vendor', 'app'])) {
+            $offset = $pathParts[0] === 'vendor' ? 1 : 2;
+            return implode(DIRECTORY_SEPARATOR, array_slice($pathParts, $offset));
+        }
+        return $path;
+    }
+
+    public function removeBaseNameFromPath(string $path): string
+    {
+        $magentoInstallationPath = $this->filesystem->getDirectoryRead(DirectoryList::ROOT)->getAbsolutePath();
+        return str_replace($magentoInstallationPath, '', $path);
     }
 }

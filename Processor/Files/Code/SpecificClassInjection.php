@@ -5,6 +5,7 @@ namespace Crealoz\EasyAudit\Processor\Files\Code;
 use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
 use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\AbstractAuditProcessor;
 use Crealoz\EasyAudit\Processor\Files\AbstractFileProcessor;
 use Crealoz\EasyAudit\Service\Audit;
@@ -28,6 +29,7 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
     ];
 
     public function __construct(
+        AuditStorage $auditStorage,
         private readonly ClassNameGetter $classNameGetter,
         private readonly \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
         private readonly HasModelAnInterface $hasModelAnInterface,
@@ -35,6 +37,7 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
         private readonly ConstructorService $constructorService
     )
     {
+        parent::__construct($auditStorage);
     }
 
     public function prepopulateResults(): void
@@ -120,6 +123,11 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
     {
         return __('PHP');
     }
+
+    /**
+     * @return void
+     * @todo ignore modules
+     */
     public function run(): void
     {
         // First we get class name from the input that represents the file's path
