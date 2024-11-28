@@ -4,6 +4,7 @@ namespace Crealoz\EasyAudit\Processor\Files\Code;
 
 use Crealoz\EasyAudit\Api\Processor\Audit\FileProcessorInterface;
 use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\AbstractFileProcessor;
 use Crealoz\EasyAudit\Service\Classes\ConstructorService;
 use Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter;
@@ -15,11 +16,13 @@ class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterf
 
 
     public function __construct(
+        AuditStorage $auditStorage,
         private readonly ClassNameGetter $classNameGetter,
         private readonly DefinitionInterface $definitions,
         private readonly ConstructorService $constructorService
     )
     {
+        parent::__construct($auditStorage);
     }
 
     public function prepopulateResults(): void
@@ -56,6 +59,11 @@ class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterf
         return __('PHP');
     }
 
+    /**
+     * @return void
+     *
+     * @todo ignore modules
+     */
     public function run(): void
     {
         try {

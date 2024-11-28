@@ -3,6 +3,7 @@
 namespace Crealoz\EasyAudit\Processor\Type;
 
 use Crealoz\EasyAudit\Api\FileSystem\FileGetterInterface;
+use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Crealoz\EasyAudit\Service\FileSystem\FileGetterFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -116,6 +117,7 @@ abstract class AbstractType implements TypeInterface
      */
     protected function manageResults(array $processors) : void
     {
+        /** @var AuditProcessorInterface $processor */
         foreach ($processors as $processor) {
             $this->results[$processor->getAuditSection()][$processor->getProcessorName()] = $processor->getResults();
             foreach ($processor->getErroneousFiles() as $file => $score) {

@@ -4,6 +4,7 @@ namespace Crealoz\EasyAudit\Processor\Files;
 
 use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
+use Crealoz\EasyAudit\Model\AuditStorage;
 
 abstract class AbstractAuditProcessor implements AuditProcessorInterface
 {
@@ -11,6 +12,12 @@ abstract class AbstractAuditProcessor implements AuditProcessorInterface
     protected array $results = [];
 
     protected array $erroneousFiles = [];
+
+    public function __construct(
+        protected readonly AuditStorage $auditStorage
+    )
+    {
+    }
 
     public function hasErrors(): bool
     {
@@ -29,6 +36,16 @@ abstract class AbstractAuditProcessor implements AuditProcessorInterface
     abstract public function getProcessorName(): string;
 
     abstract public function getAuditSection(): string;
+
+    /**
+     * Array of modules chosen by the user to be ignored during the audit
+     *
+     * @return array
+     */
+    protected function getIgnoredModules(): array
+    {
+        return $this->auditStorage->getIgnoredModules();
+    }
 
     /**
      * @throws GeneralAuditException

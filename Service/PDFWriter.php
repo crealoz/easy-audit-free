@@ -3,6 +3,7 @@
 namespace Crealoz\EasyAudit\Service;
 
 use Crealoz\EasyAudit\Api\Result\SectionInterface;
+use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\PDFWriter\CliTranslator;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
 use Magento\Framework\App\Filesystem\DirectoryList;
@@ -43,6 +44,7 @@ class PDFWriter
         private readonly CliTranslator    $cliTranslator,
         private readonly \Psr\Log\LoggerInterface $logger,
         private readonly Reader           $moduleReader,
+        private readonly ModulePaths      $modulePaths,
         private readonly array $specificSections = [],
         public int                        $x = 50,
         public int                        $columnCount = 1
@@ -157,7 +159,7 @@ class PDFWriter
             }
             $this->writeLine(ucfirst($scope) . ' files:');
             foreach ($files as $file => $score) {
-                $file = $this->stripVendorOrApp($file);
+                $file = $this->modulePaths->stripVendorOrApp($file);
                 if ($score >= 10) {
                     $this->writeLine($file . ' (' . $score . ')', true,8, 0, 0.85);
                 } elseif ($score >= 5) {
@@ -167,29 +169,6 @@ class PDFWriter
                 }
             }
         }
-    }
-
-    /**
-     * Remove the vendor or app part of a path
-     *
-     * @param string $path
-     * @return string
-     */
-    public function stripVendorOrApp(string $path): string
-    {
-        $path = $this->removeBaseNameFromPath($path);
-        $pathParts = explode(DIRECTORY_SEPARATOR, $path);
-        if (isset($pathParts[0]) && in_array($pathParts[0], ['vendor', 'app'])) {
-            $offset = $pathParts[0] === 'vendor' ? 1 : 2;
-            return implode(DIRECTORY_SEPARATOR, array_slice($pathParts, $offset));
-        }
-        return $path;
-    }
-
-    public function removeBaseNameFromPath(string $path): string
-    {
-        $magentoInstallationPath = $this->filesystem->getDirectoryRead(DirectoryList::ROOT)->getAbsolutePath();
-        return str_replace($magentoInstallationPath, '', $path);
     }
 
     /**
@@ -257,6 +236,9 @@ class PDFWriter
                 }
                 $numberOfPages = $this->specificSections[$sectionName]->calculateSize($entries) / 800;
                 if ($numberOfPages > 10) {
+                    if (!is_int($numberOfPages)) {
+                        $numberOfPages = (int)ceil($numberOfPages);
+                    }
                     $this->delegateToAnnex($numberOfPages, $entries, $title, $sectionName);
                 } else {
                     $this->specificSections[$sectionName]->writeSection($this, $entries);
@@ -293,6 +275,9 @@ class PDFWriter
         $this->writeSubSectionIntro($subResults);
         $numberOfPages = $this->sizeCalculation->getNumberOfPagesForFiles($subResults['files']);
         if ($numberOfPages > 10 && is_array($subResults['files'])) {
+            if (!is_int($numberOfPages)) {
+                $numberOfPages = (int)ceil($numberOfPages);
+            }
             $this->delegateToAnnex($numberOfPages, $subResults['files'], $subResults['title'] ?? '');
         } else {
             $this->writeLine('Files:');
@@ -320,12 +305,12 @@ class PDFWriter
             if (is_array($files)) {
                 $this->writeLine($key, true);
                 foreach ($files as $file) {
-                    $file = $this->stripVendorOrApp($file);
+                    $file = $this->modulePaths->stripVendorOrApp($file);
                     $this->writeLine('-' . $file, true, 8, 0, 0.2, 0.2, 0.2);
                 }
                 $this->y -= 5;
             } else {
-                $file = $this->stripVendorOrApp($files);
+                $file = $this->modulePaths->stripVendorOrApp($files);
                 $this->writeLine('-' . $file, true);
             }
         }

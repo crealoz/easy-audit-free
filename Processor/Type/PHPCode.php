@@ -15,6 +15,10 @@ class PHPCode extends AbstractType implements TypeInterface
     {
         $hasErrors = false;
         foreach ($files as $codeFile) {
+            // ignores autoload.php and registration.php
+            if (str_contains($codeFile, 'autoload.php') || str_contains($codeFile, 'registration.php')) {
+                continue;
+            }
             foreach ($processors as $processor) {
                 if (!$processor instanceof AuditProcessorInterface) {
                     throw new \InvalidArgumentException('Processor must implement ProcessorInterface');

@@ -3,13 +3,15 @@
 namespace Crealoz\EasyAudit\Service\PDFWriter\SpecificSection;
 
 use Crealoz\EasyAudit\Api\Result\SectionInterface;
+use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\PDFWriter;
 
 class SpecificClass implements SectionInterface
 {
 
     public function __construct(
-        public readonly PDFWriter\SizeCalculation $sizeCalculation
+        public readonly PDFWriter\SizeCalculation $sizeCalculation,
+        private readonly ModulePaths $modulePaths
     )
     {
     }
@@ -27,7 +29,7 @@ class SpecificClass implements SectionInterface
             if ($pdfWriter->y < 9 * 1.3) {
                 $pdfWriter->switchColumnOrAddPage();
             }
-            $pdfWriter->writeLine('-' . $pdfWriter->stripVendorOrApp($file) . '(potential issues count : ' . count($arguments) . ')');
+            $pdfWriter->writeLine('-' . $this->modulePaths->stripVendorOrApp($file) . '(potential issues count : ' . count($arguments) . ')');
         }
     }
 

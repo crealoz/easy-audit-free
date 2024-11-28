@@ -4,6 +4,7 @@ namespace Crealoz\EasyAudit\Service\FileSystem;
 
 use Crealoz\EasyAudit\Exception\Processor\Getters\NotAClassException;
 use Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig;
+use Crealoz\EasyAudit\Service\ModuleTools;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Filesystem\Io\File;
@@ -15,7 +16,8 @@ class ClassNameGetter
         protected readonly DriverInterface $driver,
         protected readonly File $io,
         private readonly GetModuleConfig $getModuleConfig,
-        private readonly ModulePaths $modulePaths
+        private readonly ModulePaths $modulePaths,
+        private readonly ModuleTools $moduleTools
     )
     {
     }
@@ -69,7 +71,7 @@ class ClassNameGetter
     {
         $parts = explode('/', $filePath);
         $moduleXmlPath = $this->modulePaths->getDeclarationXml($filePath, true);
-        $moduleName = $this->getModuleConfig->getModuleName($moduleXmlPath);
+        $moduleName = $this->moduleTools->getModuleNameByModuleXml($moduleXmlPath);
         $namespaceParts = explode('_', $moduleName);
         $namespace = $namespaceParts[0] . DIRECTORY_SEPARATOR . $namespaceParts[1];
         if (isset($parts[3])) {

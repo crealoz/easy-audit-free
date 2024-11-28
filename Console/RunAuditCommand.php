@@ -2,6 +2,7 @@
 namespace Crealoz\EasyAudit\Console;
 
 use Composer\Console\Input\InputOption;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Magento\Framework\Exception\FileSystemException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,7 +14,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class RunAuditCommand extends Command
 {
     public function __construct(
-        protected \Crealoz\EasyAudit\Service\Audit $auditService
+        protected \Crealoz\EasyAudit\Service\Audit $auditService,
+        protected readonly AuditStorage $auditStorage
     )
     {
         parent::__construct();
@@ -21,9 +23,22 @@ class RunAuditCommand extends Command
 
     protected function configure()
     {
-        $this->setName('crealoz:run:audit')
+        $this->setName('crealoz:audit:run')
             ->setDescription('Run the audit service on request')
-            ->addOption('language', 'l', InputOption::VALUE_OPTIONAL, 'Language to use for the audit service', 'en_US')
+            ->addOption(
+                'language',
+                'l',
+                InputOption::VALUE_OPTIONAL,
+                'Language to use for the audit service',
+                'en_US'
+            )
+            ->addOption(
+                'ignored-modules',
+                'i',
+                InputOption::VALUE_OPTIONAL,
+                'List of modules to ignore',
+                ''
+            )
         ;
     }
 
@@ -36,6 +51,11 @@ class RunAuditCommand extends Command
         $output->writeln('Starting audit service...');
 
         $language = $input->getOption('language');
+
+        $ignoredModules = $input->getOption('ignored-modules');
+        if (!empty($ignoredModules)) {
+            $this->auditStorage->setIgnoredModules(explode(',',$ignoredModules));
+        }
 
         $this->auditService->run($output, $language);
 

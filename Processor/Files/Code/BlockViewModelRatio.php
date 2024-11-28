@@ -62,6 +62,9 @@ class BlockViewModelRatio extends AbstractArrayProcessor implements ArrayProcess
         $segregatedFiles = [];
         foreach ($files as $file) {
             $module = $this->getModuleFromPath($file);
+            if ($this->auditStorage->isModuleIgnored($module)) {
+                continue;
+            }
             if (!array_key_exists($module, $segregatedFiles)) {
                 $segregatedFiles[$module] = [];
             }
