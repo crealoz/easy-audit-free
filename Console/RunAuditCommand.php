@@ -1,7 +1,7 @@
 <?php
 namespace Crealoz\EasyAudit\Console;
 
-use Composer\Console\Input\InputOption;
+use Symfony\Component\Console\Input\InputOption;
 use Crealoz\EasyAudit\Model\AuditStorage;
 use Magento\Framework\Exception\FileSystemException;
 use Symfony\Component\Console\Command\Command;
