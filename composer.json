@@ -1,6 +1,15 @@
 {
     "name": "crealoz/easy-audit-free",
     "description": "A tool that permits to run different types of audits in Magento 2.",
+    "keywords": [
+        "php",
+        "magento",
+        "magento2",
+        "module",
+        "extension",
+        "free",
+        "cli"
+    ],
     "require": {
         "php": "^8.1",
         "magento/framework": "*",
@@ -10,8 +19,12 @@
     "type": "magento2-module",
     "version": "0.1.2",
     "license": [
-        "OSL-3.0"
+        "MIT"
     ],
+    "support": {
+        "source": "https://github.com/crealoz/easy-audit-free",
+        "issues": "https://github.com/crealoz/easy-audit-free/issues"
+    },
     "homepage": "https://crealoz.fr/crealoz-easy-audit/",
     "autoload": {
         "files": [ "registration.php" ],

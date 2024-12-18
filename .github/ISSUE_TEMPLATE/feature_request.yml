@@ -1,0 +1,43 @@
+name: Feature request
+description: Use this template to request a new feature for EasyAudit-Free.
+title: "[Feature]: "
+labels:
+  - enhancement
+  - needs-triage
+assignees:
+  - crealoz-team
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for suggesting a new feature! Please fill out the details below to help us understand your request.
+  - type: input
+    id: feature_description
+    attributes:
+      label: Feature Description
+      description: Provide a clear and concise description of the feature you would like to see.
+      placeholder: "Describe the feature in detail..."
+    validations:
+      required: true
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use Case
+      description: Describe the use case for this feature.
+      placeholder: "Explain how this feature will be used..."
+    validations:
+      required: true
+  - type: input
+    id: benefits
+    attributes:
+      label: Benefits
+      description: Describe the benefits of this feature.
+      placeholder: "This feature will help by..."
+    validations:
+      required: true
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Add any other information about the feature request here.
+      placeholder: "Screenshots, related issues, etc."

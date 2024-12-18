@@ -1,0 +1,74 @@
+name: Bug report
+description: Use this template to report a bug in EasyAudit-Free.
+title: "[Bug]: "
+labels:
+  - bug
+  - needs-triage
+assignees:
+  - crealoz-team
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please fill out the details below to help us address the issue.
+  - type: input
+    id: bug_description
+    attributes:
+      label: Bug Description
+      description: Provide a clear and concise description of the problem.
+      placeholder: "Describe the bug in detail..."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction_steps
+    attributes:
+      label: Steps to Reproduce
+      description: Provide the steps to reproduce the bug.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '...'
+        3. See the error
+    validations:
+      required: true
+  - type: input
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: "The application should..."
+    validations:
+      required: true
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: Actual Behavior
+      description: Describe what actually happened.
+      placeholder: "The application currently..."
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Include any relevant environment details (e.g., OS, browser, Magento version).
+      placeholder: "Magento 2.4.6, PHP 8.1, Ubuntu 22.04..."
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      description: How urgent is this issue?
+      options:
+        - Low
+        - Medium
+        - High
+      default: 0
+    validations:
+      required: true
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional Context
+      description: Add any other information about the problem here.
+      placeholder: "Screenshots, logs, etc."
