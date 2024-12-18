@@ -19,12 +19,12 @@ class Audit
     protected array $results = [];
 
     public function __construct(
-        protected readonly PDFWriter   $pdfWriter,
-        protected readonly TypeFactory $typeFactory,
-        private readonly ArrayTools    $arrayTools,
+        protected readonly PDFWriter       $pdfWriter,
+        protected readonly TypeFactory     $typeFactory,
+        private readonly ArrayTools        $arrayTools,
         protected readonly LoggerInterface $logger,
-        protected array                $processors = [],
-        protected array                $resultProcessors = []
+        protected array                    $processors = [],
+        protected array                    $resultProcessors = []
     )
     {
 
