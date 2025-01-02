@@ -36,7 +36,7 @@ class Audit
             if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $filename)) {
                 $filename = preg_replace('/[^a-zA-Z0-9_\-]/', '', $filename);
             }
-            $this->auditService->run(null, $language, $filename);
+            $this->auditService->run(null, $language, $filename, $auditRequest->getId());
             $auditRequest->setFilepath($filename);
             $auditRequest->setExecutionTime(date('Y-m-d H:i:s'));
             $this->auditRequestRepository->save($auditRequest);

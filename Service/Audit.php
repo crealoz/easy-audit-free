@@ -2,9 +2,12 @@
 
 namespace Crealoz\EasyAudit\Service;
 
+use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Api\Processor\ResultProcessorInterface;
+use Crealoz\EasyAudit\Model\AuditRequestFactory;
 use Crealoz\EasyAudit\Processor\Type\TypeFactory;
 use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Serialize\SerializerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -19,12 +22,15 @@ class Audit
     protected array $results = [];
 
     public function __construct(
-        protected readonly PDFWriter       $pdfWriter,
-        protected readonly TypeFactory     $typeFactory,
-        private readonly ArrayTools        $arrayTools,
-        protected readonly LoggerInterface $logger,
-        protected array                    $processors = [],
-        protected array                    $resultProcessors = []
+        protected readonly PDFWriter                       $pdfWriter,
+        protected readonly TypeFactory                     $typeFactory,
+        private readonly ArrayTools                        $arrayTools,
+        protected readonly LoggerInterface                 $logger,
+        protected readonly AuditRequestFactory             $auditRequestFactory,
+        protected readonly AuditRequestRepositoryInterface $auditRequestRepository,
+        private readonly SerializerInterface               $serializer,
+        protected array                                    $processors = [],
+        protected array                                    $resultProcessors = []
     )
     {
 
@@ -34,10 +40,11 @@ class Audit
      * @param OutputInterface|null $output
      * @param string|null $language
      * @param string $filename
+     * @param $requestId
      * @return string
      * @throws FileSystemException
      */
-    public function run(OutputInterface $output = null, string $language = null, string $filename = "audit"): string
+    public function run(OutputInterface $output = null, string $language = null, string $filename = "audit", $requestId = null): string
     {
         $this->results = [];
         // if the filename is not valid unix filename, throw an exception
@@ -57,6 +64,16 @@ class Audit
                 $erroneousFiles[$typeName] = $type->getErroneousFiles();
             }
         }
+
+        if (!$requestId) {
+            $auditRequest = $this->auditRequestFactory->create();
+            $auditRequest->setRequest($this->serializer->serialize(['language' => $language]));
+            $auditRequest->setUsername('admin');
+            $this->auditRequestRepository->save($auditRequest);
+            $requestId = $auditRequest->getId();
+        }
+
+        $this->results['requestId'] = $requestId;
 
         $this->logger->debug(__('Audit service has been run successfully.'));
         $this->results['introduction']['overall']['summary'] = $this->getOverAll();
