@@ -13,6 +13,21 @@ interface AuditRequestInterface
     const FILE_PATH = 'filepath';
 
     /**
+     * Get id
+     *
+     * @return int|null
+     */
+    public function getId();
+
+    /**
+     * Set id
+     *
+     * @param int $id
+     * @return $this
+     */
+    public function setId($id);
+
+    /**
      * Get username
      *
      * @return string|null
