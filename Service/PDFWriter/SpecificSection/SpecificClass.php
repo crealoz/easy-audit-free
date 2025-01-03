@@ -6,30 +6,26 @@ use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\PDFWriter;
 
-class SpecificClass implements SectionInterface
+class SpecificClass extends AbstractSection implements SectionInterface
 {
 
     public function __construct(
-        public readonly PDFWriter\SizeCalculation $sizeCalculation,
+        PDFWriter\SizeCalculation $sizeCalculation,
         private readonly ModulePaths $modulePaths
     )
     {
+        parent::__construct($sizeCalculation);
     }
 
     /**
      * @inheritDoc
      */
-    public function writeSection(PDFWriter $pdfWriter, array $subresults, bool $isAnnex = false): void
+    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
-        if (!$isAnnex) {
-            $pdfWriter->writeSubSectionIntro($subresults);
-        }
         $pdfWriter->writeLine('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
-            if ($pdfWriter->y < 9 * 1.3) {
-                $pdfWriter->switchColumnOrAddPage();
-            }
-            $pdfWriter->writeLine('-' . $this->modulePaths->stripVendorOrApp($file) . '(potential issues count : ' . count($arguments) . ')');
+            $this->manageColumnPage($pdfWriter, 9 * 1.3);
+            $pdfWriter->writeLine($this->getLine($file, $arguments));
         }
     }
 
@@ -41,8 +37,13 @@ class SpecificClass implements SectionInterface
         $size = $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize([$subresults]);
         $size += $this->sizeCalculation->getSizeForText('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
-            $size += $this->sizeCalculation->getSizeForText('-' . $file . '(potential issues count : ' . count($arguments) . ')');
+            $size += $this->sizeCalculation->getSizeForText($this->getLine($file, $arguments));
         }
         return $size;
+    }
+
+    public function getLine($key, mixed $entry): string
+    {
+        return __('- %1 (potential issues count : %2)', $this->modulePaths->stripVendorOrApp($key), count($entry));
     }
 }

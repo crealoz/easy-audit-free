@@ -5,28 +5,14 @@ namespace Crealoz\EasyAudit\Service\PDFWriter\SpecificSection;
 use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\PDFWriter;
 
-class BlockVMRatio implements SectionInterface
+class BlockVMRatio extends AbstractSection implements SectionInterface
 {
-    public function __construct(
-        public readonly PDFWriter\SizeCalculation $sizeCalculation
-    )
+    protected function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function writeSection(PDFWriter $pdfWriter, array $subresults, bool $isAnnex = false): void
-    {
-        if (!$isAnnex) {
-            $pdfWriter->writeSubSectionIntro($subresults);
-        }
-        $pdfWriter->writeLine('Modules:');
+        $pdfWriter->writeLine(__('Modules:'));
         foreach ($subresults['files'] as $module => $ratio) {
-            if ($pdfWriter->y < 9 * 1.3) {
-                $pdfWriter->switchColumnOrAddPage();
-            }
-            $pdfWriter->writeLine('-' . $module . '(ratio : ' . $ratio . ')');
+            $this->manageColumnPage($pdfWriter, 9 * 1.3);
+            $pdfWriter->writeLine($this->getLine($module, $ratio));
         }
     }
 
@@ -38,8 +24,13 @@ class BlockVMRatio implements SectionInterface
         $size = $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize([$subresults]);
         $size += $this->sizeCalculation->getSizeForText(__('Modules:'));
         foreach ($subresults['files'] as $module => $ratio) {
-            $size += $this->sizeCalculation->getSizeForText('-' . $module . '(ratio : ' . $ratio . ')');
+            $size += $this->sizeCalculation->getSizeForText($this->getLine($module, $ratio));
         }
         return $size;
+    }
+
+    public function getLine($key, mixed $entry): string
+    {
+        return __('-%1(ratio : %2)', $key, $entry);
     }
 }

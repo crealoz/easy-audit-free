@@ -45,7 +45,7 @@ class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
 
     public function run(): void
     {
-        $blocksNotCached = $this->getXml()->xpath('//block[@cacheable="false"]');
+        $blocksNotCached = $this->getContent()->xpath('//block[@cacheable="false"]');
         if (count($blocksNotCached) > 0) {
             $this->results['hasErrors'] = true;
             foreach ($blocksNotCached as $block) {

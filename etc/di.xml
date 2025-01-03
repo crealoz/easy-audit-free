@@ -42,6 +42,11 @@
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
     </type>
+    <type name="Crealoz\EasyAudit\Service\Localization">
+        <arguments>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
+        </arguments>
+    </type>
     <!-- End of Logger -->
     <!-- Processors -->
     <type name="Crealoz\EasyAudit\Service\Audit">
@@ -182,7 +187,6 @@
             <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Proxy</argument>
             <argument name="sizeCalculation" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation\Proxy</argument>
             <argument name="moduleReader" xsi:type="object">Magento\Framework\Module\Dir\Reader\Proxy</argument>
-            <argument name="cliTranslator" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\CliTranslator\Proxy</argument>
             <argument name="specificSections" xsi:type="array">
                 <item name="manageBlockVMRatio" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\BlockVMRatio</item>
                 <item name="manageUnusedModules" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\UnusedModules</item>
