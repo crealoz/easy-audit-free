@@ -6,29 +6,25 @@ use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\PDFWriter;
 
-class SpecificModel implements SectionInterface
+class SpecificModel extends AbstractSection implements SectionInterface
 {
 
     public function __construct(
-        public readonly PDFWriter\SizeCalculation $sizeCalculation,
+        PDFWriter\SizeCalculation $sizeCalculation,
         private readonly ModulePaths $modulePaths
     )
     {
+        parent::__construct($sizeCalculation);
     }
 
     /**
      * @inheritDoc
      */
-    public function writeSection(PDFWriter $pdfWriter, array $subresults, bool $isAnnex = false): void
+    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
-        if (!$isAnnex) {
-            $pdfWriter->writeSubSectionIntro($subresults);
-        }
         $pdfWriter->writeLine('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
-            if ($pdfWriter->y < 9 * 1.3 + count($arguments) * 12 + 10) {
-                $pdfWriter->switchColumnOrAddPage();
-            }
+            $this->manageColumnPage($pdfWriter, 9 * 1.3 + count($arguments) * 12 + 10);
             $pdfWriter->writeLine($this->modulePaths->stripVendorOrApp($file), true);
             foreach ($arguments as $argument) {
                 $pdfWriter->writeLine('-' . $argument , true, 8);
@@ -45,5 +41,17 @@ class SpecificModel implements SectionInterface
         $size += $this->sizeCalculation->getSizeForText('Files:');
         $size += $this->sizeCalculation->calculateMultidimensionalArraySize($subresults['files']);
         return $size;
+    }
+
+    public function getLine($key, mixed $entry): string
+    {
+        if (!is_array($entry)) {
+            return '-' . $entry;
+        }
+        $text = '-' . $key . PHP_EOL;
+        foreach ($entry as $argument) {
+            $text .= '  -' . $argument . PHP_EOL;
+        }
+        return $text;
     }
 }

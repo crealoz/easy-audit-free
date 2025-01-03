@@ -3,12 +3,13 @@
 namespace Crealoz\EasyAudit\Test\Unit\Processors;
 
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\Logic\Modules\GetModuleConfig;
 use Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \Crealoz\EasyAudit\Service\Processor\Logic\VendorUnusedModules
+ * @covers \Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules
  */
 class UnusedModulesTest extends TestCase
 {
@@ -17,8 +18,10 @@ class UnusedModulesTest extends TestCase
 
     protected function setUp(): void
     {
+        $auditStorage = $this->createMock(AuditStorage::class);
         $this->getModuleConfigMock = $this->createMock(GetModuleConfig::class);
-        $this->processor = new UnusedModules($this->getModuleConfigMock);
+        $this->processor = new UnusedModules($auditStorage, $this->getModuleConfigMock);
+        $this->processor->prepopulateResults();
     }
 
     protected function tearDown(): void
@@ -31,7 +34,11 @@ class UnusedModulesTest extends TestCase
         $input = ['module1', 'module2', 'Magento_Module'];
         $this->getModuleConfigMock->method('process')->willReturn($input);
 
-        $result = $this->processor->run($input);
+        $this->processor->setArray($input);
+
+        $this->processor->run();
+
+        $result = $this->processor->getResults();
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('hasErrors', $result);

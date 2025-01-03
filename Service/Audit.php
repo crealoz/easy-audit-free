@@ -29,6 +29,7 @@ class Audit
         protected readonly AuditRequestFactory             $auditRequestFactory,
         protected readonly AuditRequestRepositoryInterface $auditRequestRepository,
         private readonly SerializerInterface               $serializer,
+        private readonly Localization                       $localization,
         protected array                                    $processors = [],
         protected array                                    $resultProcessors = []
     )
@@ -51,6 +52,9 @@ class Audit
         if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $filename)) {
             throw new FileSystemException(__('Invalid filename %1', $filename));
         }
+
+        $language = $this->localization->initializeLanguage($language);
+
         $erroneousFiles = [];
         $this->logger->debug(__('Starting audit service...'));
         $this->initializeProcessorsResults();
@@ -94,7 +98,7 @@ class Audit
             $output->writeln(PHP_EOL . 'Creating PDF...');
         }
         try {
-            return $this->pdfWriter->createdPDF($this->results, $language, $filename);
+            return $this->pdfWriter->createdPDF($this->results, $filename);
         } catch (FileSystemException $e) {
             $this->logger->error(__('Error while creating or reading the PDF file: %1', $e->getMessage()));
         } catch (\Zend_Pdf_Exception $e) {
@@ -102,6 +106,10 @@ class Audit
         }
     }
 
+    /**
+     * Initialize the results of the processors
+     * @return void
+     */
     private function initializeProcessorsResults(): void
     {
         foreach ($this->processors as $typeName => $subTypes) {

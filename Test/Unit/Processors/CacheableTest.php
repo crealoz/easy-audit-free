@@ -3,6 +3,7 @@
 namespace Crealoz\EasyAudit\Test\Unit\Processors;
 
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
+use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\View\Cacheable;
 use PHPUnit\Framework\TestCase;
 
@@ -24,22 +25,32 @@ class CacheableTest extends TestCase
         </page>';
 
     private Cacheable $processor;
+    private string $tempFile;
 
     public function setUp(): void
     {
-        $this->processor = new Cacheable();
+        $auditStorage = $this->createMock(AuditStorage::class);
+        $this->processor = new Cacheable($auditStorage);
 
+        // Creates a temporary file with the XML string content
+        $this->tempFile = tempnam(sys_get_temp_dir(), 'xml');
+        file_put_contents($this->tempFile, $this->xmlString);
+        $this->processor->prepopulateResults();
     }
 
     public function tearDown(): void
     {
+        unlink($this->tempFile);
         unset($this->processor);
     }
 
     public function testRun(): void
     {
-        $xml = new \SimpleXMLElement($this->xmlString);
-        $result = $this->processor->run($xml);
+        $this->processor->setFile($this->tempFile);
+
+        $this->processor->run();
+
+        $result = $this->processor->getResults();
 
         $this->assertIsArray($result);
         $this->assertArrayHasKey('hasErrors', $result);
@@ -47,8 +58,8 @@ class CacheableTest extends TestCase
         $this->assertArrayHasKey('errors', $result);
         $this->assertArrayHasKey('warnings', $result);
         $this->assertArrayHasKey('suggestions', $result);
-        $this->assertArrayHasKey('useCacheable', $result['warnings']);
-        $this->assertIsArray($result['warnings']['useCacheable']);
+        $this->assertArrayHasKey('useCacheable', $result['suggestions']);
+        $this->assertIsArray($result['suggestions']['useCacheable']);
     }
 
     public function testGetProcessorName(): void
@@ -75,7 +86,7 @@ class CacheableTest extends TestCase
         $this->assertArrayHasKey('errors', $results);
         $this->assertArrayHasKey('warnings', $results);
         $this->assertArrayHasKey('suggestions', $results);
-        $this->assertArrayHasKey('useCacheable', $results['warnings']);
+        $this->assertArrayHasKey('useCacheable', $results['suggestions']);
     }
 }
 

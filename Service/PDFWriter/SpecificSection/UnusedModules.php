@@ -5,28 +5,18 @@ namespace Crealoz\EasyAudit\Service\PDFWriter\SpecificSection;
 use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\PDFWriter;
 
-class UnusedModules implements SectionInterface
+class UnusedModules extends AbstractSection implements SectionInterface
 {
-    public function __construct(
-        public readonly PDFWriter\SizeCalculation $sizeCalculation
-    )
-    {
-    }
 
     /**
      * @inheritDoc
      */
-    public function writeSection(PDFWriter $pdfWriter, array $subresults, bool $isAnnex = false): void
+    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
-        if (!$isAnnex) {
-            $pdfWriter->writeSubSectionIntro($subresults);
-        }
-        $pdfWriter->writeLine('Modules:');
+        $pdfWriter->writeLine(__('Modules:'));
         foreach ($subresults['files'] as $module) {
-            if ($pdfWriter->y < 9 * 1.3) {
-                $pdfWriter->switchColumnOrAddPage();
-            }
-            $pdfWriter->writeLine('-' . $module);
+            $this->manageColumnPage($pdfWriter, 9 * 1.3);
+            $pdfWriter->writeLine($this->getLine('', $module));
         }
     }
 
@@ -38,8 +28,14 @@ class UnusedModules implements SectionInterface
         $size = $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize([$subresults]);
         $size += $this->sizeCalculation->getSizeForText(__('Modules:'));
         foreach ($subresults['files'] as $module) {
-            $size += $this->sizeCalculation->getSizeForText('-' . $module);
+            $size += $this->sizeCalculation->getSizeForText($this->getLine('', $module));
         }
         return $size;
+    }
+
+    public function getLine($key, mixed $entry): string
+    {
+        unset($key);
+        return '-' . $entry;
     }
 }

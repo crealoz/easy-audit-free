@@ -5,6 +5,11 @@ namespace Crealoz\EasyAudit\Model;
 use Crealoz\EasyAudit\Api\Data\AuditRequestInterface;
 use Magento\Framework\Model\AbstractModel;
 
+/**
+ * Class AuditRequest
+ * @package Crealoz\EasyAudit\Model
+ * @api
+ */
 class AuditRequest extends AbstractModel implements AuditRequestInterface
 {
     protected $_idFieldName = self::ID;

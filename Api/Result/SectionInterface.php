@@ -23,4 +23,13 @@ interface SectionInterface
      */
     public function calculateSize(array $subresults): int;
 
+    /**
+     * Get the line
+     *
+     * @param string $key
+     * @param mixed $entry
+     * @return string
+     */
+    public function getLine(string $key, mixed $entry): string;
+
 }

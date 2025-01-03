@@ -4,7 +4,6 @@ namespace Crealoz\EasyAudit\Service;
 
 use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
-use Crealoz\EasyAudit\Service\PDFWriter\CliTranslator;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
@@ -41,7 +40,6 @@ class PDFWriter
     public function __construct(
         private readonly Filesystem       $filesystem,
         private readonly SizeCalculation  $sizeCalculation,
-        private readonly CliTranslator    $cliTranslator,
         private readonly \Psr\Log\LoggerInterface $logger,
         private readonly Reader           $moduleReader,
         private readonly ModulePaths      $modulePaths,
@@ -60,7 +58,7 @@ class PDFWriter
      * @throws FileSystemException
      * @throws \Zend_Pdf_Exception
      */
-    public function createdPDF($results, $locale, $filename): string
+    public function createdPDF($results, $filename): string
     {
         $this->logger->debug('Starting to create the PDF');
         $this->pdf = new \Zend_Pdf();
@@ -71,7 +69,6 @@ class PDFWriter
             $this->logger->error('Error while loading the logo: ' . $e->getMessage());
             $this->logo = null;
         }
-        $this->cliTranslator->initLanguage($locale);
         $introductions = $results['introduction'] ?? [];
         $this->addPage();
         $this->logger->debug('Starting to write the introduction');
@@ -219,8 +216,7 @@ class PDFWriter
             $this->setColumnCount(1);
         }
         if ($this->shouldDisplaySectionTitle($section)) {
-            $translatedTitle = $this->cliTranslator->translate($title);
-            $this->currentPage->drawText($translatedTitle, 44, $this->y);
+            $this->currentPage->drawText($title, 44, $this->y);
         } else {
             return;
         }
@@ -370,10 +366,7 @@ class PDFWriter
      */
     public function writeLine(string $text, bool $isFile = false, int $size = 9, int $depth = 0, float $r = 0, float $g = 0, float $b = 0): void
     {
-        $translatedText = trim($text);
-        if ($depth == 0) {
-            $translatedText = $this->cliTranslator->translate($text);
-        }
+        $text = trim($text);
         $this->setGeneralStyle($size, $r, $g, $b);
         // If line is too long, we split it
         $availableWidth = 130 / $this->columnCount;
@@ -395,7 +388,7 @@ class PDFWriter
             }
             return;
         }
-        $this->currentPage->drawText($translatedText, $this->columnX, $this->y);
+        $this->currentPage->drawText($text, $this->columnX, $this->y);
         $this->y -= floor($size * 1.3);
         if ($this->y < 50) {
             $this->switchColumnOrAddPage();
@@ -454,7 +447,6 @@ class PDFWriter
      */
     private function writeTitle($text, $x = null): void
     {
-        $translatedText = $this->cliTranslator->translate($text);
         $this->y -= 10;
         if ($this->y < 130) {
             $this->addPage();
@@ -462,7 +454,7 @@ class PDFWriter
         $x = $x ?? $this->x;
         $this->setTitleStyle();
         $this->y -= 15;
-        $this->currentPage->drawText(strtoupper($translatedText), $x, $this->y);
+        $this->currentPage->drawText(strtoupper($text), $x, $this->y);
         $this->y -= 30;
         $this->setGeneralStyle();
     }
@@ -482,8 +474,7 @@ class PDFWriter
         if (isset($subsection['title'])) {
             $this->y -= 20;
             $this->setSubTitleStyle();
-            $translatedTitle = $this->cliTranslator->translate($subsection['title']);
-            $this->currentPage->drawText($translatedTitle, 48, $this->y);
+            $this->currentPage->drawText($subsection['title'], 48, $this->y);
         }
         if (isset($subsection['explanation'])) {
             // First we remove line feed, carriage return and tabs
@@ -508,8 +499,7 @@ class PDFWriter
     {
         $this->setTitleStyle(15);
         $this->y -= 15;
-        $translatedText = $this->cliTranslator->translate($text);
-        $this->currentPage->drawText($translatedText, 43, $this->y);
+        $this->currentPage->drawText($text, 43, $this->y);
         $this->y -= 20;
         if ($this->y < 50) {
             $this->addPage();
