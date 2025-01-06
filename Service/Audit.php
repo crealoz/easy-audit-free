@@ -29,7 +29,7 @@ class Audit
         protected readonly AuditRequestFactory             $auditRequestFactory,
         protected readonly AuditRequestRepositoryInterface $auditRequestRepository,
         private readonly SerializerInterface               $serializer,
-        private readonly Localization                       $localization,
+        private readonly Localization                      $localization,
         protected array                                    $processors = [],
         protected array                                    $resultProcessors = []
     )
@@ -40,20 +40,28 @@ class Audit
     /**
      * @param OutputInterface|null $output
      * @param string|null $language
-     * @param string $filename
+     * @param string $filePath
      * @param $requestId
      * @return string
      * @throws FileSystemException
      */
-    public function run(OutputInterface $output = null, string $language = null, string $filename = "audit", $requestId = null): string
+    public function run(OutputInterface $output = null, string $language = null, string $filePath = "audit", $requestId = null): string
     {
         $this->results = [];
         // if the filename is not valid unix filename, throw an exception
-        if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $filename)) {
-            throw new FileSystemException(__('Invalid filename %1', $filename));
+        if (!preg_match('/^[a-zA-Z0-9_\-]+$/', $filePath)) {
+            throw new FileSystemException(__('Invalid filename %1', $filePath));
         }
 
         $language = $this->localization->initializeLanguage($language);
+
+        if (!$requestId) {
+            $auditRequest = $this->auditRequestFactory->create();
+            $auditRequest->setRequest($this->serializer->serialize(['language' => $language]));
+            $auditRequest->setUsername('admin');
+            $this->auditRequestRepository->save($auditRequest);
+            $requestId = $auditRequest->getId();
+        }
 
         $erroneousFiles = [];
         $this->logger->debug(__('Starting audit service...'));
@@ -67,14 +75,6 @@ class Audit
                 $this->results = array_merge_recursive($typeResults, $this->results);
                 $erroneousFiles[$typeName] = $type->getErroneousFiles();
             }
-        }
-
-        if (!$requestId) {
-            $auditRequest = $this->auditRequestFactory->create();
-            $auditRequest->setRequest($this->serializer->serialize(['language' => $language]));
-            $auditRequest->setUsername('admin');
-            $this->auditRequestRepository->save($auditRequest);
-            $requestId = $auditRequest->getId();
         }
 
         $this->results['requestId'] = $requestId;
@@ -98,7 +98,14 @@ class Audit
             $output->writeln(PHP_EOL . 'Creating PDF...');
         }
         try {
-            return $this->pdfWriter->createdPDF($this->results, $filename);
+            $filePath = $this->pdfWriter->createdPDF($this->results, $filePath);
+            if (isset($auditRequest)) {
+                $formatedDate = date('Y-m-d H:i:s');
+                $auditRequest->setExecutionTime($formatedDate);
+                $auditRequest->setFilePath($filePath);
+                $this->auditRequestRepository->save($auditRequest);
+            }
+            return $filePath;
         } catch (FileSystemException $e) {
             $this->logger->error(__('Error while creating or reading the PDF file: %1', $e->getMessage()));
         } catch (\Zend_Pdf_Exception $e) {
