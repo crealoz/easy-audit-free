@@ -4,6 +4,7 @@ namespace Crealoz\EasyAudit\Test\Integration\Service;
 
 use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Model\AuditRequest;
+use Crealoz\EasyAudit\Model\Request\FileFactory;
 use Crealoz\EasyAudit\Model\AuditRequestFactory;
 use Crealoz\EasyAudit\Processor\Type\Logic;
 use Crealoz\EasyAudit\Processor\Type\PHPCode;
@@ -77,6 +78,8 @@ class AuditTest extends TestCase
 
     private $typeMockBuilder;
 
+    private $fileFactory;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -130,12 +133,15 @@ class AuditTest extends TestCase
         $this->auditRequestRepository = $this->createMock(AuditRequestRepositoryInterface::class);
         $this->serializer = $this->createMock(SerializerInterface::class);
         $this->localization = $this->createMock(Localization::class);
+        $this->fileFactory = $this->createMock(FileFactory::class);
 
         $this->auditRequestFactory->method('create')->willReturn($this->createMock(AuditRequest::class));
 
         $this->localization->method('initializeLanguage')->willReturn('en_US');
 
         $this->serializer->method('serialize')->willReturn('{language: en_US}');
+
+        $this->fileFactory->method('create')->willReturn($this->createMock(\Crealoz\EasyAudit\Model\Request\File::class));
 
         $this->audit = new Audit(
             $this->pdfWriter,
@@ -146,6 +152,7 @@ class AuditTest extends TestCase
             $this->auditRequestRepository,
             $this->serializer,
             $this->localization,
+            $this->fileFactory,
             $this->processors
         );
     }

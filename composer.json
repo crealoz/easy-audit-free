@@ -14,7 +14,8 @@
         "php": "^8.1",
         "magento/framework": "*",
         "ext-simplexml": "*",
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": "*",
+        "ext-zip": "*"
     },
     "type": "magento2-module",
     "version": "0.1.4",

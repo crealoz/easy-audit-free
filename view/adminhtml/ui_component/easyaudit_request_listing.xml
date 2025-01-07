@@ -84,7 +84,7 @@
             </settings>
         </column>
 
-        <column name="filepath" component="Magento_Ui/js/grid/columns/link" class="Crealoz\EasyAudit\Ui\Audit\Listing\FileColumn" sortOrder="50">
+        <column name="files" component="Magento_Ui/js/grid/columns/link" class="Crealoz\EasyAudit\Ui\Audit\Listing\FileColumn" sortOrder="50">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="link" xsi:type="string">link</item>

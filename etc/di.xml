@@ -232,4 +232,7 @@
         </arguments>
     </type>
     <!-- End of DataSources for the grids -->
+<preference for="\Crealoz\EasyAudit\Api\Data\FileInterface" type="\Crealoz\EasyAudit\Model\Request\File"/>
+<preference for="\Crealoz\EasyAudit\Api\FileRepositoryInterface" type="\Crealoz\EasyAudit\Model\FileRepository"/>
+
 </config>

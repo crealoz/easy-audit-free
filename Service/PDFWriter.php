@@ -64,21 +64,27 @@ class PDFWriter
         $this->pdf = new \Zend_Pdf();
         $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
         try {
-            $this->logo = \Zend_Pdf_Image::imageWithPath($imagePath);
+            if (!isset($this->logo)) {
+                $this->logo = \Zend_Pdf_Image::imageWithPath($imagePath);
+            }
         } catch (\Zend_Pdf_Exception $e) {
             $this->logger->error('Error while loading the logo: ' . $e->getMessage());
             $this->logo = null;
         }
-        $introductions = $results['introduction'] ?? [];
         $this->addPage();
-        $this->logger->debug('Starting to write the introduction');
-        foreach ($introductions as $introduction) {
-            $this->manageIntroduction($introduction);
+        if (!empty($results['introduction']) && is_array($results['introduction'])) {
+            $this->logger->debug('Starting to write the introduction');
+            foreach ($results['introduction'] as $introduction) {
+                $this->manageIntroduction($introduction);
+            }
         }
         unset($results['introduction']);
         unset($results['erroneousFiles']);
         $this->logger->debug('Starting to write the sections');
         foreach ($results as $section => $sectionResults) {
+            if ($section === 'data') {
+                continue;
+            }
             $isFirst = true;
             foreach ($sectionResults as $subsection => $subResults) {
                 if (is_array($subResults) && !empty($subResults) && ($subResults['hasErrors'])) {
@@ -148,6 +154,9 @@ class PDFWriter
         }
         $paragraphs = $introduction['summary'];
         foreach ($paragraphs as $paragraph) {
+            if ($paragraph instanceof \Magento\Framework\Phrase) {
+                $paragraph = __($paragraph);
+            }
             $this->writeLine($paragraph);
         }
         $this->setColumnCount(2);

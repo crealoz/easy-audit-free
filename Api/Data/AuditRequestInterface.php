@@ -10,7 +10,7 @@ interface AuditRequestInterface
     const CREATED_AT = 'created_at';
     const REQUEST = 'request';
 
-    const FILE_PATH = 'filepath';
+    const FILES = 'files';
 
     /**
      * Get id
@@ -88,17 +88,25 @@ interface AuditRequestInterface
     public function setRequest(string $request);
 
     /**
-     * Get file path
+     * Get files
      *
-     * @return string|null
+     * @return FileInterface[]
      */
-    public function getFilePath(): ?string;
+    public function getFiles(): array;
 
     /**
-     * Set file path
+     * Set files
      *
-     * @param string $filePath
+     * @param FileInterface[] $files
      * @return $this
      */
-    public function setFilePath(string $filePath);
+    public function setFiles(array $files);
+
+    /**
+     * Add file
+     *
+     * @param FileInterface $file
+     * @return $this
+     */
+    public function addFile(FileInterface $file): AuditRequestInterface;
 }

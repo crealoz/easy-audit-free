@@ -60,7 +60,7 @@ class RunAuditCommand extends Command
         $this->auditService->run($output, $language);
 
         $duration = microtime(true) - $start;
-        // Output the duration in a human readable format
+        // Output the duration in a human-readable format
         $duration = round($duration);
         $duration = gmdate('H:i:s', $duration);
         $output->writeln(PHP_EOL.'Audit service has been run successfully in '. $duration .'.');

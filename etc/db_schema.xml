@@ -6,9 +6,25 @@
         <column xsi:type="timestamp" name="execution_time" nullable="true" on_update="false" comment="Execution Time"/>
         <column xsi:type="timestamp" name="created_at" nullable="false" on_update="false" default="CURRENT_TIMESTAMP" comment="Creation Time"/>
         <column xsi:type="text" name="request" nullable="true" comment="Request"/>
-        <column xsi:type="varchar" name="filepath" nullable="true" length="255" comment="File Path"/>
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="request_id"/>
         </constraint>
+        <index referenceId="username" indexType="fulltext">
+            <column name="username"/>
+        </index>
+    </table>
+    <!-- Creates a table to store the files attached to the request -->
+    <table name="crealoz_easyaudit_request_file" resource="default" engine="innodb" comment="Easy Audit Request File Table">
+        <column xsi:type="int" name="file_id" padding="10" unsigned="true" nullable="false" identity="true" comment="Entity ID"/>
+        <column xsi:type="int" name="request_id" padding="10" unsigned="true" nullable="false" comment="Request ID"/>
+        <column xsi:type="varchar" name="filename" nullable="false" length="255" comment="File Name"/>
+        <column xsi:type="text" name="content" nullable="true" comment="File Content"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="file_id"/>
+        </constraint>
+        <constraint xsi:type="foreign"
+                    referenceId="FK_EASYAUDIT_REQUEST_FILE_EASYAUDIT_REQUEST_REQUEST_ID_EASYAUDIT_REQUEST_REQUEST_ID"
+                    table="crealoz_easyaudit_request_file" column="request_id"
+                    referenceTable="crealoz_easyaudit_request" referenceColumn="request_id"  onDelete="CASCADE"/>
     </table>
 </schema>
