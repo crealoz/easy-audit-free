@@ -66,4 +66,9 @@ class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInte
             }
         }
     }
+
+    public function getProcessorTag(): string
+    {
+        return 'unusedModules';
+    }
 }

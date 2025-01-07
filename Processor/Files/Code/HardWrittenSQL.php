@@ -167,4 +167,9 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
             }
         }
     }
+
+    public function getProcessorTag(): string
+    {
+        return 'hardWrittenSQL';
+    }
 }

@@ -4,5 +4,8 @@
         <job name="easyaudit_audit" instance="Crealoz\EasyAudit\Cron\Audit" method="execute">
             <schedule>* * * * *</schedule>
         </job>
+        <job name="clean_tmp_files" instance="Crealoz\EasyAudit\Cron\CleanTmpFiles" method="execute">
+            <schedule>* 5 * * *</schedule>
+        </job>
     </group>
 </config>

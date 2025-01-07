@@ -8,7 +8,7 @@
              parent="Magento_Backend::system"
              resource="Crealoz_EasyAudit::sub_menu"/>
         <add id="Crealoz_EasyAudit::sub_menu"
-             title="Easy Audit"
+             title="Easy Audit Requests"
              module="Crealoz_EasyAudit"
              sortOrder="10"
              parent="Crealoz::tools"

@@ -219,4 +219,8 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
         return str_contains($argumentName, 'Repository');
     }
 
+    public function getProcessorTag(): string
+    {
+        return 'specificClassInjection';
+    }
 }
