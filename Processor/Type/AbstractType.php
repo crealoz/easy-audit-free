@@ -119,7 +119,9 @@ abstract class AbstractType implements TypeInterface
     {
         /** @var AuditProcessorInterface $processor */
         foreach ($processors as $processor) {
-            $this->results[$processor->getAuditSection()][$processor->getProcessorName()] = $processor->getResults();
+            $results = $processor->getResults();
+            $results['title'] = $processor->getProcessorName();
+            $this->results[$processor->getAuditSection()][$processor->getProcessorTag()] = $results;
             foreach ($processor->getErroneousFiles() as $file => $score) {
                 if (isset($this->erroneousFiles[$file])) {
                     $this->erroneousFiles[$file] += $score;

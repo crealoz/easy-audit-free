@@ -96,4 +96,9 @@ class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterf
         }
 
     }
+
+    public function getProcessorTag(): string
+    {
+        return 'useOfRegistry';
+    }
 }

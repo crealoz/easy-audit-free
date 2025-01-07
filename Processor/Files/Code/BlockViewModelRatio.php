@@ -96,4 +96,9 @@ class BlockViewModelRatio extends AbstractArrayProcessor implements ArrayProcess
         $pathParts = explode(DIRECTORY_SEPARATOR, $file);
         return $pathParts[4] === 'Block';
     }
+
+    public function getProcessorTag(): string
+    {
+        return __('BlockVsViewModelRatio');
+    }
 }

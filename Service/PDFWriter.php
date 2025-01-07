@@ -60,7 +60,7 @@ class PDFWriter
      */
     public function createdPDF($results, $filename): string
     {
-        $this->logger->debug('Starting to create the PDF');
+        $this->logger->debug('Starting to create the PDF ' . $filename);
         $this->pdf = new \Zend_Pdf();
         $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
         try {
@@ -91,7 +91,8 @@ class PDFWriter
                         $this->writeTitle($section, 40);
                         $isFirst = false;
                     }
-                    $this->writeSectionTitle($subsection);
+                    $this->writeSectionTitle($subResults['title']);
+                    unset($subResults['title']);
                     $this->manageSubResult($subResults);
                 }
             }

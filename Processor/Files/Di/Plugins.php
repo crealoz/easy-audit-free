@@ -280,4 +280,9 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
             $this->logger->error($e->getMessage());
         }
     }
+
+    public function getProcessorTag(): string
+    {
+        return 'plugins';
+    }
 }

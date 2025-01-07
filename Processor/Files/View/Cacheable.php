@@ -59,4 +59,9 @@ class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
             }
         }
     }
+
+    public function getProcessorTag(): string
+    {
+        return 'cacheable';
+    }
 }

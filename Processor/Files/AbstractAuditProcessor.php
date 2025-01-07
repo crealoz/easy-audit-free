@@ -24,18 +24,13 @@ abstract class AbstractAuditProcessor implements AuditProcessorInterface
         return array_key_exists('hasErrors', $this->results) && $this->results['hasErrors'];
     }
 
-    abstract public function run(): void;
-
+    /**
+     * Prepares the erroneous files array
+     * @return void
+     */
     public function prepopulateResults(): void {
         $this->erroneousFiles = [];
     }
-
-    /**
-     * @throws GeneralAuditException
-     */
-    abstract public function getProcessorName(): string;
-
-    abstract public function getAuditSection(): string;
 
     /**
      * Array of modules chosen by the user to be ignored during the audit

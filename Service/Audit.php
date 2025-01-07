@@ -89,6 +89,7 @@ class Audit
         if ($output instanceof OutputInterface) {
             $output->writeln(PHP_EOL . 'Processing results...');
         }
+
         foreach ($this->resultProcessors as $processor) {
             if ($processor instanceof ResultProcessorInterface) {
                 $this->results = $processor->processResults($this->results);

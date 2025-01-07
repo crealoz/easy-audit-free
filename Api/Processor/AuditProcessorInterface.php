@@ -18,6 +18,12 @@ interface AuditProcessorInterface
     public function getProcessorName(): string;
 
     /**
+     * Get a tag without any spaces or special characters
+     * @return string
+     */
+    public function getProcessorTag(): string;
+
+    /**
      * @return array
      */
     public function getResults(): array;
