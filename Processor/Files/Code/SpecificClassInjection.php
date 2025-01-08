@@ -191,11 +191,11 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
             $this->results['warnings']['specificClassInjection']['files'][$className][] = $argumentName;
         }
         if ($fileErrorLevel > 10) {
-            $this->addErroneousFile($input, Audit::PRIORITY_HIGH);
+            $this->addErroneousFile($this->getFile(), Audit::PRIORITY_HIGH);
         } elseif ($fileErrorLevel > 5) {
-            $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
+            $this->addErroneousFile($this->getFile(), Audit::PRIORITY_AVERAGE);
         } else {
-            $this->addErroneousFile($input, Audit::PRIORITY_LOW);
+            $this->addErroneousFile($this->getFile(), Audit::PRIORITY_LOW);
         }
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Unit\Processors;
+namespace Crealoz\EasyAudit\Test\Unit\Processors\Files;
 
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
 use Crealoz\EasyAudit\Model\AuditStorage;
@@ -42,6 +42,7 @@ class CacheableTest extends TestCase
     {
         unlink($this->tempFile);
         unset($this->processor);
+        unset($this->xmlString);
     }
 
     public function testRun(): void

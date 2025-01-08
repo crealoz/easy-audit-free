@@ -6,9 +6,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Run shell commands
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "List files:"
+          ls -la
+          echo "List things in Test"
+          ls -la Test
       - uses: extdn/github-actions-m2/magento-unit-tests/8.1@master
         env:
-          MAGENTO_VERSION: '2.4.5'
+          MAGENTO_VERSION: '2.4.6'
           MODULE_NAME: Crealoz_EasyAudit
           COMPOSER_NAME: crealoz/easy-audit-free
-          PHPUNIT_FILE: 'phpunit.xml'
+          PHPUNIT_FILE: 'phpunit.xml.dist'

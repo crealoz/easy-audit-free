@@ -163,6 +163,17 @@ class AuditTest extends TestCase
         unset($this->pdfWriter);
         unset($this->typeFactory);
         unset($this->arrayTools);
+        unset($this->logicMock);
+        unset($this->phpMock);
+        unset($this->xmlMock);
+        unset($this->typeMockBuilder);
+        unset($this->fileFactory);
+        unset($this->logger);
+        unset($this->auditRequestFactory);
+        unset($this->auditRequestRepository);
+        unset($this->serializer);
+        unset($this->localization);
+
     }
 
     public function testRun()
