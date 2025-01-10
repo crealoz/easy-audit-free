@@ -128,6 +128,7 @@ class AuditTest extends TestCase
             ['xml', $this->xmlMock]
         ]);
 
+        /** @codeCoverageIgnoreStart  */
         eval('
             namespace Crealoz\EasyAudit\Model;
             
@@ -147,6 +148,7 @@ class AuditTest extends TestCase
                 }
             }
         ');
+        /** @codeCoverageIgnoreEnd  */
 
         $this->arrayTools = $this->createMock(ArrayTools::class);
         $this->logger = $this->createMock(LoggerInterface::class);
