@@ -4,6 +4,7 @@ namespace Crealoz\EasyAudit\Test\Integration\Service;
 
 use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Model\AuditRequest;
+use Crealoz\EasyAudit\Model\Request\File;
 use Crealoz\EasyAudit\Model\Request\FileFactory;
 use Crealoz\EasyAudit\Model\AuditRequestFactory;
 use Crealoz\EasyAudit\Processor\Type\Logic;
@@ -127,6 +128,28 @@ class AuditTest extends TestCase
             ['xml', $this->xmlMock]
         ]);
 
+        /** @codingStandardsIgnoreStart  */
+        eval('
+            namespace Crealoz\EasyAudit\Model;
+            
+            class AuditRequestFactory {
+                public function create(array $data = []) {
+                    return new AuditRequest($data);
+                }
+            }
+        ');
+
+        eval('
+            namespace Crealoz\EasyAudit\Model\Request;
+            
+            class FileFactory {
+                public function create(array $data = []) {
+                    return new \File($data);
+                }
+            }
+        ');
+        /** @codingStandardsIgnoreEnd   */
+
         $this->arrayTools = $this->createMock(ArrayTools::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->auditRequestFactory = $this->createPartialMock(AuditRequestFactory::class, ['create']);
@@ -141,7 +164,7 @@ class AuditTest extends TestCase
 
         $this->serializer->method('serialize')->willReturn('{language: en_US}');
 
-        $this->fileFactory->method('create')->willReturn($this->createMock(\Crealoz\EasyAudit\Model\Request\File::class));
+        $this->fileFactory->method('create')->willReturn($this->createMock(File::class));
 
         $this->audit = new Audit(
             $this->pdfWriter,
@@ -163,6 +186,17 @@ class AuditTest extends TestCase
         unset($this->pdfWriter);
         unset($this->typeFactory);
         unset($this->arrayTools);
+        unset($this->logicMock);
+        unset($this->phpMock);
+        unset($this->xmlMock);
+        unset($this->typeMockBuilder);
+        unset($this->fileFactory);
+        unset($this->logger);
+        unset($this->auditRequestFactory);
+        unset($this->auditRequestRepository);
+        unset($this->serializer);
+        unset($this->localization);
+
     }
 
     public function testRun()

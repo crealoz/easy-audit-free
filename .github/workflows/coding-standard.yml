@@ -11,4 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Run shell commands
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "List files:"
+          ls -la
       - uses: extdn/github-actions-m2/magento-coding-standard/8.1@master

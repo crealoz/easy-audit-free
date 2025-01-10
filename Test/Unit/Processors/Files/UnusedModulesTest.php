@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Unit\Processors;
+namespace Crealoz\EasyAudit\Test\Unit\Processors\Files;
 
 use Crealoz\EasyAudit\Exception\Processor\GeneralAuditException;
 use Crealoz\EasyAudit\Model\AuditStorage;
@@ -27,6 +27,7 @@ class UnusedModulesTest extends TestCase
     protected function tearDown(): void
     {
         unset($this->processor);
+        unset($this->getModuleConfigMock);
     }
 
     public function testRun(): void

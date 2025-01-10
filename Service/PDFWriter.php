@@ -5,6 +5,7 @@ namespace Crealoz\EasyAudit\Service;
 use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
+use Crealoz\EasyAudit\Service\PDFWriter\StyleManager;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
@@ -36,6 +37,10 @@ class PDFWriter
 
     private int $annexNumber = 1;
     private array $annexes = [];
+    /**
+     * @var true
+     */
+    private bool $logoInitialized = false;
 
     public function __construct(
         private readonly Filesystem       $filesystem,
@@ -43,6 +48,7 @@ class PDFWriter
         private readonly \Psr\Log\LoggerInterface $logger,
         private readonly Reader           $moduleReader,
         private readonly ModulePaths      $modulePaths,
+        private readonly StyleManager     $styleManager,
         private readonly array $specificSections = [],
         public int                        $x = 50,
         public int                        $columnCount = 1
@@ -62,15 +68,7 @@ class PDFWriter
     {
         $this->logger->debug('Starting to create the PDF ' . $filename);
         $this->pdf = new \Zend_Pdf();
-        $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
-        try {
-            if (!isset($this->logo)) {
-                $this->logo = \Zend_Pdf_Image::imageWithPath($imagePath);
-            }
-        } catch (\Zend_Pdf_Exception $e) {
-            $this->logger->error('Error while loading the logo: ' . $e->getMessage());
-            $this->logo = null;
-        }
+
         $this->addPage();
         if (!empty($results['introduction']) && is_array($results['introduction'])) {
             $this->logger->debug('Starting to write the introduction');
@@ -122,6 +120,24 @@ class PDFWriter
         return $filePath;
     }
 
+    private function getLogo()
+    {
+        if (!$this->logoInitialized) {
+            try {
+                if (!isset($this->logo)) {
+                    $imagePath = $this->moduleReader->getModuleDir(\Magento\Framework\Module\Dir::MODULE_VIEW_DIR, 'Crealoz_EasyAudit') . '/adminhtml/web/images/crealoz-logo-dark.png';
+                    $this->logo = \Zend_Pdf_Image::imageWithPath($imagePath);
+                    $this->logoInitialized = true;
+                }
+            } catch (\Zend_Pdf_Exception $e) {
+                $this->logger->error('Error while loading the logo: ' . $e->getMessage());
+                $this->logo = null;
+                $this->logoInitialized = true;
+            }
+        }
+        return $this->logo;
+    }
+
     /**
      * Display the header of the PDF with the logo of the company.
      * @return void
@@ -131,8 +147,8 @@ class PDFWriter
     {
         $this->currentPage->drawText(__('EasyAudit Report by Crealoz'), 20, 20);
         // Get the image path
-        if ($this->logo !== null) {
-            $this->currentPage->drawImage($this->logo, 500, 800, 550, 820);
+        if ($this->getLogo() !== null) {
+            $this->currentPage->drawImage($this->getLogo(), 500, 800, 550, 820);
         }
         $this->currentPage->drawText('Created on : ' . date('Y-m-d H:i:s'), 420, 20);
     }
@@ -190,7 +206,7 @@ class PDFWriter
             if ($this->y < $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize($subResults['errors'])) {
                 $this->addPage();
             }
-            $this->setErrorStyle(14);
+            $this->styleManager->setErrorStyle($this->currentPage, 14);
             $this->displaySection('Errors', $subResults['errors']);
         }
         if (!empty($subResults['warnings'])) {
@@ -199,7 +215,7 @@ class PDFWriter
             } else {
                 $this->y -= 15;
             }
-            $this->setWarningStyle(14);
+            $this->styleManager->setWarningStyle($this->currentPage, 14);
             $this->displaySection('Warnings', $subResults['warnings']);
         }
         if (!empty($subResults['suggestions'])) {
@@ -208,7 +224,7 @@ class PDFWriter
             } else {
                 $this->y -= 15;
             }
-            $this->setGeneralStyle(14);
+            $this->styleManager->setGeneralStyle($this->currentPage, 14);
             $this->displaySection('Suggestions', $subResults['suggestions']);
         }
     }
@@ -377,32 +393,53 @@ class PDFWriter
     public function writeLine(string $text, bool $isFile = false, int $size = 9, int $depth = 0, float $r = 0, float $g = 0, float $b = 0): void
     {
         $text = trim($text);
-        $this->setGeneralStyle($size, $r, $g, $b);
+        $this->styleManager->setGeneralStyle($this->currentPage, $size, $r, $g, $b);
         // If line is too long, we split it
         $availableWidth = 130 / $this->columnCount;
         if ($depth == 0 && strlen($text) > $availableWidth) {
-            if ($isFile) {
-                $lastSlashPos = strrpos(substr($text, 0, $availableWidth), '/');
-                if ($lastSlashPos !== false) {
-                    $lines = [substr($text, 0, $lastSlashPos + 1), substr($text, $lastSlashPos + 1)];
-                } else {
-                    $lines = str_split($text, $availableWidth - 30);
-                }
-            } else {
-                $wrappedText = wordwrap($text, $availableWidth, "--SPLIT--");
-                $lines = explode("--SPLIT--", $wrappedText);
+            foreach ($this->getLines($text, $availableWidth, $isFile) as $line) {
+                $this->writeText($line, $size);
             }
-            $depth++;
-            foreach ($lines as $line) {
-                $this->writeLine($line, $isFile, $size, $depth, $r, $g, $b);
-            }
-            return;
+        } else {
+            $this->writeText($text, $size);
         }
+    }
+
+    private function writeText(string $text, int $size): void
+    {
         $this->currentPage->drawText($text, $this->columnX, $this->y);
         $this->y -= floor($size * 1.3);
         if ($this->y < 50) {
             $this->switchColumnOrAddPage();
         }
+    }
+
+    private function getLines(string $text, int $availableWidth, bool $isFile): array
+    {
+        $lines = [];
+        while (strlen($text) > $availableWidth) {
+            if ($isFile) {
+                $lastSlashPos = strrpos(substr($text, 0, $availableWidth), '/');
+                if ($lastSlashPos !== false) {
+                    $lines[] = substr($text, 0, $lastSlashPos + 1);
+                    $text = substr($text, $lastSlashPos + 1);
+                } else {
+                    $lines[] = substr($text, 0, $availableWidth - 30); // Ajustement pour $availableWidth
+                    $text = substr($text, $availableWidth - 30);
+                }
+            } else {
+                $wrappedText = wordwrap($text, $availableWidth, "--SPLIT--", true);
+                $splitLines = explode("--SPLIT--", $wrappedText);
+                $lines = array_merge($lines, $splitLines);
+                $text = "";
+            }
+        }
+
+        if (!empty($text)) {
+            $lines[] = $text;
+        }
+
+        return $lines;
     }
 
     /**
@@ -462,11 +499,11 @@ class PDFWriter
             $this->addPage();
         }
         $x = $x ?? $this->x;
-        $this->setTitleStyle();
+        $this->styleManager->setTitleStyle($this->currentPage);
         $this->y -= 15;
         $this->currentPage->drawText(strtoupper($text), $x, $this->y);
         $this->y -= 30;
-        $this->setGeneralStyle();
+        $this->styleManager->setGeneralStyle($this->currentPage);
     }
 
     /**
@@ -483,7 +520,7 @@ class PDFWriter
         }
         if (isset($subsection['title'])) {
             $this->y -= 20;
-            $this->setSubTitleStyle();
+            $this->styleManager->setSubTitleStyle($this->currentPage);
             $this->currentPage->drawText($subsection['title'], 48, $this->y);
         }
         if (isset($subsection['explanation'])) {
@@ -507,14 +544,14 @@ class PDFWriter
      */
     private function writeSectionTitle(string $text): void
     {
-        $this->setTitleStyle(15);
+        $this->styleManager->setTitleStyle($this->currentPage, 15);
         $this->y -= 15;
         $this->currentPage->drawText($text, 43, $this->y);
         $this->y -= 20;
         if ($this->y < 50) {
             $this->addPage();
         }
-        $this->setGeneralStyle();
+        $this->styleManager->setGeneralStyle($this->currentPage);
     }
 
     /**
@@ -528,143 +565,9 @@ class PDFWriter
         if ($this->y !== 800) {
             $this->currentPage = $this->pdf->newPage(\Zend_Pdf_Page::SIZE_A4);
             $this->pdf->pages[] = $this->currentPage;
-            $this->setGeneralStyle();
+            $this->styleManager->setGeneralStyle($this->currentPage);
             $this->y = 800;
             $this->makeHeaderAndFooter();
         }
-    }
-
-    /**
-     * Sets the general style of the text. It will be black by default.
-     *
-     * @param int $size font size
-     * @param float $r red color balance between 0 and 1
-     * @param float $g green color balance between 0 and 1
-     * @param float $b blue color balance between 0 and 1
-     * @return void
-     * @throws \Zend_Pdf_Exception
-     */
-    public function setGeneralStyle(int $size = 9, float $r = 0, float $g = 0, float $b = 0): void
-    {
-        $style = new \Zend_Pdf_Style();
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb($r, $g, $b));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb($r, $g, $b));
-        $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font, $size);
-        $this->currentPage->setStyle($style);
-    }
-
-    /**
-     * Sets the style of the title. It will be blue.
-     *
-     * @param int $size
-     * @return void
-     * @throws \Zend_Pdf_Exception
-     */
-    private function setTitleStyle(int $size = 20): void
-    {
-        $style = new \Zend_Pdf_Style();
-        // Blue color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0, 0, 0.85));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0, 0, 0.85));
-        $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font, $size);
-        $this->currentPage->setStyle($style);
-    }
-
-    /**
-     * Sets the style of the subtitle. It will be greenish blue.
-     *
-     * @param int $size
-     * @return void
-     * @throws \Zend_Pdf_Exception
-     */
-    private function setSubTitleStyle(int $size = 12): void
-    {
-        $style = new \Zend_Pdf_Style();
-        // Blue color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0, 0.45, 0.85));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0, 0.45, 0.85));
-        $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font, $size);
-        $this->currentPage->setStyle($style);
-    }
-
-    /**
-     * Sets the style of the error. It will be red.
-     *
-     * @param int $size
-     * @return void
-     * @throws \Zend_Pdf_Exception
-     */
-    private function setErrorStyle(int $size = 11): void
-    {
-        $style = new \Zend_Pdf_Style();
-        // Red color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0.85, 0, 0));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0.85, 0, 0));
-        $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font, $size);
-        $this->currentPage->setStyle($style);
-    }
-
-    /**
-     * Sets the style of the warning. It will be orange.
-     *
-     * @param int $size
-     * @return void
-     * @throws \Zend_Pdf_Exception
-     */
-    private function setWarningStyle($size = 11): void
-    {
-        $style = new \Zend_Pdf_Style();
-        // Orange color
-        $style->setLineColor(new \Zend_Pdf_Color_Rgb(0.85, 0.45, 0));
-        $style->setFillColor(new \Zend_Pdf_Color_Rgb(0.85, 0.45, 0));
-        $font = \Zend_Pdf_Font::fontWithName(\Zend_Pdf_Font::FONT_TIMES);
-        $style->setFont($font, $size);
-        $this->currentPage->setStyle($style);
-    }
-
-    /**
-     * Public getter for the columnY property
-     *
-     * @return int
-     */
-    public function getColumnY(): int
-    {
-        return $this->columnY;
-    }
-
-    /**
-     * Public setter for the columnY property
-     *
-     * @param int $columnY
-     * @return void
-     */
-    public function setColumnY(int $columnY): void
-    {
-        $this->columnY = $columnY;
-    }
-
-    /**
-     * Public getter for the columnX property
-     *
-     * @return int
-     */
-    public function getColumnX(): int
-    {
-        return $this->columnX;
-    }
-
-    /**
-     * Public setter for the columnX property
-     *
-     * @param int $columnX
-     * @return void
-     */
-    public function setColumnX(int $columnX): void
-    {
-        $this->columnX = $columnX;
     }
 }
