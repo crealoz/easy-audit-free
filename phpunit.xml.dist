@@ -19,13 +19,10 @@
             <directory suffix=".php">../../../vendor/%COMPOSER_NAME%/Test</directory>
             <directory suffix=".php">../../../vendor/%COMPOSER_NAME%/Api</directory>
         </exclude>
+        <report>
+            <clover outputFile="build/logs/clover.xml"/>
+        </report>
     </coverage>
-
-    <logging>
-        <coverage>
-            <coverage-clover outputFile="build/logs/clover.xml" />
-        </coverage>
-    </logging>
 
     <php>
         <ini name="memory_limit" value="-1" />
