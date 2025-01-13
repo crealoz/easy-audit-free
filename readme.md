@@ -112,7 +112,7 @@ Add your new file getter to the `fileGetters` array in `di.xml`:
 
 ## Code coverage
 
-![Coverage](https://codecov.io/gh/crealoz/easy-audit-free/branch/main/graph/badge.svg)
+[![codecov](https://codecov.io/gh/crealoz/easy-audit-free/branch/main/graph/badge.svg)](https://codecov.io/gh/crealoz/easy-audit-free)
 
 
 ## Contributing
