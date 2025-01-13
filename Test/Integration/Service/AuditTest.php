@@ -5,8 +5,6 @@ namespace Crealoz\EasyAudit\Test\Integration\Service;
 use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Model\AuditRequest;
 use Crealoz\EasyAudit\Model\Request\File;
-use Crealoz\EasyAudit\Model\Request\FileFactory;
-use Crealoz\EasyAudit\Model\AuditRequestFactory;
 use Crealoz\EasyAudit\Processor\Type\Logic;
 use Crealoz\EasyAudit\Processor\Type\PHPCode;
 use Crealoz\EasyAudit\Processor\Type\TypeFactory;
@@ -29,7 +27,6 @@ class AuditTest extends TestCase
 {
     private Audit $audit;
     private PDFWriter $pdfWriter;
-    private TypeFactory $typeFactory;
     private ArrayTools $arrayTools;
 
 
@@ -86,7 +83,6 @@ class AuditTest extends TestCase
         parent::setUp();
 
         $this->pdfWriter = $this->createMock(PDFWriter::class);
-        $this->typeFactory = $this->createMock(TypeFactory::class);
 
         $fileGetter = $this->createMock(FileGetterFactory::class);
         $logger = $this->createMock(LoggerInterface::class);
@@ -128,28 +124,6 @@ class AuditTest extends TestCase
             ['xml', $this->xmlMock]
         ]);
 
-        /** @codingStandardsIgnoreStart  */
-        eval('
-            namespace Crealoz\EasyAudit\Model;
-            
-            class AuditRequestFactory {
-                public function create(array $data = []) {
-                    return new AuditRequest($data);
-                }
-            }
-        ');
-
-        eval('
-            namespace Crealoz\EasyAudit\Model\Request;
-            
-            class FileFactory {
-                public function create(array $data = []) {
-                    return new \File($data);
-                }
-            }
-        ');
-        /** @codingStandardsIgnoreEnd   */
-
         $this->arrayTools = $this->createMock(ArrayTools::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->auditRequestFactory = $this->createPartialMock(\Crealoz\EasyAudit\Model\AuditRequestFactory::class, ['create']);
@@ -184,7 +158,6 @@ class AuditTest extends TestCase
     {
         unset($this->audit);
         unset($this->pdfWriter);
-        unset($this->typeFactory);
         unset($this->arrayTools);
         unset($this->logicMock);
         unset($this->phpMock);

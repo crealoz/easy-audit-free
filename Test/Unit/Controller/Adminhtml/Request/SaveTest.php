@@ -5,7 +5,6 @@ namespace Crealoz\EasyAudit\Test\Unit\Controller\Adminhtml\Request;
 use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Controller\Adminhtml\Request\Save;
 use Crealoz\EasyAudit\Model\AuditRequest;
-use Crealoz\EasyAudit\Model\AuditRequestFactory;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Message\ManagerInterface;
