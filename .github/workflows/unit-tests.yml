@@ -20,3 +20,7 @@ jobs:
           MODULE_NAME: Crealoz_EasyAudit
           COMPOSER_NAME: crealoz/easy-audit-free
           PHPUNIT_FILE: 'phpunit.xml.dist'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: build/logs/clover.xml
