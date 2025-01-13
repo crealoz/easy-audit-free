@@ -33,7 +33,7 @@ class Save extends Action implements HttpPostActionInterface
 
             /** @var AuditRequest $auditRequest */
             $auditRequest = $this->auditRequestFactory->create();
-            $request = $this->_request->getParam('request');
+            $request = $this->getRequest()->getParam('request');
             $auditRequest->setRequest($this->serializer->serialize(['language' => $request]));
             $auditRequest
                 ->setUsername($this->authSession->getUser()->getUserName());
