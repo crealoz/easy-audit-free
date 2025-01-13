@@ -128,6 +128,28 @@ class AuditTest extends TestCase
             ['xml', $this->xmlMock]
         ]);
 
+        /** @codingStandardsIgnoreStart  */
+        eval('
+            namespace Crealoz\EasyAudit\Model;
+            
+            class AuditRequestFactory {
+                public function create(array $data = []) {
+                    return new AuditRequest($data);
+                }
+            }
+        ');
+
+        eval('
+            namespace Crealoz\EasyAudit\Model\Request;
+            
+            class FileFactory {
+                public function create(array $data = []) {
+                    return new \File($data);
+                }
+            }
+        ');
+        /** @codingStandardsIgnoreEnd   */
+
         $this->arrayTools = $this->createMock(ArrayTools::class);
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->auditRequestFactory = $this->createPartialMock(\Crealoz\EasyAudit\Model\AuditRequestFactory::class, ['create']);
