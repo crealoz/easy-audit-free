@@ -39,7 +39,7 @@ class DownloadTest extends TestCase
         $this->ioFileMock = $this->createMock(File::class);
         $this->fileRepositoryMock = $this->createMock(FileRepositoryInterface::class);
         $this->tempDir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'easy_audit_test';
-        @mkdir($this->tempDir);
+        mkdir($this->tempDir);
 
         $directoryReadMock = $this->createMock(\Magento\Framework\Filesystem\Directory\ReadInterface::class);
 
