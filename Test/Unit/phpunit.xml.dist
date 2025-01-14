@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
+         colors="true"
+         verbose="true"
+         bootstrap="/tmp/m2/dev/tests/unit/framework/bootstrap.php"
+         beStrictAboutOutputDuringTests="true"
+         failOnRisky="true"
+         failOnWarning="true"
+>
+    <testsuites>
+        <testsuite name="Unit Test Suite">
+            <directory>../../../vendor/%COMPOSER_NAME%/Test/Unit</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

@@ -1,4 +1,4 @@
 .idea
-/.phpunit.result.cache
+.phpunit.result.cache
 phpunit.xml
 /build/coverage-html

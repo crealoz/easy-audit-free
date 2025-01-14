@@ -1,25 +1,35 @@
-name: ExtDN Actions
-on: [push]
+name: Unit Tests on Magento 2
+on:
+  pull_request:
+    branches:
+      - master
 jobs:
   unit-tests:
     name: Magento 2 Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run shell commands
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      - name: Debug paths
         run: |
-          echo "Current directory:"
+          echo "Current working directory:"
           pwd
-          echo "List files:"
+          echo "List of files and directories:"
           ls -la
-          echo "List things in Test"
-          ls -la Test
+          echo "Contents of dev/tests/integration:"
+          ls -la dev/tests/integration || echo "Directory does not exist"
       - uses: extdn/github-actions-m2/magento-unit-tests/8.1@master
         env:
           MAGENTO_VERSION: '2.4.6'
           MODULE_NAME: Crealoz_EasyAudit
           COMPOSER_NAME: crealoz/easy-audit-free
-          PHPUNIT_FILE: 'phpunit.xml.dist'
+          PHPUNIT_FILE: 'Test/Unit/phpunit.xml.dist'
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v2
         with:
