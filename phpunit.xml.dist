@@ -1,19 +1,16 @@
+<?xml version="1.0"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
          colors="true"
-         verbose="true"
-         bootstrap="../../../vendor/%COMPOSER_NAME%/Test/bootstrap.php"
->
+         verbose="true">
     <testsuites>
-        <testsuite name="Unit Test Suite">
-            <directory>../../../vendor/%COMPOSER_NAME%/Test/Unit</directory>
-        </testsuite>
-        <testsuite name="Integration Test Suite">
-            <directory>../../../vendor/%COMPOSER_NAME%/Test/Integration</directory>
+        <testsuite name="All Tests">
+            <directory>../../../vendor/%COMPOSER_NAME%/Test/Unit/</directory>
+            <directory>../../../vendor/%COMPOSER_NAME%/Test/Integration/</directory>
         </testsuite>
     </testsuites>
 
-    <coverage>
+    <coverage processUncoveredFiles="true">
         <include>
             <directory suffix=".php">../../../vendor/%COMPOSER_NAME%/</directory>
         </include>
@@ -26,4 +23,8 @@
             <clover outputFile="../../../vendor/%COMPOSER_NAME%/build/logs/clover.xml"/>
         </report>
     </coverage>
+
+    <php>
+        <ini name="date.timezone" value="UTC"/>
+    </php>
 </phpunit>

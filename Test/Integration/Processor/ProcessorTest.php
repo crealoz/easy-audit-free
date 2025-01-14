@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Integration;
+namespace Crealoz\EasyAudit\Test\Integration\Processor;
 
 use Crealoz\EasyAudit\Api\Processor\AuditProcessorInterface;
 use Magento\Framework\Filesystem\DriverInterface;
@@ -10,9 +10,10 @@ class ProcessorTest extends TestCase
 {
     protected array $processors = [];
 
+
     protected function setUp(): void
     {
-        $baseDir = __DIR__ . '/../../Processor/Files/';
+        $baseDir = __DIR__ . '/../../../Processor/Files/';
         $files = [];
 
         $iterator = new \RecursiveIteratorIterator(

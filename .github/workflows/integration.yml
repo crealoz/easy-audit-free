@@ -1,9 +1,8 @@
-name: ExtDN M2 Integration Tests
+name: Integration Tests
 on:
-  push:
+  pull_request:
     branches:
       - master
-  pull_request:
 
 jobs:
   integration-tests:
@@ -16,7 +15,8 @@ jobs:
           MYSQL_ROOT_PASSWORD: root
         ports:
           - 3306:3306
-        options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --tmpfs /tmp:rw --tmpfs /var/lib/mysql:rw --health-cmd="mysqladmin ping -h 127.0.0.1 -u root --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+
       es:
         image: docker.io/wardenenv/elasticsearch:7.8
         ports:
@@ -26,8 +26,27 @@ jobs:
           'xpack.security.enabled': false
           ES_JAVA_OPTS: "-Xms64m -Xmx512m"
         options: --health-cmd="curl localhost:9200/_cluster/health?wait_for_status=yellow&timeout=60s" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      rabbitmq:
+        image: rabbitmq:3-management
+        ports:
+          - 5672:5672
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        options: --health-cmd="rabbitmq-diagnostics -q ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
       - name: Set PROJECT_ROOT environment variable
         run: echo "PROJECT_ROOT=$(pwd)" >> $GITHUB_ENV
       - name: M2 Integration Tests with Magento 2 (Php8.1)
