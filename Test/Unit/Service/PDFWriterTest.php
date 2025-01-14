@@ -5,6 +5,7 @@ namespace Crealoz\EasyAudit\Test\Unit\Service;
 use Crealoz\EasyAudit\Service\PDFWriter;
 use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
+use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Module\Dir\Reader;
 use PHPUnit\Framework\TestCase;
@@ -34,10 +35,18 @@ class PDFWriterTest extends TestCase
     protected function setUp(): void
     {
         $this->filesystem = $this->createMock(Filesystem::class);
-        $this->sizeCalculation = $this->createMock(SizeCalculation::class);
+        $rootDirectory = $this->createMock(\Magento\Framework\Filesystem\Directory\ReadInterface::class);
+        $rootDirectory->method('getAbsolutePath')->willReturn('/var/www/html');
+        $this->filesystem->method('getDirectoryRead')->willReturnCallback(function ($directory) use ($rootDirectory) {
+            if ($directory === DirectoryList::ROOT) {
+                return $rootDirectory;
+            }
+            return $this->createMock(\Magento\Framework\Filesystem\Directory\ReadInterface::class);
+        });
         $this->logger = $this->createMock(LoggerInterface::class);
+        $this->sizeCalculation = new SizeCalculation($this->logger);
         $this->moduleReader = $this->createMock(Reader::class);
-        $this->modulePaths = $this->createMock(ModulePaths::class);
+        $this->modulePaths = new ModulePaths($this->filesystem);
         $this->styleManager = new PDFWriter\StyleManager();
         $this->BlockVsVMRatio = $this->createMock(PDFWriter\SpecificSection\BlockVMRatio::class);
 
@@ -53,7 +62,7 @@ class PDFWriterTest extends TestCase
             $this->modulePaths,
             $this->styleManager,
             [
-                'manageBlockVMRatio' =>  $this->BlockVsVMRatio
+                'manageBlockVMRatio' => $this->BlockVsVMRatio
             ],
             50,
             5
@@ -70,6 +79,8 @@ class PDFWriterTest extends TestCase
 
     public function testCreatedPDF(): void
     {
+        // Creates a long array for testSuggestion
+        $suggestionFiles = array_fill(0, 2000, 'file');
         $results = [
             'introduction' => [
                 'overall' => [
@@ -85,7 +96,7 @@ class PDFWriterTest extends TestCase
                         'testError' => [
                             'title' => 'Error 1',
                             'explanation' => 'Explanation 1',
-                            'files' => ['file1' => 10, 'file2' => 5],
+                            'files' => ['app/code/Vendor/Module' => 10, 'app/code/Vendor1/Module2' => 5],
                             'specificSections' => 'manageBlockVMRatio'
                         ]
                     ],
@@ -93,14 +104,22 @@ class PDFWriterTest extends TestCase
                         'testWarning' => [
                             'title' => 'Warning 1',
                             'explanation' => 'Explanation 1',
-                            'files' => ['file1' => 10, 'file2' => 5]
+                            'files' => ['vendor/Vendor/Module' => [
+                                'vendor/Vendor/Module/view/frontend/templates/file1.phtml' => 5,
+                                'vendor/Vendor/Module/view/frontend/templates/file2.phtml' => 2
+                            ], 'app/code/Vendor/Module' =>
+                                [
+                                    'app/code/Vendor/Module/view/frontend/templates/file1.phtml' => 1,
+                                    'app/code/Vendor/Module/view/frontend/templates/file2.phtml' => 5
+                                ]
+                            ]
                         ]
                     ],
                     'suggestions' => [
                         'testSuggestion' => [
                             'title' => 'Suggestion 1',
                             'explanation' => 'Explanation 1',
-                            'files' => ['file1' => 10, 'file2' => 5]
+                            'files' => $suggestionFiles
                         ]
                     ]
                 ]
@@ -146,8 +165,8 @@ class PDFWriterTest extends TestCase
         $this->assertArrayHasKey(1, $annexes, 'The annex should be added.');
         $this->assertSame($files, $annexes[1]['files'], 'Files should match the provided input.');
         $this->assertSame($description, $annexes[1]['description'], 'Description should match the provided input.');
-    }
 
+    }
 
 
     /**

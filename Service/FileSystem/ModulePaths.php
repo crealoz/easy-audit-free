@@ -13,6 +13,13 @@ class ModulePaths
     {
     }
 
+    /**
+     * Get the path to the module.xml file of a module
+     *
+     * @param string $filePath
+     * @param bool $isVendor
+     * @return string
+     */
     public function getDeclarationXml(string $filePath, bool $isVendor = false): string
     {
         $filePath = $this->removeBaseNameFromPath($filePath);
@@ -30,6 +37,13 @@ class ModulePaths
         return $moduleXmlPath;
     }
 
+    /**
+     * Get the different di.xml files of a module
+     *
+     * @param string $filePath
+     * @param bool $isVendor
+     * @return array
+     */
     public function getDiXml(string $filePath, bool $isVendor = false): array
     {
         $baseDir = $this->getModuleBaseDir($filePath, $isVendor);
@@ -56,6 +70,13 @@ class ModulePaths
         return $this->getModuleBaseDir($filePath, $isVendor) . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR . 'frontend';
     }
 
+    /**
+     * Get the base directory of a module
+     *
+     * @param string $filePath
+     * @param bool $isVendor
+     * @return string
+     */
     public function getModuleBaseDir(string $filePath, bool $isVendor = false): string
     {
         $parts = explode('/', $filePath);
@@ -83,6 +104,12 @@ class ModulePaths
         return $path;
     }
 
+    /**
+     * Remove the base name of a path
+     *
+     * @param string $path
+     * @return string
+     */
     public function removeBaseNameFromPath(string $path): string
     {
         $magentoInstallationPath = $this->filesystem->getDirectoryRead(DirectoryList::ROOT)->getAbsolutePath();

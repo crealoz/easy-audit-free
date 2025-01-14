@@ -5,16 +5,21 @@ namespace Crealoz\EasyAudit\Test\Integration\Service;
 use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Model\AuditRequest;
 use Crealoz\EasyAudit\Model\Request\File;
+use Crealoz\EasyAudit\Processor\Files\AbstractAuditProcessor;
+use Crealoz\EasyAudit\Processor\Results\ErroneousFiles;
 use Crealoz\EasyAudit\Processor\Type\Logic;
 use Crealoz\EasyAudit\Processor\Type\PHPCode;
 use Crealoz\EasyAudit\Processor\Type\TypeFactory;
 use Crealoz\EasyAudit\Processor\Type\TypeInterface;
 use Crealoz\EasyAudit\Processor\Type\Xml;
-use Crealoz\EasyAudit\Service\ArrayTools;
 use Crealoz\EasyAudit\Service\Audit;
 use Crealoz\EasyAudit\Service\FileSystem\FileGetterFactory;
+use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\Localization;
 use Crealoz\EasyAudit\Service\PDFWriter;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem;
+use Magento\Framework\Filesystem\Directory\ReadInterface;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Serialize\SerializerInterface;
@@ -27,8 +32,6 @@ class AuditTest extends TestCase
 {
     private Audit $audit;
     private PDFWriter $pdfWriter;
-    private ArrayTools $arrayTools;
-
 
 
     /**
@@ -37,35 +40,27 @@ class AuditTest extends TestCase
     protected array $processors = [
         'xml' => [
             'di' => [
-                'plugins' => 'Crealoz\EasyAudit\Processor\Files\Di\Plugins',
-                'preferences' => 'Crealoz\EasyAudit\Service\Processor\Di\Preferences',
-                'commands' => 'Crealoz\EasyAudit\Service\Processor\Di\Commands'
+                'plugins' => \Crealoz\EasyAudit\Processor\Files\Di\Plugins::class,
             ],
             'layout' => [
-                'cacheable' => 'Crealoz\EasyAudit\Processor\Files\View\Cacheable'
-            ]
+                'cacheable' => \Crealoz\EasyAudit\Processor\Files\View\Cacheable::class,
+            ],
         ],
         'php' => [
-            'helpers' => [
-                'general' => 'Crealoz\EasyAudit\Service\Processor\Code\Helpers'
-            ],
             'php' => [
-                'sql' => 'Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL',
-                'objectManager' => 'Crealoz\EasyAudit\Service\Processor\Code\UseOfObjectManager'
-            ]
+                'sql' => \Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL::class,
+                'specificclassinjection' => \Crealoz\EasyAudit\Processor\Files\Code\SpecificClassInjection::class,
+                'useofregistry' => \Crealoz\EasyAudit\Processor\Files\Code\UseOfRegistry::class,
+            ],
         ],
         'logic' => [
             'blockvm' => [
-                'ratio' => 'Crealoz\EasyAudit\Processor\Files\Code\BlockViewModelRatio'
+                'ratio' => \Crealoz\EasyAudit\Processor\Files\Code\BlockViewModelRatio::class,
             ],
             'localunusedmodules' => [
-                'configphp' => 'Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules'
+                'configphp' => \Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules::class,
             ],
-            'vendorunusedmodules' => [
-                'configphp' => 'Crealoz\EasyAudit\Service\Processor\Logic\VendorUnusedModules',
-                'activedisabled' => 'Crealoz\EasyAudit\Service\Processor\Logic\VendorDisabledModules'
-            ]
-        ]
+        ],
     ];
 
     private $logicMock;
@@ -82,35 +77,42 @@ class AuditTest extends TestCase
     {
         parent::setUp();
 
+        $this->initializeProcessors();
+
         $this->pdfWriter = $this->createMock(PDFWriter::class);
 
-        $fileGetter = $this->createMock(FileGetterFactory::class);
+        $fileGetterFactory = $this->getMockBuilder(FileGetterFactory::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['create'])
+            ->getMock();
+
+        $fileGetter = $this->createMock(\Crealoz\EasyAudit\Api\FileSystem\FileGetterInterface::class);
+
+        $falseFiles = array_fill(0, 15, 'file');
+        $fileGetter->method('execute')->willReturn(
+            $falseFiles
+        );
+
+        $fileGetterFactory->method('create')->willReturn($fileGetter);
+
         $logger = $this->createMock(LoggerInterface::class);
 
-        $this->logicMock = $this->getMockBuilder(Logic::class)
-            ->setConstructorArgs([$fileGetter, $logger])
-            ->onlyMethods(get_class_methods(TypeInterface::class))
-            ->getMock();
-
-        $this->phpMock = $this->getMockBuilder(PHPCode::class)
-            ->setConstructorArgs([$fileGetter, $logger])
-            ->getMock();
-        $this->xmlMock = $this->getMockBuilder(Xml::class)
-            ->setConstructorArgs([$fileGetter, $logger])
-            ->getMock();
+        $this->logicMock = new Logic($fileGetterFactory, $logger);
+        $this->phpMock = new PHPCode($fileGetterFactory, $logger);
+        $this->xmlMock = new Xml($fileGetterFactory, $logger);
 
         $objManager = $this->createMock(\Magento\Framework\ObjectManagerInterface::class);
 
         $this->typeMockBuilder = $this->getMockBuilder(TypeFactory::class)
-                                    ->onlyMethods(['create', 'get'])
-                                    ->setConstructorArgs([
-                                        $objManager, [
-                                            'php' => $this->phpMock,
-                                            'xml' => $this->xmlMock,
-                                            'logic' => $this->logicMock
-                                        ]
-                                    ])
-                                    ->getMock();
+            ->onlyMethods(['create', 'get'])
+            ->setConstructorArgs([
+                $objManager, [
+                    'php' => $this->phpMock,
+                    'xml' => $this->xmlMock,
+                    'logic' => $this->logicMock
+                ]
+            ])
+            ->getMock();
 
         $this->typeMockBuilder->method('create')->willReturnMap([
             ['logic', $this->logicMock],
@@ -124,7 +126,20 @@ class AuditTest extends TestCase
             ['xml', $this->xmlMock]
         ]);
 
-        $this->arrayTools = $this->createMock(ArrayTools::class);
+        $filesystem = $this->createMock(Filesystem::class);
+        $rootDirectory = $this->createMock(ReadInterface::class);
+        $rootDirectory->method('getAbsolutePath')->willReturn('/var/www/html');
+        $filesystem->method('getDirectoryRead')->willReturnCallback(function ($directory) use ($rootDirectory) {
+            if ($directory === DirectoryList::ROOT) {
+                return $rootDirectory;
+            }
+            return $this->createMock(ReadInterface::class);
+        });
+
+        $modulePaths = new ModulePaths($filesystem);
+
+        $erroneousFileProcessor = new ErroneousFiles($modulePaths);
+
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->auditRequestFactory = $this->createPartialMock(\Crealoz\EasyAudit\Model\AuditRequestFactory::class, ['create']);
         $this->auditRequestRepository = $this->createMock(AuditRequestRepositoryInterface::class);
@@ -143,19 +158,22 @@ class AuditTest extends TestCase
         $this->audit = new Audit(
             $this->pdfWriter,
             $this->typeMockBuilder,
-            $this->arrayTools,
             $this->logger,
             $this->auditRequestFactory,
             $this->auditRequestRepository,
             $this->serializer,
             $this->localization,
             $this->fileFactory,
-            $this->processors
+            $this->processors,
+            [$erroneousFileProcessor]
         );
+
+
     }
 
     protected function tearDown(): void
     {
+        parent::tearDown();
         unset($this->audit);
         unset($this->pdfWriter);
         unset($this->arrayTools);
@@ -169,7 +187,62 @@ class AuditTest extends TestCase
         unset($this->auditRequestRepository);
         unset($this->serializer);
         unset($this->localization);
+        unset($this->processors);
+        gc_collect_cycles();
+    }
 
+    private function initializeProcessors()
+    {
+        foreach ($this->processors as $type => $processors) {
+            foreach ($processors as $processorGroup => $endProcessors) {
+                foreach ($endProcessors as $processorName => $processorClass) {
+                    $processorMock = $this->getMockBuilder($processorClass)
+                        ->disableOriginalConstructor()
+                        ->onlyMethods([
+                            'run',
+                            'getProcessorName',
+                            'getProcessorTag',
+                            'getResults',
+                            'getAuditSection',
+                            'getErroneousFiles',
+                            'prepopulateResults',
+                            'hasErrors'
+                        ])
+                        ->getMock();
+                    $processorMock->expects($this->atMost(1))
+                        ->method('run');
+                    $hasErrors = rand(0, 1) === 1;
+                    $processorMock->method('hasErrors')->willReturn($hasErrors);
+                    if ($hasErrors) {
+                        $amount = rand(1, 10);
+                        $files = [];
+                        for ($i = 0; $i < $amount; $i++) {
+                            $filename = 'app/code/Vendor/Module/'.uniqid();
+                            $files[$filename] = rand(1, 10);
+                        }
+                        $processorMock->method('getResults')->willReturn([
+                            'hasErrors' => true,
+                            'errors' => array_keys($files),
+                            'warnings' => [],
+                            'suggestions' => []
+                        ]);
+                        $processorMock->method('getErroneousFiles')->willReturn($files);
+                    } else {
+                        $processorMock->method('getResults')->willReturn([
+                            'hasErrors' => false,
+                            'errors' => [],
+                            'warnings' => [],
+                            'suggestions' => []
+                        ]);
+                        $processorMock->method('getErroneousFiles')->willReturn([]);
+                    }
+                    $processorMock->method('getProcessorName')->willReturn($processorName);
+                    $processorMock->method('getProcessorTag')->willReturn($processorName);
+                    $processorMock->method('getAuditSection')->willReturn($processorGroup);
+                    $this->processors[$type][$processorGroup][$processorName] = $this->createMock($processorClass);
+                }
+            }
+        }
     }
 
     public function testRun()
@@ -182,26 +255,7 @@ class AuditTest extends TestCase
         $this->assertInstanceOf(TypeInterface::class, $this->xmlMock);
 
         $typeMock = $this->createMock(TypeInterface::class);
-        $this->logicMock->expects($this->atLeastOnce())
-            ->method('process');
 
-        $this->phpMock->expects($this->atLeastOnce())
-            ->method('process');
-
-        $this->xmlMock->expects($this->atLeastOnce())
-            ->method('process');
-
-        $this->logicMock->expects($this->atLeastOnce())
-            ->method('hasErrors')
-            ->willReturn(false);
-
-        $this->phpMock->expects($this->atLeastOnce())
-            ->method('hasErrors')
-            ->willReturn(false);
-
-        $this->xmlMock->expects($this->atLeastOnce())
-            ->method('hasErrors')
-            ->willReturn(false);
 
         $this->typeMockBuilder->expects($this->atLeastOnce())
             ->method('create')

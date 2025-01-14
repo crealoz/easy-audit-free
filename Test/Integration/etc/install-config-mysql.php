@@ -1,10 +1,10 @@
 <?php
 /** @codingStandardsIgnoreFile */
 return [
-    'db-host' => getenv('TEST_DB_HOST') ?: 'mysql',
-    'db-user' => getenv('TEST_DB_USER') ?: 'root',
-    'db-password' => getenv('TEST_DB_PASSWORD')?: 'root',
-    'db-name' => getenv('TEST_DB_NAME') ?: 'magento_integration_tests',
+    'db-host' => getenv('TEST_DB_HOST') ?: getenv('DB_HOST') ?: 'mysql',
+    'db-user' => getenv('TEST_DB_USER') ?: getenv('DB_USER') ?: 'root',
+    'db-password' => getenv('TEST_DB_PASSWORD') ?: getenv('DB_PASSWORD') ?: 'root',
+    'db-name' => getenv('TEST_DB_NAME') ?: getenv('DB_NAME') ?: 'magento_integration_tests',
     'db-prefix' => '',
     'backend-frontname' => 'backend',
     'search-engine' => getenv('TEST_SEARCH_ENGINE') ?: getenv('SEARCH_ENGINE') ?: 'elasticsearch7',

@@ -26,7 +26,6 @@ class Audit
     public function __construct(
         protected readonly PDFWriter                       $pdfWriter,
         protected readonly TypeFactory                     $typeFactory,
-        private readonly ArrayTools                        $arrayTools,
         protected readonly LoggerInterface                 $logger,
         protected readonly AuditRequestFactory             $auditRequestFactory,
         protected readonly AuditRequestRepositoryInterface $auditRequestRepository,
@@ -125,6 +124,7 @@ class Audit
         } catch (CouldNotSaveException $e) {
             $this->logger->error(__('Error while saving the audit request: %1', $e->getMessage()));
         }
+        return '';
     }
 
     /**
@@ -142,18 +142,6 @@ class Audit
     public function getAvailableProcessors(): array
     {
         return $this->processors;
-    }
-
-    /**
-     * Maps the requested processors to the available ones
-     * @param array $processors
-     * @return void
-     */
-    public function setProcessors(array $processors): void
-    {
-        $availableProcessors = $this->getAvailableProcessors();
-        $requiredProcessors = $this->arrayTools->recursiveArrayIntersect($availableProcessors, $processors);
-        $this->processors = $requiredProcessors;
     }
 
     private function consolidateResults($erroneousFiles): array
