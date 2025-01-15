@@ -14,4 +14,4 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
-          file: build/logs/clover.xml
+          file: ${{ github.workspace }}build/logs/clover.xml
