@@ -18,7 +18,7 @@ class Logic extends AbstractType implements TypeInterface
         foreach ($processors as $processor) {
             $progressBar?->advance();
             if (!$processor instanceof AuditProcessorInterface) {
-                throw new \InvalidArgumentException('Processor must implement ProcessorInterface');
+                throw new \InvalidArgumentException('Processor must implement AuditProcessorInterface');
             }
             if ($processor instanceof ArrayProcessorInterface) {
                 $processor->setArray($files);

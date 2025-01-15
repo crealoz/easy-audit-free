@@ -54,7 +54,6 @@ class ModuleTools
             $input = $this->modulePath->getDeclarationXml($filePath, $isVendor);
             return $this->getModuleNameByModuleXml($input);
         } catch (\InvalidArgumentException $e) {
-            dump($filePath);
             $input = $this->modulePath->getDeclarationXml($filePath, !$isVendor);
             return $this->getModuleNameByModuleXml($input);
         }

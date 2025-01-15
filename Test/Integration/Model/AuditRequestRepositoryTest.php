@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Unit\Model;
+namespace Crealoz\EasyAudit\Test\Integration\Model;
 
 use Crealoz\EasyAudit\Model\ResourceModel\AuditRequest;
 
@@ -71,10 +71,12 @@ class AuditRequestRepositoryTest extends \PHPUnit\Framework\TestCase
         $searchCriteria = $this->createMock(\Magento\Framework\Api\SearchCriteriaInterface::class);
         $searchResult = $this->createMock(\Magento\Framework\Api\SearchResultsInterface::class);
         $collection = $this->createMock(\Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\Collection::class);
+
         $this->collectionFactory->expects($this->once())->method('create')->willReturn($collection);
         $this->collectionProcessor->expects($this->once())->method('process')->with($searchCriteria, $collection);
         $collection->expects($this->once())->method('getSize')->willReturn(1);
         $collection->expects($this->once())->method('getItems')->willReturn([$this->createMock(\Crealoz\EasyAudit\Model\AuditRequest::class)]);
+
         $this->searchResultFactory->expects($this->once())->method('create')->willReturn($searchResult);
         $this->assertEquals($searchResult, $this->auditRequestRepository->getList($searchCriteria));
     }
