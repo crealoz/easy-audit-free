@@ -1,4 +1,4 @@
-name: ExtDN M2 Coding Standard
+name: Codecov
 on:
   push:
     branches:
@@ -6,10 +6,12 @@ on:
 
 jobs:
   static:
-    name: M2 Coding Standard
+    name: Send report to codecov
     runs-on: ubuntu-latest
     steps:
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v4
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           file: build/logs/clover.xml
