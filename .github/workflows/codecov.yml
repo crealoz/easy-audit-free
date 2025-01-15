@@ -1,6 +1,6 @@
 name: ExtDN M2 Coding Standard
 on:
-  pull_request:
+  push:
     branches:
       - master
 
@@ -9,5 +9,7 @@ jobs:
     name: M2 Coding Standard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: extdn/github-actions-m2/magento-coding-standard/8.1@master
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          file: build/logs/clover.xml
