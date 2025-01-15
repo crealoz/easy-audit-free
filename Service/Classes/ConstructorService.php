@@ -18,6 +18,11 @@ class ConstructorService
             return false;
         }
 
+        // Check if the class extends another class
+        if ($reflectionClass->getParentClass() === false) {
+            return false;
+        }
+
         // Check if the constructor is defined in the class itself
         return $constructor->getDeclaringClass()->getName() === $className;
     }

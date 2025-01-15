@@ -1,6 +1,6 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Unit\Controller\Adminhtml\Request;
+namespace Crealoz\EasyAudit\Test\Integration\Controller\Adminhtml\Request;
 
 use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Controller\Adminhtml\Request\Save;
