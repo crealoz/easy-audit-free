@@ -1,14 +1,14 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Unit\Controller\Adminhtml\Request;
+namespace Crealoz\EasyAudit\Test\Integration\Controller\Adminhtml\Request;
 
-use PHPUnit\Framework\TestCase;
+use Crealoz\EasyAudit\Api\FileRepositoryInterface;
+use Crealoz\EasyAudit\Controller\Adminhtml\Request\Download;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Filesystem\Io\File;
-use Crealoz\EasyAudit\Api\FileRepositoryInterface;
-use Crealoz\EasyAudit\Controller\Adminhtml\Request\Download;
+use PHPUnit\Framework\TestCase;
 
 class DownloadTest extends TestCase
 {

@@ -1,17 +1,16 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Unit\Controller\Adminhtml\Request;
+namespace Crealoz\EasyAudit\Test\Integration\Controller\Adminhtml\Request;
 
-use Crealoz\EasyAudit\Controller\Adminhtml\Request\Index;
-use PHPUnit\Framework\TestCase;
+use Crealoz\EasyAudit\Controller\Adminhtml\Request\Create;
+use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\View\Result\Page;
-use Magento\Backend\App\Action\Context;
-use Crealoz\EasyAudit\Controller\Adminhtml\Request\Create;
+use PHPUnit\Framework\TestCase;
 
-class IndexTest extends TestCase
+class CreateTest extends TestCase
 {
-    private $indexController;
+    private $createController;
     private $resultFactoryMock;
     private $resultPageMock;
     private $contextMock;
@@ -34,7 +33,7 @@ class IndexTest extends TestCase
             ->method('getResultFactory')
             ->willReturn($this->resultFactoryMock);
 
-        $this->indexController = new Index($this->contextMock);
+        $this->createController = new Create($this->contextMock);
     }
 
     public function testExecuteReturnsResultPage()
@@ -44,7 +43,7 @@ class IndexTest extends TestCase
             ->method('setActiveMenu')
             ->with(Create::ADMIN_RESOURCE);
 
-        $result = $this->indexController->execute();
+        $result = $this->createController->execute();
 
         $this->assertInstanceOf(Page::class, $result);
     }

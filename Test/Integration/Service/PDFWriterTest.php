@@ -1,9 +1,9 @@
 <?php
 
-namespace Crealoz\EasyAudit\Test\Unit\Service;
+namespace Crealoz\EasyAudit\Test\Integration\Service;
 
-use Crealoz\EasyAudit\Service\PDFWriter;
 use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
+use Crealoz\EasyAudit\Service\PDFWriter;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
