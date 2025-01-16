@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1736954318">
-  <project timestamp="1736954318">
+<coverage generated="1737022623">
+  <project timestamp="1737022623">
     <file name="/local-packages/crealoz/easy-audit/Block/Adminhtml/Widget/Button/Back.php">
       <class name="Crealoz\EasyAudit\Block\Adminhtml\Widget\Button\Back" namespace="global">
         <metrics complexity="2" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="6" coveredstatements="6" elements="8" coveredelements="8"/>
@@ -1212,13 +1212,13 @@
     </file>
     <file name="/local-packages/crealoz/easy-audit/Processor/Type/AbstractType.php">
       <class name="Crealoz\EasyAudit\Processor\Type\AbstractType" namespace="global">
-        <metrics complexity="19" methods="7" coveredmethods="6" conditionals="0" coveredconditionals="0" statements="35" coveredstatements="32" elements="42" coveredelements="38"/>
+        <metrics complexity="19" methods="7" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="35" coveredstatements="28" elements="42" coveredelements="33"/>
       </class>
       <line num="22" type="method" name="__construct" visibility="public" complexity="1" crap="1" count="11"/>
       <line num="26" type="stmt" count="11"/>
       <line num="28" type="method" name="hasErrors" visibility="public" complexity="1" crap="1" count="1"/>
       <line num="30" type="stmt" count="1"/>
-      <line num="42" type="method" name="process" visibility="public" complexity="7" crap="7" count="7"/>
+      <line num="42" type="method" name="process" visibility="public" complexity="7" crap="7.54" count="7"/>
       <line num="44" type="stmt" count="7"/>
       <line num="45" type="stmt" count="7"/>
       <line num="46" type="stmt" count="7"/>
@@ -1227,15 +1227,15 @@
       <line num="49" type="stmt" count="7"/>
       <line num="50" type="stmt" count="7"/>
       <line num="51" type="stmt" count="7"/>
-      <line num="52" type="stmt" count="1"/>
-      <line num="54" type="stmt" count="1"/>
-      <line num="55" type="stmt" count="1"/>
+      <line num="52" type="stmt" count="0"/>
+      <line num="54" type="stmt" count="0"/>
+      <line num="55" type="stmt" count="0"/>
       <line num="57" type="stmt" count="7"/>
       <line num="58" type="stmt" count="5"/>
       <line num="59" type="stmt" count="3"/>
       <line num="61" type="stmt" count="5"/>
       <line num="62" type="stmt" count="5"/>
-      <line num="63" type="stmt" count="1"/>
+      <line num="63" type="stmt" count="0"/>
       <line num="67" type="stmt" count="5"/>
       <line num="78" type="method" name="initResults" visibility="public" complexity="3" crap="3" count="1"/>
       <line num="80" type="stmt" count="1"/>
@@ -1256,7 +1256,7 @@
       <line num="129" type="stmt" count="0"/>
       <line num="140" type="method" name="getErroneousFiles" visibility="public" complexity="1" crap="1" count="1"/>
       <line num="142" type="stmt" count="1"/>
-      <metrics loc="145" ncloc="102" classes="1" methods="7" coveredmethods="6" conditionals="0" coveredconditionals="0" statements="35" coveredstatements="32" elements="42" coveredelements="38"/>
+      <metrics loc="145" ncloc="102" classes="1" methods="7" coveredmethods="5" conditionals="0" coveredconditionals="0" statements="35" coveredstatements="28" elements="42" coveredelements="33"/>
     </file>
     <file name="/local-packages/crealoz/easy-audit/Processor/Type/Logic.php">
       <class name="Crealoz\EasyAudit\Processor\Type\Logic" namespace="global">
@@ -2305,6 +2305,6 @@
       <line num="25" type="stmt" count="0"/>
       <metrics loc="27" ncloc="27" classes="1" methods="2" coveredmethods="0" conditionals="0" coveredconditionals="0" statements="9" coveredstatements="0" elements="11" coveredelements="0"/>
     </file>
-    <metrics files="73" loc="5013" ncloc="4169" classes="65" methods="298" coveredmethods="187" conditionals="0" coveredconditionals="0" statements="1571" coveredstatements="1116" elements="1869" coveredelements="1303"/>
+    <metrics files="73" loc="5013" ncloc="4169" classes="65" methods="298" coveredmethods="186" conditionals="0" coveredconditionals="0" statements="1571" coveredstatements="1112" elements="1869" coveredelements="1298"/>
   </project>
 </coverage>

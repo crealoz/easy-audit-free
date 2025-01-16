@@ -26,12 +26,8 @@ class FileRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->resource = $this->createMock(File::class);
-        $this->fileFactory = $this->getMockBuilder(\Crealoz\EasyAudit\Model\Request\FileFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
-            ->getMock()
-        ;
-        $this->collectionFactory = $this->createMock(\Crealoz\EasyAudit\Model\ResourceModel\Request\File\CollectionFactory::class);
+        $this->fileFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\Request\FileFactory')->setMethods(['create'])->getMock();
+        $this->collectionFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\ResourceModel\Request\File\CollectionFactory')->setMethods(['create'])->getMock();
         $this->searchResultFactory = $this->createMock(\Magento\Framework\Api\Search\SearchResultFactory::class);
         $this->collectionProcessor = $this->createMock(CollectionProcessorInterface::class);
         $this->searchCriteriaBuilder = $this->createMock(SearchCriteriaBuilder::class);
@@ -90,19 +86,26 @@ class FileRepositoryTest extends TestCase
 
     public function testGetList()
     {
+        // Set dummy files
+        $file1 = $this->createMock(\Crealoz\EasyAudit\Model\Request\File::class);
+        $file2 = $this->createMock(\Crealoz\EasyAudit\Model\Request\File::class);
+        $file3 = $this->createMock(\Crealoz\EasyAudit\Model\Request\File::class);
+        $fileArray = [$file1, $file2, $file3];
+
+        // Prepare mocks
         $searchCriteria = $this->createMock(\Magento\Framework\Api\SearchCriteriaInterface::class);
         $collection = $this->createMock(\Crealoz\EasyAudit\Model\ResourceModel\Request\File\Collection::class);
-        $searchResults = $this->createMock(\Magento\Framework\Api\SearchResultsInterface::class);
+        $collection->method('getItems')->willReturn($fileArray);
+        $collection->method('getSize')->willReturn(count($fileArray));
+
+        $searchResults = $this->createMock(\Magento\Framework\Api\Search\SearchResultInterface::class);
+        $searchResults->expects($this->once())->method('setSearchCriteria')->with($searchCriteria);
+        $searchResults->expects($this->once())->method('setItems')->with($fileArray);
+        $searchResults->expects($this->once())->method('setTotalCount')->with(count($fileArray));
 
         $this->collectionFactory->method('create')->willReturn($collection);
         $this->collectionProcessor->method('process')->with($searchCriteria, $collection);
         $this->searchResultFactory->method('create')->willReturn($searchResults);
-        $collection->method('getItems')->willReturn(['item1', 'item2']);
-        $collection->method('getSize')->willReturn(2);
-
-        $searchResults->expects($this->once())->method('setSearchCriteria')->with($searchCriteria);
-        $searchResults->expects($this->once())->method('setItems')->with(['item1', 'item2']);
-        $searchResults->expects($this->once())->method('setTotalCount')->with(2);
 
         $this->assertSame($searchResults, $this->fileRepository->getList($searchCriteria));
     }

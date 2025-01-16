@@ -10,14 +10,13 @@ class AuditRequestRepositoryTest extends \PHPUnit\Framework\TestCase
     {
         $this->resource = $this->createMock(AuditRequest::class);
         $auditRequest = $this->createMock(\Crealoz\EasyAudit\Model\AuditRequest::class);
-        $this->requestFactory = $this->getMockBuilder(\Crealoz\EasyAudit\Model\AuditRequestFactory::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
+        $this->requestFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\AuditRequestFactory')
+            ->setMethods(['create'])
             ->getMock();
         $this->requestFactory->method('create')->willReturn($auditRequest);
         $this->searchResultFactory = $this->createMock(\Magento\Framework\Api\Search\SearchResultFactory::class);
         $this->collectionProcessor = $this->createMock(\Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface::class);
-        $this->collectionFactory = $this->createMock(\Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\CollectionFactory::class);
+        $this->collectionFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\CollectionFactory')->setMethods(['create'])->getMock();
 
         $this->auditRequestRepository = new \Crealoz\EasyAudit\Model\AuditRequestRepository(
             $this->resource,
@@ -68,14 +67,20 @@ class AuditRequestRepositoryTest extends \PHPUnit\Framework\TestCase
 
     public function testGetList()
     {
+        $auditRequest1 = $this->createMock(\Crealoz\EasyAudit\Model\AuditRequest::class);
+        $auditRequest2 = $this->createMock(\Crealoz\EasyAudit\Model\AuditRequest::class);
+        $auditRequest3 = $this->createMock(\Crealoz\EasyAudit\Model\AuditRequest::class);
+        $auditRequestArray = [$auditRequest1, $auditRequest2, $auditRequest3];
         $searchCriteria = $this->createMock(\Magento\Framework\Api\SearchCriteriaInterface::class);
-        $searchResult = $this->createMock(\Magento\Framework\Api\SearchResultsInterface::class);
+        $searchResult = $this->createMock(\Magento\Framework\Api\Search\SearchResultInterface::class);
+        $searchResult->expects($this->once())->method('setItems')->with($auditRequestArray);
+        $this->searchResultFactory->expects($this->once())->method('create')->willReturn($searchResult);
         $collection = $this->createMock(\Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\Collection::class);
+        $collection->expects($this->once())->method('getSize')->willReturn(1);
+        $collection->expects($this->once())->method('getItems')->willReturn($auditRequestArray);
 
         $this->collectionFactory->expects($this->once())->method('create')->willReturn($collection);
         $this->collectionProcessor->expects($this->once())->method('process')->with($searchCriteria, $collection);
-        $collection->expects($this->once())->method('getSize')->willReturn(1);
-        $collection->expects($this->once())->method('getItems')->willReturn([$this->createMock(\Crealoz\EasyAudit\Model\AuditRequest::class)]);
 
         $this->searchResultFactory->expects($this->once())->method('create')->willReturn($searchResult);
         $this->assertEquals($searchResult, $this->auditRequestRepository->getList($searchCriteria));
@@ -84,8 +89,8 @@ class AuditRequestRepositoryTest extends \PHPUnit\Framework\TestCase
     public function testGetAuditsToBeRun()
     {
         $collection = $this->createMock(\Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\Collection::class);
-        $this->collectionFactory->expects($this->once())->method('create')->willReturn($collection);
         $collection->expects($this->once())->method('addFieldToFilter')->with('execution_time', ['null' => true]);
+        $this->collectionFactory->expects($this->once())->method('create')->willReturn($collection);
         $this->assertEquals($collection, $this->auditRequestRepository->getAuditsToBeRun());
     }
 }

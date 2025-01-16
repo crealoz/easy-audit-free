@@ -24,7 +24,7 @@ class SaveTest extends TestCase
     protected function setUp(): void
     {
         // Create a mock for the audit request factory
-        $this->auditRequestFactoryMock = $this->createPartialMock(\Crealoz\EasyAudit\Model\AuditRequestFactory::class, ['create']);
+        $this->auditRequestFactoryMock = $this->getMockBuilder('\Crealoz\EasyAudit\Model\AuditRequestFactory')->setMethods(['create'])->getMock();
         $this->auditRequestFactoryMock->method('create')->willReturn($this->createMock(AuditRequest::class));
 
         // Create a mock for the audit request repository
