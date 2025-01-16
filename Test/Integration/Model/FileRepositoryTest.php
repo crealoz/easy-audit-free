@@ -26,8 +26,14 @@ class FileRepositoryTest extends TestCase
     protected function setUp(): void
     {
         $this->resource = $this->createMock(File::class);
-        $this->fileFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\Request\FileFactory')->setMethods(['create'])->getMock();
-        $this->collectionFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\ResourceModel\Request\File\CollectionFactory')->setMethods(['create'])->getMock();
+        $this->fileFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\Request\FileFactory')
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
+        $this->collectionFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\ResourceModel\Request\File\CollectionFactory')
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
         $this->searchResultFactory = $this->createMock(\Magento\Framework\Api\Search\SearchResultFactory::class);
         $this->collectionProcessor = $this->createMock(CollectionProcessorInterface::class);
         $this->searchCriteriaBuilder = $this->createMock(SearchCriteriaBuilder::class);

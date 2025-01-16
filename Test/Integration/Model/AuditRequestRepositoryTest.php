@@ -11,12 +11,16 @@ class AuditRequestRepositoryTest extends \PHPUnit\Framework\TestCase
         $this->resource = $this->createMock(AuditRequest::class);
         $auditRequest = $this->createMock(\Crealoz\EasyAudit\Model\AuditRequest::class);
         $this->requestFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\AuditRequestFactory')
+            ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
         $this->requestFactory->method('create')->willReturn($auditRequest);
         $this->searchResultFactory = $this->createMock(\Magento\Framework\Api\Search\SearchResultFactory::class);
         $this->collectionProcessor = $this->createMock(\Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface::class);
-        $this->collectionFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\CollectionFactory')->setMethods(['create'])->getMock();
+        $this->collectionFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\ResourceModel\AuditRequest\CollectionFactory')
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
 
         $this->auditRequestRepository = new \Crealoz\EasyAudit\Model\AuditRequestRepository(
             $this->resource,

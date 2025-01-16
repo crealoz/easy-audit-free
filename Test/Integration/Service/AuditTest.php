@@ -141,12 +141,14 @@ class AuditTest extends TestCase
 
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->auditRequestFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\AuditRequestFactory')
+            ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
         $this->auditRequestRepository = $this->createMock(AuditRequestRepositoryInterface::class);
         $this->serializer = $this->createMock(SerializerInterface::class);
         $this->localization = $this->createMock(Localization::class);
         $this->fileFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\Request\FileFactory')
+            ->disableOriginalConstructor()
             ->setMethods(['create'])
             ->getMock();
 
