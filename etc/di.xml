@@ -169,12 +169,6 @@
             <argument name="modulelPath" xsi:type="object">Crealoz\EasyAudit\Service\FileSystem\ModulePaths\Proxy</argument>
         </arguments>
     </type>
-    <type name="Crealoz\EasyAudit\Processor\Files\Logic\Modules\CheckEnabled">
-        <arguments>
-            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
-            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
-        </arguments>
-    </type>
     <type name="Crealoz\EasyAudit\Service\FileSystem\ClassNameGetter">
         <arguments>
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>

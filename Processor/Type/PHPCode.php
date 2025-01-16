@@ -21,7 +21,7 @@ class PHPCode extends AbstractType implements TypeInterface
             }
             foreach ($processors as $processor) {
                 if (!$processor instanceof AuditProcessorInterface) {
-                    throw new \InvalidArgumentException('Processor must implement ProcessorInterface');
+                    throw new \InvalidArgumentException('Processor must implement AuditProcessorInterface');
                 }
                 if ($processor instanceof FileProcessorInterface) {
                     $processor->setFile($codeFile);

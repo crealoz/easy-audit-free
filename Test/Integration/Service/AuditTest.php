@@ -4,9 +4,7 @@ namespace Crealoz\EasyAudit\Test\Integration\Service;
 
 use Crealoz\EasyAudit\Api\AuditRequestRepositoryInterface;
 use Crealoz\EasyAudit\Model\AuditRequest;
-use Crealoz\EasyAudit\Model\AuditRequestFactory;
 use Crealoz\EasyAudit\Model\Request\File;
-use Crealoz\EasyAudit\Processor\Files\AbstractAuditProcessor;
 use Crealoz\EasyAudit\Processor\Results\ErroneousFiles;
 use Crealoz\EasyAudit\Processor\Type\Logic;
 use Crealoz\EasyAudit\Processor\Type\PHPCode;
@@ -143,14 +141,16 @@ class AuditTest extends TestCase
 
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->auditRequestFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\AuditRequestFactory')
-            ->allowMockingUnknownTypes()
             ->disableOriginalConstructor()
-            ->onlyMethods(['create'])
+            ->setMethods(['create'])
             ->getMock();
         $this->auditRequestRepository = $this->createMock(AuditRequestRepositoryInterface::class);
         $this->serializer = $this->createMock(SerializerInterface::class);
         $this->localization = $this->createMock(Localization::class);
-        $this->fileFactory = $this->createPartialMock('\Crealoz\EasyAudit\Model\Request\FileFactory', ['create']);
+        $this->fileFactory = $this->getMockBuilder('\Crealoz\EasyAudit\Model\Request\FileFactory')
+            ->disableOriginalConstructor()
+            ->setMethods(['create'])
+            ->getMock();
 
         $this->auditRequestFactory->method('create')->willReturn($this->createMock(AuditRequest::class));
 

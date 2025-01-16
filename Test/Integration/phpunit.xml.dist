@@ -3,39 +3,20 @@
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
          colors="true"
          verbose="true"
-         bootstrap="/tmp/m2/dev/tests/integration/framework/bootstrap.php"
+         bootstrap="/var/www/magento2ce/dev/tests/integration/framework/bootstrap.php"
          beStrictAboutOutputDuringTests="true"
          failOnRisky="true"
          failOnWarning="true"
 >
-    <testsuites>
-        <testsuite name="Unit Test Suite">
-            <directory>../../../vendor/%COMPOSER_NAME%/Test/Unit</directory>
-        </testsuite>
-        <testsuite name="Integration Test Suite">
-            <directory>../../../vendor/%COMPOSER_NAME%/Test/Integration</directory>
-        </testsuite>
-    </testsuites>
-
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory suffix=".php">../../../vendor/%COMPOSER_NAME%/</directory>
-        </include>
-        <exclude>
-            <directory suffix=".php">../../../vendor/%COMPOSER_NAME%/Test</directory>
-            <directory suffix=".php">../../../vendor/%COMPOSER_NAME%/Api</directory>
-            <file>../../../vendor/%COMPOSER_NAME%/registration.php</file>
-        </exclude>
-        <report>
-            <clover outputFile="../../../vendor/%COMPOSER_NAME%/build/logs/clover.xml"/>
-        </report>
-    </coverage>
+    <testsuite name="Integration Test Suite">
+        <directory>./</directory>
+    </testsuite>
 
     <php>
         <ini name="date.timezone" value="UTC"/>
         <ini name="xdebug.max_nesting_level" value="200"/>
-        <const name="TESTS_INSTALL_CONFIG_FILE" value="../../../vendor/%COMPOSER_NAME%/Test/etc/install-config-mysql.php"/>
-        <const name="TESTS_POST_INSTALL_SETUP_COMMAND_CONFIG_FILE" value="etc/post-install-setup-command-config.php"/>
+        <const name="TESTS_INSTALL_CONFIG_FILE" value="../../../vendor/%COMPOSER_NAME%/Test/Integration/etc/install-config-mysql.php"/>
+        <const name="TESTS_POST_INSTALL_SETUP_COMMAND_CONFIG_FILE" value="../../../vendor/%COMPOSER_NAME%/Test/Integration/etc/post-install-setup-command-config.php"/>
         <const name="TESTS_GLOBAL_CONFIG_FILE" value="etc/config-global.php"/>
         <const name="TESTS_GLOBAL_CONFIG_DIR" value="../../../app/etc"/>
         <const name="TESTS_CLEANUP" value="disabled"/>
