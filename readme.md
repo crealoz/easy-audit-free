@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/github/license/crealoz/easy-audit-free.svg?style=flat-square)](./LICENSE)
 [![Packagist](https://img.shields.io/packagist/dt/crealoz/easy-audit-free.svg?style=flat-square)](https://packagist.org/packages/crealoz/easy-audit-free/stats)
 [![Packagist](https://img.shields.io/packagist/dm/crealoz/easy-audit-free.svg?style=flat-square)](https://packagist.org/packages/crealoz/easy-audit-free/stats)
+[![codecov](https://codecov.io/gh/crealoz/easy-audit-free/graph/badge.svg?token=CKH0L0G395)](https://codecov.io/gh/crealoz/easy-audit-free)
 
 This module is designed to provide auditing capabilities for Magento applications.
 
@@ -109,11 +110,6 @@ Add your new file getter to the `fileGetters` array in `di.xml`:
     </arguments>
 </type>
 ```
-
-## Code coverage
-
-[![codecov](https://codecov.io/gh/crealoz/easy-audit-free/graph/badge.svg?token=CKH0L0G395)](https://codecov.io/gh/crealoz/easy-audit-free)
-
 
 ## Contributing
 

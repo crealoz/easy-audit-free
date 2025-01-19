@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1737022623">
-  <project timestamp="1737022623">
+<coverage generated="1737279232">
+  <project timestamp="1737279232">
     <file name="/local-packages/crealoz/easy-audit/Block/Adminhtml/Widget/Button/Back.php">
       <class name="Crealoz\EasyAudit\Block\Adminhtml\Widget\Button\Back" namespace="global">
         <metrics complexity="2" methods="2" coveredmethods="2" conditionals="0" coveredconditionals="0" statements="6" coveredstatements="6" elements="8" coveredelements="8"/>
