@@ -54,4 +54,13 @@ class SpecificModel extends AbstractSection implements SectionInterface
         }
         return $text;
     }
+
+    public function getPHPFormatedText(string $key, array $subResults): string
+    {
+        $text = __('Files') . PHP_EOL;
+        foreach ($subResults as $file => $arguments) {
+            $text .= $this->getLine($file, $arguments) . PHP_EOL;
+        }
+        return $text;
+    }
 }

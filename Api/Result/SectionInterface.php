@@ -32,4 +32,13 @@ interface SectionInterface
      */
     public function getLine(string $key, mixed $entry): string;
 
+    /**
+     * Get the PHP formated text
+     *
+     * @param string $key
+     * @param array $subResults
+     * @return string
+     */
+    public function getPHPFormatedText(string $key, array $subResults): string;
+
 }

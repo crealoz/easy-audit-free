@@ -38,4 +38,13 @@ class UnusedModules extends AbstractSection implements SectionInterface
         unset($key);
         return '-' . $entry;
     }
+
+    public function getPHPFormatedText(string $key, array $subResults): string
+    {
+        $text = __('Modules') . PHP_EOL;
+        foreach ($subResults as $module) {
+            $text .= '-' . $module . PHP_EOL;
+        }
+        return $text;
+    }
 }
