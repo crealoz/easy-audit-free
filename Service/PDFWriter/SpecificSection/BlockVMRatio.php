@@ -33,4 +33,13 @@ class BlockVMRatio extends AbstractSection implements SectionInterface
     {
         return __('-%1(ratio : %2)', $key, $entry);
     }
+
+    public function getPHPFormatedText(string $key, array $subResults): string
+    {
+        $text = __('Modules') . PHP_EOL;
+        foreach ($subResults as $module => $ratio) {
+            $text .= __('-%1(ratio : %2)', $module, $ratio) . PHP_EOL;
+        }
+        return $text;
+    }
 }

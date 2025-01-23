@@ -30,8 +30,6 @@ class PDFWriterTest extends TestCase
      */
     private PDFWriter\StyleManager $styleManager;
 
-    private $mockedStyleManager;
-
     protected function setUp(): void
     {
         $this->filesystem = $this->createMock(Filesystem::class);
@@ -48,11 +46,9 @@ class PDFWriterTest extends TestCase
         $this->moduleReader = $this->createMock(Reader::class);
         $this->modulePaths = new ModulePaths($this->filesystem);
         $this->styleManager = new PDFWriter\StyleManager();
-        $this->BlockVsVMRatio = $this->createMock(PDFWriter\SpecificSection\BlockVMRatio::class);
 
         $this->mockedPage = $this->createMock(\Zend_Pdf_Page::class);
-        $this->mockedStyleManager = $this->createMock(\Crealoz\EasyAudit\Service\PDFWriter\StyleManager::class);
-
+        $this->specificSectionGetter = $this->createMock(PDFWriter\SpecificSectionGetter::class);
 
         $this->pdfWriter = new PDFWriter(
             $this->filesystem,
@@ -61,9 +57,7 @@ class PDFWriterTest extends TestCase
             $this->moduleReader,
             $this->modulePaths,
             $this->styleManager,
-            [
-                'manageBlockVMRatio' => $this->BlockVsVMRatio
-            ],
+            $this->specificSectionGetter,
             50,
             5
         );
@@ -127,6 +121,11 @@ class PDFWriterTest extends TestCase
         ];
 
         $filename = 'test';
+        $this->specificSectionGetter
+            ->expects($this->once())
+            ->method('getSpecificSection')
+            ->with('manageBlockVMRatio')
+            ->willReturn($this->createMock(PDFWriter\SpecificSection\BlockVMRatio::class));
 
         $tempDir = sys_get_temp_dir() . '/pdf_test';
         if (!is_dir($tempDir)) {
@@ -228,10 +227,8 @@ class PDFWriterTest extends TestCase
         unset($this->moduleReader);
         unset($this->modulePaths);
         unset($this->styleManager);
-        unset($this->BlockVsVMRatio);
         unset($this->mockedPage);
-        unset($this->mockedStyleManager);
-
+        unset($this->specificSectionGetter);
     }
 
 }

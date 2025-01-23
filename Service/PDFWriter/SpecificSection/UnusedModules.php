@@ -11,7 +11,7 @@ class UnusedModules extends AbstractSection implements SectionInterface
     /**
      * @inheritDoc
      */
-    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
+    protected function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
         $pdfWriter->writeLine(__('Modules:'));
         foreach ($subresults['files'] as $module) {
@@ -37,5 +37,14 @@ class UnusedModules extends AbstractSection implements SectionInterface
     {
         unset($key);
         return '-' . $entry;
+    }
+
+    public function getPHPFormatedText(string $key, array $subResults): string
+    {
+        $text = __('Modules') . PHP_EOL;
+        foreach ($subResults as $module) {
+            $text .= '-' . $module . PHP_EOL;
+        }
+        return $text;
     }
 }

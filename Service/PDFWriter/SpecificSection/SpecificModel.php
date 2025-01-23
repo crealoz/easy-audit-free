@@ -20,7 +20,7 @@ class SpecificModel extends AbstractSection implements SectionInterface
     /**
      * @inheritDoc
      */
-    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
+    protected function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
         $pdfWriter->writeLine('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
@@ -51,6 +51,15 @@ class SpecificModel extends AbstractSection implements SectionInterface
         $text = '-' . $key . PHP_EOL;
         foreach ($entry as $argument) {
             $text .= '  -' . $argument . PHP_EOL;
+        }
+        return $text;
+    }
+
+    public function getPHPFormatedText(string $key, array $subResults): string
+    {
+        $text = __('Files') . PHP_EOL;
+        foreach ($subResults as $file => $arguments) {
+            $text .= $this->getLine($file, $arguments) . PHP_EOL;
         }
         return $text;
     }

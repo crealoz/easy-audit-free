@@ -15,7 +15,6 @@ class ClassNameGetter
     public function __construct(
         protected readonly DriverInterface $driver,
         protected readonly File $io,
-        private readonly GetModuleConfig $getModuleConfig,
         private readonly ModulePaths $modulePaths,
         private readonly ModuleTools $moduleTools
     )
@@ -52,6 +51,9 @@ class ClassNameGetter
         $namespace = trim($namespace, '\\');
 
         $fileContent = $this->driver->fileGetContents($filePathName);
+        if ($fileContent == null) {
+            throw new FileSystemException(__('Could not read the file %1', $filePathName));
+        }
         if (!str_contains($fileContent, 'namespace ' . $namespace)) {
             throw new NotAClassException(__('The file %1 does not contain a namespace %2', $filePathName, $namespace));
         }
@@ -73,7 +75,7 @@ class ClassNameGetter
         $moduleXmlPath = $this->modulePaths->getDeclarationXml($filePath, true);
         $moduleName = $this->moduleTools->getModuleNameByModuleXml($moduleXmlPath);
         $namespaceParts = explode('_', $moduleName);
-        $namespace = $namespaceParts[0] . DIRECTORY_SEPARATOR . $namespaceParts[1];
+        $namespace = DIRECTORY_SEPARATOR . $namespaceParts[0] . DIRECTORY_SEPARATOR . $namespaceParts[1];
         if (isset($parts[3])) {
             for ($i = 3; $i < count($parts); $i++) {
                 $namespace .= DIRECTORY_SEPARATOR . $parts[$i];

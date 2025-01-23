@@ -5,6 +5,7 @@ namespace Crealoz\EasyAudit\Service;
 use Crealoz\EasyAudit\Api\Result\SectionInterface;
 use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 use Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation;
+use Crealoz\EasyAudit\Service\PDFWriter\SpecificSectionGetter;
 use Crealoz\EasyAudit\Service\PDFWriter\StyleManager;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
@@ -49,7 +50,7 @@ class PDFWriter
         private readonly Reader           $moduleReader,
         private readonly ModulePaths      $modulePaths,
         private readonly StyleManager     $styleManager,
-        private readonly array $specificSections = [],
+        private readonly SpecificSectionGetter $specificSectionGetter,
         public int                        $x = 50,
         public int                        $columnCount = 1
     )
@@ -250,20 +251,18 @@ class PDFWriter
             if (isset($entries['specificSections'])) {
                 $sectionName = $entries['specificSections'];
                 unset($entries['specificSections']);
-                if (!isset($this->specificSections[$sectionName]) || !$this->specificSections[$sectionName] instanceof SectionInterface) {
-                    throw new \InvalidArgumentException("Specific section $sectionName is not valid");
-                }
+                $specificSection = $this->specificSectionGetter->getSpecificSection($sectionName);
                 if ($entries['files'] === []) {
                     continue;
                 }
-                $numberOfPages = $this->specificSections[$sectionName]->calculateSize($entries) / 800;
+                $numberOfPages = $specificSection->calculateSize($entries) / 800;
                 if ($numberOfPages > 10) {
                     if (!is_int($numberOfPages)) {
                         $numberOfPages = (int)ceil($numberOfPages);
                     }
                     $this->delegateToAnnex($numberOfPages, $entries, $title, $sectionName);
                 } else {
-                    $this->specificSections[$sectionName]->writeSection($this, $entries);
+                    $specificSection->writeSection($this, $entries);
                 }
             } else {
                 $this->manageSubsection($entries);
@@ -363,9 +362,9 @@ class PDFWriter
             $this->addPage();
             $this->writeTitle('Annex ' . $annexNumber);
             $this->writeLine($annex['description']);
-            if (isset($annex['specificSection']) && isset($this->specificSections[$annex['specificSection']])) {
+            if (isset($annex['specificSection'])) {
                 /** @var SectionInterface $specificSection */
-                $specificSection = $this->specificSections[$annex['specificSection']];
+                $specificSection = $this->specificSectionGetter->getSpecificSection($annex['specificSection']);
                 $specificSection->writeSection($this, $annex['files'], true);
             } else {
                 $this->manageFiles($annex['pages'], $annex['files']);

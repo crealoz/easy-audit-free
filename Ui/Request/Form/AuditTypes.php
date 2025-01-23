@@ -8,8 +8,7 @@ use Psr\Log\LoggerInterface;
 class AuditTypes implements \Magento\Framework\Data\OptionSourceInterface
 {
     public function __construct(
-        private readonly Audit $auditService,
-        private readonly LoggerInterface $logger
+        private readonly Audit $auditService
     )
     {
 
@@ -17,11 +16,9 @@ class AuditTypes implements \Magento\Framework\Data\OptionSourceInterface
 
     public function toOptionArray()
     {
-        $this->logger->info('Getting available processors...');
         $options = [];
         $processors = $this->auditService->getAvailableProcessors();
         foreach ($this->recursivelyGetProcessor($processors) as $processorName => $processorPath) {
-            $this->logger->info('Processor found: ' . $processorName . ' (' . $processorPath . ')');
             $options[] = [
                 'label' => $processorName,
                 'value' => $processorPath

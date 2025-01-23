@@ -20,7 +20,7 @@ class SpecificClass extends AbstractSection implements SectionInterface
     /**
      * @inheritDoc
      */
-    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
+    protected function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
         $pdfWriter->writeLine('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
@@ -42,8 +42,23 @@ class SpecificClass extends AbstractSection implements SectionInterface
         return $size;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function getLine($key, mixed $entry): string
     {
         return __('- %1 (potential issues count : %2)', $this->modulePaths->stripVendorOrApp($key), count($entry));
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getPHPFormatedText(string $key, array $subResults): string
+    {
+        $text = __('Files') . PHP_EOL;
+        foreach ($subResults as $file => $arguments) {
+            $text .= $this->getLine($file, $arguments) . PHP_EOL;
+        }
+        return $text;
     }
 }
