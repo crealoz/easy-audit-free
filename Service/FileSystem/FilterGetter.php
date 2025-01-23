@@ -6,13 +6,17 @@ use Crealoz\EasyAudit\Api\FileSystem\FilterInterface;
 
 class FilterGetter
 {
+    /**
+     * @readonly
+     */
+    private array $filterClasses = [];
     private array $filters = [];
 
     private bool $isFiltersInitialized = false;
 
-    public function __construct(
-        private readonly array $filterClasses = []
-    ) {
+    public function __construct(array $filterClasses = [])
+    {
+        $this->filterClasses = $filterClasses;
     }
 
     public function getFilters(): array

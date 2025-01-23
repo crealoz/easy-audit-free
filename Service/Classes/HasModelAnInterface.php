@@ -14,7 +14,7 @@ class HasModelAnInterface
         $reflectionClass = new \ReflectionClass($className);
         $interfaces = $reflectionClass->getInterfaces();
         foreach ($interfaces as $interface) {
-            if (str_contains($interface->getName(), 'Api')) {
+            if (strpos($interface->getName(), 'Api') !== false) {
                 $this->modelsWithApiInterface[$className] = $interface->getName();
                 return true;
             }

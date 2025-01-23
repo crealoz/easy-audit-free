@@ -6,10 +6,13 @@ use Crealoz\EasyAudit\Api\Result\SectionInterface;
 
 class SpecificSectionGetter
 {
-    public function __construct(
-        private readonly array $specificSections = []
-    )
+    /**
+     * @readonly
+     */
+    private array $specificSections = [];
+    public function __construct(array $specificSections = [])
     {
+        $this->specificSections = $specificSections;
     }
 
     /**

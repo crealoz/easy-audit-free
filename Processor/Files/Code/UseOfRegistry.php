@@ -15,13 +15,28 @@ class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterf
 {
 
 
+    /**
+     * @readonly
+     */
+    private ClassNameGetter $classNameGetter;
+    /**
+     * @readonly
+     */
+    private DefinitionInterface $definitions;
+    /**
+     * @readonly
+     */
+    private ConstructorService $constructorService;
     public function __construct(
         AuditStorage $auditStorage,
-        private readonly ClassNameGetter $classNameGetter,
-        private readonly DefinitionInterface $definitions,
-        private readonly ConstructorService $constructorService
+        ClassNameGetter $classNameGetter,
+        DefinitionInterface $definitions,
+        ConstructorService $constructorService
     )
     {
+        $this->classNameGetter = $classNameGetter;
+        $this->definitions = $definitions;
+        $this->constructorService = $constructorService;
         parent::__construct($auditStorage);
     }
 

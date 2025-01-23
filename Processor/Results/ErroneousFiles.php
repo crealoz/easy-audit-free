@@ -7,10 +7,13 @@ use Crealoz\EasyAudit\Service\FileSystem\ModulePaths;
 class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessorInterface
 {
 
-    public function __construct(
-        private readonly ModulePaths $modulePaths
-    )
+    /**
+     * @readonly
+     */
+    private ModulePaths $modulePaths;
+    public function __construct(ModulePaths $modulePaths)
     {
+        $this->modulePaths = $modulePaths;
     }
 
     /**
@@ -60,13 +63,13 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessor
      */
     private function getScope($file) : string
     {
-        if (str_contains($file, 'vendor')) {
+        if (strpos($file, 'vendor') !== false) {
             return 'vendor';
         }
-        if (str_contains($file, 'code')) {
+        if (strpos($file, 'code') !== false) {
             return 'code';
         }
-        if (str_contains($file, 'design')) {
+        if (strpos($file, 'design') !== false) {
             return 'design';
         }
         return 'other';

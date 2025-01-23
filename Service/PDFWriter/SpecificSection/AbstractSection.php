@@ -6,10 +6,13 @@ use Crealoz\EasyAudit\Service\PDFWriter;
 
 abstract class AbstractSection
 {
-    public function __construct(
-        public readonly \Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation $sizeCalculation
-    )
+    /**
+     * @readonly
+     */
+    public \Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation $sizeCalculation;
+    public function __construct(\Crealoz\EasyAudit\Service\PDFWriter\SizeCalculation $sizeCalculation)
     {
+        $this->sizeCalculation = $sizeCalculation;
     }
 
 

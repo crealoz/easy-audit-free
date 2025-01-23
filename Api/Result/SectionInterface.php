@@ -30,7 +30,7 @@ interface SectionInterface
      * @param mixed $entry
      * @return string
      */
-    public function getLine(string $key, mixed $entry): string;
+    public function getLine(string $key, $entry): string;
 
     /**
      * Get the PHP formated text

@@ -21,12 +21,12 @@ class AroundToBefore extends AroundChecker
 
         foreach ($lines as $line) {
             $line = trim($line);
-            if (str_contains($line, 'return')) {
+            if (strpos($line, 'return') !== false) {
                 $lastReturn = $line;
                 break;
             }
         }
-        if (str_contains($lastReturn, '$proceed')) {
+        if (strpos($lastReturn, '$proceed') !== false) {
             throw new AroundToBeforePluginException(__('An around method should not return $proceed as last statement'), $class);
         }
     }

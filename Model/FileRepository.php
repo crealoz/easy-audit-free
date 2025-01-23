@@ -14,16 +14,38 @@ class FileRepository implements \Crealoz\EasyAudit\Api\FileRepositoryInterface
 {
 
 
-    public function __construct(
-        private readonly File                         $resource,
-        private readonly Request\FileFactory                  $fileFactory,
-        private readonly CollectionFactory            $collectionFactory,
-        private readonly SearchResultFactory          $searchResultFactory,
-        private readonly CollectionProcessorInterface $collectionProcessor,
-        private readonly SearchCriteriaBuilder        $searchCriteriaBuilder
-    )
+    /**
+     * @readonly
+     */
+    private File $resource;
+    /**
+     * @readonly
+     */
+    private Request\FileFactory $fileFactory;
+    /**
+     * @readonly
+     */
+    private CollectionFactory $collectionFactory;
+    /**
+     * @readonly
+     */
+    private SearchResultFactory $searchResultFactory;
+    /**
+     * @readonly
+     */
+    private CollectionProcessorInterface $collectionProcessor;
+    /**
+     * @readonly
+     */
+    private SearchCriteriaBuilder $searchCriteriaBuilder;
+    public function __construct(File                         $resource, Request\FileFactory                  $fileFactory, CollectionFactory            $collectionFactory, SearchResultFactory          $searchResultFactory, CollectionProcessorInterface $collectionProcessor, SearchCriteriaBuilder        $searchCriteriaBuilder)
     {
-
+        $this->resource = $resource;
+        $this->fileFactory = $fileFactory;
+        $this->collectionFactory = $collectionFactory;
+        $this->searchResultFactory = $searchResultFactory;
+        $this->collectionProcessor = $collectionProcessor;
+        $this->searchCriteriaBuilder = $searchCriteriaBuilder;
     }
 
     /**

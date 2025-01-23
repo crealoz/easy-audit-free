@@ -21,6 +21,26 @@ use Magento\Framework\Exception\FileSystemException;
  */
 class SpecificClassInjection extends AbstractFileProcessor implements FileProcessorInterface
 {
+    /**
+     * @readonly
+     */
+    private ClassNameGetter $classNameGetter;
+    /**
+     * @readonly
+     */
+    private \Magento\Framework\ObjectManager\DefinitionInterface $definitions;
+    /**
+     * @readonly
+     */
+    private HasModelAnInterface $hasModelAnInterface;
+    /**
+     * @readonly
+     */
+    private ArgumentTypeChecker $argumentTypeChecker;
+    /**
+     * @readonly
+     */
+    private ConstructorService $constructorService;
     private array $ignoredClass = [
         'Magento\Framework\Escaper',
         'Magento\Framework\Data\Collection\AbstractDb',
@@ -30,13 +50,18 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
 
     public function __construct(
         AuditStorage $auditStorage,
-        private readonly ClassNameGetter $classNameGetter,
-        private readonly \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
-        private readonly HasModelAnInterface $hasModelAnInterface,
-        private readonly ArgumentTypeChecker $argumentTypeChecker,
-        private readonly ConstructorService $constructorService
+        ClassNameGetter $classNameGetter,
+        \Magento\Framework\ObjectManager\DefinitionInterface $definitions,
+        HasModelAnInterface $hasModelAnInterface,
+        ArgumentTypeChecker $argumentTypeChecker,
+        ConstructorService $constructorService
     )
     {
+        $this->classNameGetter = $classNameGetter;
+        $this->definitions = $definitions;
+        $this->hasModelAnInterface = $hasModelAnInterface;
+        $this->argumentTypeChecker = $argumentTypeChecker;
+        $this->constructorService = $constructorService;
         parent::__construct($auditStorage);
     }
 
@@ -216,7 +241,7 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
 
     private function isClassRepository($argumentName): bool
     {
-        return str_contains($argumentName, 'Repository');
+        return strpos($argumentName, 'Repository') !== false;
     }
 
     public function getProcessorTag(): string

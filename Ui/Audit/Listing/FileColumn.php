@@ -9,15 +9,25 @@ use Magento\Framework\View\Element\UiComponentFactory;
 
 class FileColumn extends \Magento\Ui\Component\Listing\Columns\Column
 {
+    /**
+     * @readonly
+     */
+    private UrlInterface $backendUrl;
+    /**
+     * @readonly
+     */
+    private FileRepositoryInterface $fileRepository;
     public function __construct(
         ContextInterface   $context,
         UiComponentFactory $uiComponentFactory,
-        private readonly UrlInterface $backendUrl,
-        private readonly FileRepositoryInterface $fileRepository,
+        UrlInterface $backendUrl,
+        FileRepositoryInterface $fileRepository,
         array              $components = [],
         array              $data = []
     )
     {
+        $this->backendUrl = $backendUrl;
+        $this->fileRepository = $fileRepository;
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 

@@ -6,12 +6,16 @@ use Magento\Framework\Module\Dir\Reader;
 
 class AuditStorage
 {
+    /**
+     * @readonly
+     */
+    private Reader $moduleReader;
     private array $ignoredModules = [];
 
-    public function __construct(
-        private readonly Reader              $moduleReader
-    )
-    {}
+    public function __construct(Reader              $moduleReader)
+    {
+        $this->moduleReader = $moduleReader;
+    }
 
     public function getIgnoredModules(): array
     {

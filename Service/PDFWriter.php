@@ -21,6 +21,36 @@ use Magento\Framework\Module\Dir\Reader;
 class PDFWriter
 {
 
+    /**
+     * @readonly
+     */
+    private Filesystem $filesystem;
+    /**
+     * @readonly
+     */
+    private SizeCalculation $sizeCalculation;
+    /**
+     * @readonly
+     */
+    private \Psr\Log\LoggerInterface $logger;
+    /**
+     * @readonly
+     */
+    private Reader $moduleReader;
+    /**
+     * @readonly
+     */
+    private ModulePaths $modulePaths;
+    /**
+     * @readonly
+     */
+    private StyleManager $styleManager;
+    /**
+     * @readonly
+     */
+    private SpecificSectionGetter $specificSectionGetter;
+    public int $x = 50;
+    public int $columnCount = 1;
     private \Zend_Pdf $pdf;
 
     public \Zend_Pdf_Page $currentPage;
@@ -44,17 +74,26 @@ class PDFWriter
     private bool $logoInitialized = false;
 
     public function __construct(
-        private readonly Filesystem       $filesystem,
-        private readonly SizeCalculation  $sizeCalculation,
-        private readonly \Psr\Log\LoggerInterface $logger,
-        private readonly Reader           $moduleReader,
-        private readonly ModulePaths      $modulePaths,
-        private readonly StyleManager     $styleManager,
-        private readonly SpecificSectionGetter $specificSectionGetter,
-        public int                        $x = 50,
-        public int                        $columnCount = 1
+        Filesystem       $filesystem,
+        SizeCalculation  $sizeCalculation,
+        \Psr\Log\LoggerInterface $logger,
+        Reader           $moduleReader,
+        ModulePaths      $modulePaths,
+        StyleManager     $styleManager,
+        SpecificSectionGetter $specificSectionGetter,
+        int                        $x = 50,
+        int                        $columnCount = 1
     )
     {
+        $this->filesystem = $filesystem;
+        $this->sizeCalculation = $sizeCalculation;
+        $this->logger = $logger;
+        $this->moduleReader = $moduleReader;
+        $this->modulePaths = $modulePaths;
+        $this->styleManager = $styleManager;
+        $this->specificSectionGetter = $specificSectionGetter;
+        $this->x = $x;
+        $this->columnCount = $columnCount;
         $this->columnWidth = (int)((595 - 2 * $this->x) / $this->columnCount); // A4 width is 595 points
         $this->columnX = $this->x;
     }
@@ -317,7 +356,7 @@ class PDFWriter
      * @return void
      * @throws \Zend_Pdf_Exception
      */
-    private function manageFiles(int $numberOfPages, array|string $resultFiles): void
+    private function manageFiles(int $numberOfPages, $resultFiles): void
     {
         if ($numberOfPages > 1) {
             $this->setColumnCount(2);

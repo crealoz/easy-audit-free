@@ -12,18 +12,39 @@ use Psr\Log\LoggerInterface;
 
 class Localization
 {
-    public function __construct(
-        private readonly Filesystem $filesystem,
-        private readonly Reader     $moduleReader,
-        private readonly \Magento\Framework\TranslateInterface                 $translator,
-        private readonly \Magento\Framework\Phrase\Renderer\Translate        $translateRenderer,
-        private readonly State                            $appState,
-        protected readonly LoggerInterface                 $logger,
-    )
+    /**
+     * @readonly
+     */
+    private Filesystem $filesystem;
+    /**
+     * @readonly
+     */
+    private Reader $moduleReader;
+    /**
+     * @readonly
+     */
+    private \Magento\Framework\TranslateInterface $translator;
+    /**
+     * @readonly
+     */
+    private \Magento\Framework\Phrase\Renderer\Translate $translateRenderer;
+    /**
+     * @readonly
+     */
+    private State $appState;
+    /**
+     * @readonly
+     */
+    protected LoggerInterface $logger;
+    public function __construct(Filesystem $filesystem, Reader     $moduleReader, \Magento\Framework\TranslateInterface                 $translator, \Magento\Framework\Phrase\Renderer\Translate        $translateRenderer, State                            $appState, LoggerInterface                 $logger)
     {
-
+        $this->filesystem = $filesystem;
+        $this->moduleReader = $moduleReader;
+        $this->translator = $translator;
+        $this->translateRenderer = $translateRenderer;
+        $this->appState = $appState;
+        $this->logger = $logger;
     }
-
     /**
      * Get the available languages for the module
      * @return array

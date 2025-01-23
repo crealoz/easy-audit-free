@@ -15,6 +15,40 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class Audit
 {
+    /**
+     * @readonly
+     */
+    protected PDFWriter $pdfWriter;
+    /**
+     * @readonly
+     */
+    protected TypeFactory $typeFactory;
+    /**
+     * @readonly
+     */
+    protected LoggerInterface $logger;
+    /**
+     * @readonly
+     */
+    protected AuditRequestFactory $auditRequestFactory;
+    /**
+     * @readonly
+     */
+    protected AuditRequestRepositoryInterface $auditRequestRepository;
+    /**
+     * @readonly
+     */
+    private SerializerInterface $serializer;
+    /**
+     * @readonly
+     */
+    private Localization $localization;
+    /**
+     * @readonly
+     */
+    private FileFactory $fileFactory;
+    protected array $processors = [];
+    protected array $resultProcessors = [];
     const PRIORITY_HIGH = 3;
 
     const PRIORITY_AVERAGE = 2;
@@ -23,20 +57,18 @@ class Audit
 
     protected array $results = [];
 
-    public function __construct(
-        protected readonly PDFWriter                       $pdfWriter,
-        protected readonly TypeFactory                     $typeFactory,
-        protected readonly LoggerInterface                 $logger,
-        protected readonly AuditRequestFactory             $auditRequestFactory,
-        protected readonly AuditRequestRepositoryInterface $auditRequestRepository,
-        private readonly SerializerInterface               $serializer,
-        private readonly Localization                      $localization,
-        private readonly FileFactory                    $fileFactory,
-        protected array                                    $processors = [],
-        protected array                                    $resultProcessors = []
-    )
+    public function __construct(PDFWriter                       $pdfWriter, TypeFactory                     $typeFactory, LoggerInterface                 $logger, AuditRequestFactory             $auditRequestFactory, AuditRequestRepositoryInterface $auditRequestRepository, SerializerInterface               $serializer, Localization                      $localization, FileFactory                    $fileFactory, array                                    $processors = [], array                                    $resultProcessors = [])
     {
-
+        $this->pdfWriter = $pdfWriter;
+        $this->typeFactory = $typeFactory;
+        $this->logger = $logger;
+        $this->auditRequestFactory = $auditRequestFactory;
+        $this->auditRequestRepository = $auditRequestRepository;
+        $this->serializer = $serializer;
+        $this->localization = $localization;
+        $this->fileFactory = $fileFactory;
+        $this->processors = $processors;
+        $this->resultProcessors = $resultProcessors;
     }
 
     /**

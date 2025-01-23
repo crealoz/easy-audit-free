@@ -16,7 +16,7 @@ class Logic extends AbstractType implements TypeInterface
     {
         $hasErrors = false;
         foreach ($processors as $processor) {
-            $progressBar?->advance();
+            ($nullsafeVariable1 = $progressBar) ? $nullsafeVariable1->advance() : null;
             if (!$processor instanceof AuditProcessorInterface) {
                 throw new \InvalidArgumentException('Processor must implement AuditProcessorInterface');
             }

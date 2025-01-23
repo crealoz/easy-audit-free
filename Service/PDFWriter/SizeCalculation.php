@@ -5,13 +5,15 @@ namespace Crealoz\EasyAudit\Service\PDFWriter;
 class SizeCalculation
 {
 
+    /**
+     * @readonly
+     */
+    private \Psr\Log\LoggerInterface $logger;
     private int $lineHeight = 15;
 
-    public function __construct(
-        private readonly \Psr\Log\LoggerInterface $logger
-    )
+    public function __construct(\Psr\Log\LoggerInterface $logger)
     {
-
+        $this->logger = $logger;
     }
 
     /**

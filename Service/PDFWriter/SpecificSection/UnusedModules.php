@@ -33,7 +33,10 @@ class UnusedModules extends AbstractSection implements SectionInterface
         return $size;
     }
 
-    public function getLine($key, mixed $entry): string
+    /**
+     * @param mixed $entry
+     */
+    public function getLine($key, $entry): string
     {
         unset($key);
         return '-' . $entry;

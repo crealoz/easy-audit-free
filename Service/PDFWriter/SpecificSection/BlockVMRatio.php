@@ -29,7 +29,10 @@ class BlockVMRatio extends AbstractSection implements SectionInterface
         return $size;
     }
 
-    public function getLine($key, mixed $entry): string
+    /**
+     * @param mixed $entry
+     */
+    public function getLine($key, $entry): string
     {
         return __('-%1(ratio : %2)', $key, $entry);
     }

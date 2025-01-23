@@ -52,11 +52,14 @@ class DownloadTest extends TestCase
                 if (preg_match('/\.zip$/', $filename)) {
                     return $tempDir . '/audit_789.zip'; // Retourne le chemin générique pour les fichiers ZIP
                 }
-                return match ($filename) {
-                    'file1' => $tempDir . '/file1.pdf',
-                    'file2' => $tempDir . '/file2.pdf',
-                    default => '',
-                };
+                switch ($filename) {
+                    case 'file1':
+                        return $tempDir . '/file1.pdf';
+                    case 'file2':
+                        return $tempDir . '/file2.pdf';
+                    default:
+                        return '';
+                }
             });
         $file1 = $this->tempDir . DIRECTORY_SEPARATOR . 'file1.pdf';
         $file2 = $this->tempDir . DIRECTORY_SEPARATOR . 'file2.pdf';

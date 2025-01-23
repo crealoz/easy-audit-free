@@ -10,21 +10,38 @@ use Magento\Framework\Filesystem\DriverInterface;
 class Download extends \Magento\Backend\App\Action implements \Magento\Framework\App\Action\HttpGetActionInterface
 {
     /**
+     * @var \Magento\Framework\Filesystem
+     * @readonly
+     */
+    private \Magento\Framework\Filesystem $filesystem;
+    /**
+     * @var DriverInterface
+     * @readonly
+     */
+    private DriverInterface $driver;
+    /**
+     * @readonly
+     */
+    private \Magento\Framework\Filesystem\Io\File $ioFile;
+    /**
+     * @var \Crealoz\EasyAudit\Api\FileRepositoryInterface
+     * @readonly
+     */
+    private \Crealoz\EasyAudit\Api\FileRepositoryInterface $fileRepository;
+    /**
      * @param \Magento\Backend\App\Action\Context $context
      * @param \Magento\Framework\Filesystem $filesystem
      * @param DriverInterface $driver
      * @param \Crealoz\EasyAudit\Api\FileRepositoryInterface $fileRepository
      */
-    public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        private readonly \Magento\Framework\Filesystem $filesystem,
-        private readonly DriverInterface $driver,
-        private readonly \Magento\Framework\Filesystem\Io\File $ioFile,
-        private readonly \Crealoz\EasyAudit\Api\FileRepositoryInterface $fileRepository,
-    ) {
+    public function __construct(\Magento\Backend\App\Action\Context $context, \Magento\Framework\Filesystem $filesystem, DriverInterface $driver, \Magento\Framework\Filesystem\Io\File $ioFile, \Crealoz\EasyAudit\Api\FileRepositoryInterface $fileRepository)
+    {
+        $this->filesystem = $filesystem;
+        $this->driver = $driver;
+        $this->ioFile = $ioFile;
+        $this->fileRepository = $fileRepository;
         parent::__construct($context);
     }
-
     /**
      * gets the parameter filename from url and serves the file for download
      */

@@ -9,14 +9,17 @@ use Crealoz\EasyAudit\Model\AuditStorage;
 abstract class AbstractAuditProcessor implements AuditProcessorInterface
 {
 
+    /**
+     * @readonly
+     */
+    protected AuditStorage $auditStorage;
     protected array $results = [];
 
     protected array $erroneousFiles = [];
 
-    public function __construct(
-        protected readonly AuditStorage $auditStorage
-    )
+    public function __construct(AuditStorage $auditStorage)
     {
+        $this->auditStorage = $auditStorage;
     }
 
     public function hasErrors(): bool

@@ -6,10 +6,13 @@ use Crealoz\EasyAudit\Service\Localization;
 
 class Languages implements \Magento\Framework\Data\OptionSourceInterface
 {
-    public function __construct(
-        private readonly Localization $localization
-    )
+    /**
+     * @readonly
+     */
+    private Localization $localization;
+    public function __construct(Localization $localization)
     {
+        $this->localization = $localization;
     }
 
     public function toOptionArray(): array

@@ -16,7 +16,7 @@ class PHPCode extends AbstractType implements TypeInterface
         $hasErrors = false;
         foreach ($files as $codeFile) {
             // ignores autoload.php and registration.php
-            if (str_contains($codeFile, 'autoload.php') || str_contains($codeFile, 'registration.php')) {
+            if (strpos($codeFile, 'autoload.php') !== false || strpos($codeFile, 'registration.php') !== false) {
                 continue;
             }
             foreach ($processors as $processor) {
@@ -27,7 +27,7 @@ class PHPCode extends AbstractType implements TypeInterface
                     $processor->setFile($codeFile);
                 }
                 $processor->run();
-                $progressBar?->advance();
+                ($nullsafeVariable1 = $progressBar) ? $nullsafeVariable1->advance() : null;
                 if ($hasErrors === false && $processor->hasErrors()) {
                     $hasErrors = true;
                 }

@@ -17,10 +17,13 @@ use Magento\Framework\Module\ModuleList;
 class GetModuleConfig
 {
 
-    public function __construct(
-        private readonly ModuleTools $moduleTools
-    )
+    /**
+     * @readonly
+     */
+    private ModuleTools $moduleTools;
+    public function __construct(ModuleTools $moduleTools)
     {
+        $this->moduleTools = $moduleTools;
     }
 
     /**

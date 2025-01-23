@@ -7,12 +7,14 @@ use Magento\Framework\Filesystem;
 
 class ModulePaths
 {
-    public function __construct(
-        private readonly Filesystem       $filesystem,
-    )
+    /**
+     * @readonly
+     */
+    private Filesystem $filesystem;
+    public function __construct(Filesystem       $filesystem)
     {
+        $this->filesystem = $filesystem;
     }
-
     /**
      * Get the path to the module.xml file of a module
      *

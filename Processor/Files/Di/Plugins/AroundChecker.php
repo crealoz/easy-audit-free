@@ -13,12 +13,18 @@ use Magento\Framework\Filesystem\DriverInterface;
  */
 abstract class AroundChecker
 {
-    public function __construct(
-        protected readonly Functions $functionsParser,
-        protected readonly DriverInterface $driver
-    )
+    /**
+     * @readonly
+     */
+    protected Functions $functionsParser;
+    /**
+     * @readonly
+     */
+    protected DriverInterface $driver;
+    public function __construct(Functions $functionsParser, DriverInterface $driver)
     {
-
+        $this->functionsParser = $functionsParser;
+        $this->driver = $driver;
     }
 
     /**
@@ -31,9 +37,9 @@ abstract class AroundChecker
     {
         $filePath = (new \ReflectionClass($class))->getFileName();
         $fileContent = $this->driver->fileGetContents($filePath);
-        if (str_contains($fileContent, 'around')) {
+        if (strpos($fileContent, 'around') !== false) {
             $callable = function($functionName) {
-                return str_contains($functionName, 'around');
+                return strpos($functionName, 'around') !== false;
             };
             $aroundMethods = [];
             foreach (get_class_methods($class) as $methodName) {

@@ -11,13 +11,20 @@ use Magento\Framework\Serialize\SerializerInterface;
  */
 class Audit
 {
-    public function __construct(
-        protected \Crealoz\EasyAudit\Service\Audit $auditService,
-        private readonly AuditRequestRepositoryInterface $auditRequestRepository,
-        private readonly SerializerInterface $serializer
-    )
+    protected \Crealoz\EasyAudit\Service\Audit $auditService;
+    /**
+     * @readonly
+     */
+    private AuditRequestRepositoryInterface $auditRequestRepository;
+    /**
+     * @readonly
+     */
+    private SerializerInterface $serializer;
+    public function __construct(\Crealoz\EasyAudit\Service\Audit $auditService, AuditRequestRepositoryInterface $auditRequestRepository, SerializerInterface $serializer)
     {
-
+        $this->auditService = $auditService;
+        $this->auditRequestRepository = $auditRequestRepository;
+        $this->serializer = $serializer;
     }
 
     /**

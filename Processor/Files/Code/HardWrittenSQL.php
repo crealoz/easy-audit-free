@@ -12,6 +12,10 @@ use Magento\Framework\Filesystem\DriverInterface;
 class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInterface
 {
 
+    /**
+     * @readonly
+     */
+    protected DriverInterface $driver;
     public function getProcessorName(): string
     {
         return __('Hard Written SQL');
@@ -24,9 +28,10 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
 
     public function __construct(
         AuditStorage $auditStorage,
-        protected readonly DriverInterface $driver
+        DriverInterface $driver
     )
     {
+        $this->driver = $driver;
         parent::__construct($auditStorage);
     }
 
@@ -112,7 +117,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
     {
         $input = $this->getFile();
         $code = $this->driver->fileGetContents($input);
-        if (str_contains($code, 'SELECT')) {
+        if (strpos($code, 'SELECT') !== false) {
             /**
              * Tries to find a FROM clause in the SQL query
              */
@@ -123,7 +128,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
-        if (str_contains($code, 'INSERT')) {
+        if (strpos($code, 'INSERT') !== false) {
             /**
              * Tries to find an INTO clause in the SQL query
              */
@@ -134,7 +139,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
-        if (str_contains($code, 'UPDATE')) {
+        if (strpos($code, 'UPDATE') !== false) {
             /**
              * Tries to find a SET clause in the SQL query
              */
@@ -145,7 +150,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
-        if (str_contains($code, 'DELETE')) {
+        if (strpos($code, 'DELETE') !== false) {
             /**
              * Tries to find a FROM clause in the SQL query
              */
@@ -156,7 +161,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
             }
         }
-        if (str_contains($code, 'JOIN')) {
+        if (strpos($code, 'JOIN') !== false) {
             /**
              * Tries to find a JOIN sth ON clause in the SQL query
              */

@@ -15,14 +15,33 @@ use Magento\Framework\Exception\CouldNotSaveException;
 
 class AuditRequestRepository implements AuditRequestRepositoryInterface
 {
-    public function __construct(
-        private readonly AuditRequestResource         $auditRequestResource,
-        private readonly AuditRequestFactory          $auditRequestFactory,
-        private readonly SearchResultFactory          $searchResultFactory,
-        private readonly CollectionProcessorInterface $collectionProcessor,
-        private readonly CollectionFactory            $auditRequestCollectionFactory
-    )
+    /**
+     * @readonly
+     */
+    private AuditRequestResource $auditRequestResource;
+    /**
+     * @readonly
+     */
+    private AuditRequestFactory $auditRequestFactory;
+    /**
+     * @readonly
+     */
+    private SearchResultFactory $searchResultFactory;
+    /**
+     * @readonly
+     */
+    private CollectionProcessorInterface $collectionProcessor;
+    /**
+     * @readonly
+     */
+    private CollectionFactory $auditRequestCollectionFactory;
+    public function __construct(AuditRequestResource         $auditRequestResource, AuditRequestFactory          $auditRequestFactory, SearchResultFactory          $searchResultFactory, CollectionProcessorInterface $collectionProcessor, CollectionFactory            $auditRequestCollectionFactory)
     {
+        $this->auditRequestResource = $auditRequestResource;
+        $this->auditRequestFactory = $auditRequestFactory;
+        $this->searchResultFactory = $searchResultFactory;
+        $this->collectionProcessor = $collectionProcessor;
+        $this->auditRequestCollectionFactory = $auditRequestCollectionFactory;
     }
 
     /**

@@ -4,13 +4,19 @@ namespace Crealoz\EasyAudit\Processor\Type;
 
 class TypeFactory
 {
-    public function __construct(
-        protected readonly \Magento\Framework\ObjectManagerInterface $objectManager,
-        protected readonly array $typeMapping,
-    )
+    /**
+     * @readonly
+     */
+    protected \Magento\Framework\ObjectManagerInterface $objectManager;
+    /**
+     * @readonly
+     */
+    protected array $typeMapping;
+    public function __construct(\Magento\Framework\ObjectManagerInterface $objectManager, array $typeMapping)
     {
+        $this->objectManager = $objectManager;
+        $this->typeMapping = $typeMapping;
     }
-
     public function create(string $type): TypeInterface
     {
         if (!isset($this->typeMapping[$type])) {

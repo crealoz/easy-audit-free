@@ -16,14 +16,34 @@ use Magento\Framework\Serialize\SerializerInterface;
 class Save extends Action implements HttpPostActionInterface
 {
 
+    /**
+     * @readonly
+     */
+    private AuditRequestFactory $auditRequestFactory;
+    /**
+     * @readonly
+     */
+    private AuditRequestRepositoryInterface $auditRequestRepository;
+    /**
+     * @readonly
+     */
+    private \Magento\Backend\Model\Auth\Session $authSession;
+    /**
+     * @readonly
+     */
+    private SerializerInterface $serializer;
     public function __construct(
         Action\Context                                       $context,
-        private readonly AuditRequestFactory                 $auditRequestFactory,
-        private readonly AuditRequestRepositoryInterface     $auditRequestRepository,
-        private readonly \Magento\Backend\Model\Auth\Session $authSession,
-        private readonly SerializerInterface                 $serializer
+        AuditRequestFactory                 $auditRequestFactory,
+        AuditRequestRepositoryInterface     $auditRequestRepository,
+        \Magento\Backend\Model\Auth\Session $authSession,
+        SerializerInterface                 $serializer
     )
     {
+        $this->auditRequestFactory = $auditRequestFactory;
+        $this->auditRequestRepository = $auditRequestRepository;
+        $this->authSession = $authSession;
+        $this->serializer = $serializer;
         parent::__construct($context);
     }
 

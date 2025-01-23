@@ -15,7 +15,7 @@ class AroundToAfter extends AroundChecker
             $line = trim($line);
             return $line !== '' && !preg_match('/^(try|if)/', $line);
         });
-        if (isset($filteredLines[1]) && str_contains($filteredLines[1], 'proceed')) {
+        if (isset($filteredLines[1]) && strpos($filteredLines[1], 'proceed') !== false) {
             throw new AroundToAfterPluginException(__('An around method should not contain $proceed as first statement'), $class);
         }
     }

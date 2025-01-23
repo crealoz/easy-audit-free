@@ -21,6 +21,26 @@ use Psr\Log\LoggerInterface;
 class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
 {
 
+    /**
+     * @readonly
+     */
+    private AroundToAfter $aroundToAfter;
+    /**
+     * @readonly
+     */
+    private AroundToBefore $aroundToBefore;
+    /**
+     * @readonly
+     */
+    private CheckConfigProvider $checkConfigProvider;
+    /**
+     * @readonly
+     */
+    private LoggerInterface $logger;
+    /**
+     * @readonly
+     */
+    private Files $filesUtility;
     public function getProcessorName(): string
     {
         return __('Plugins');
@@ -33,13 +53,18 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
 
     public function __construct(
         AuditStorage $auditStorage,
-        private readonly AroundToAfter       $aroundToAfter,
-        private readonly AroundToBefore      $aroundToBefore,
-        private readonly CheckConfigProvider $checkConfigProvider,
-        private readonly LoggerInterface     $logger,
-        private readonly Files               $filesUtility
+        AroundToAfter       $aroundToAfter,
+        AroundToBefore      $aroundToBefore,
+        CheckConfigProvider $checkConfigProvider,
+        LoggerInterface     $logger,
+        Files               $filesUtility
     )
     {
+        $this->aroundToAfter = $aroundToAfter;
+        $this->aroundToBefore = $aroundToBefore;
+        $this->checkConfigProvider = $checkConfigProvider;
+        $this->logger = $logger;
+        $this->filesUtility = $filesUtility;
         parent::__construct($auditStorage);
     }
 
@@ -230,7 +255,7 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
      */
     private function isMagentoFrameworkClass(string $pluggingClass, string $pluggedInClass): void
     {
-        if (str_starts_with($pluggedInClass, 'Magento\\Framework\\')) {
+        if (strncmp($pluggedInClass, 'Magento\\Framework\\', strlen('Magento\\Framework\\')) === 0) {
             throw new MagentoFrameworkPluginExtension(
                 __('Plugin class must not be in the Magento Framework'),
                 $pluggingClass, $pluggedInClass

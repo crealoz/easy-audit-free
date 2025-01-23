@@ -7,13 +7,23 @@ use Crealoz\EasyAudit\Api\FileSystem\FilterInterface;
 
 abstract class AbstractFilter implements FilterInterface
 {
-    protected readonly FileGetter $fileGetter;
+    /**
+     * @readonly
+     */
+    private FileGetterFactory $fileGetterFactory;
+    /**
+     * @readonly
+     */
+    private string $fileGetterType;
+    /**
+     * @readonly
+     */
+    protected FileGetter $fileGetter;
 
-    public function __construct(
-        private readonly FileGetterFactory $fileGetterFactory,
-        private readonly string $fileGetterType
-    ) {
-
+    public function __construct(FileGetterFactory $fileGetterFactory, string $fileGetterType)
+    {
+        $this->fileGetterFactory = $fileGetterFactory;
+        $this->fileGetterType = $fileGetterType;
     }
 
     protected function getFileGetter(): FileGetterInterface

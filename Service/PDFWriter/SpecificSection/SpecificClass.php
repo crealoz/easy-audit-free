@@ -9,11 +9,16 @@ use Crealoz\EasyAudit\Service\PDFWriter;
 class SpecificClass extends AbstractSection implements SectionInterface
 {
 
+    /**
+     * @readonly
+     */
+    private ModulePaths $modulePaths;
     public function __construct(
         PDFWriter\SizeCalculation $sizeCalculation,
-        private readonly ModulePaths $modulePaths
+        ModulePaths $modulePaths
     )
     {
+        $this->modulePaths = $modulePaths;
         parent::__construct($sizeCalculation);
     }
 
@@ -44,8 +49,9 @@ class SpecificClass extends AbstractSection implements SectionInterface
 
     /**
      * @inheritdoc
+     * @param mixed $entry
      */
-    public function getLine($key, mixed $entry): string
+    public function getLine($key, $entry): string
     {
         return __('- %1 (potential issues count : %2)', $this->modulePaths->stripVendorOrApp($key), count($entry));
     }

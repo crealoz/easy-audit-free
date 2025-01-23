@@ -8,12 +8,17 @@ use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 
 class AuditRequest extends AbstractDb
 {
+    /**
+     * @readonly
+     */
+    protected FileFactory $fileFactory;
     public function __construct(
         \Magento\Framework\Model\ResourceModel\Db\Context $context,
-        protected readonly FileFactory $fileFactory,
+        FileFactory $fileFactory,
         $connectionName = null
     )
     {
+        $this->fileFactory = $fileFactory;
         parent::__construct($context, $connectionName);
     }
 

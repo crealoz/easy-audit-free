@@ -13,15 +13,21 @@ use RegexIterator;
  */
 class FileGetter implements FileGetterInterface
 {
+    protected string $path;
+    protected string $pattern;
+    /**
+     * @readonly
+     */
+    private FilterGetter $filterGetter;
+    protected string $filter = '';
     protected array $ignoredFolders;
 
-    public function __construct(
-        protected string $path,
-        protected string $pattern,
-        private readonly FilterGetter $filterGetter,
-        protected string $filter = '',
-    )
+    public function __construct(string $path, string $pattern, FilterGetter $filterGetter, string $filter = '')
     {
+        $this->path = $path;
+        $this->pattern = $pattern;
+        $this->filterGetter = $filterGetter;
+        $this->filter = $filter;
     }
 
     /**
@@ -60,11 +66,11 @@ class FileGetter implements FileGetterInterface
             $output->writeln('It took '.round(microtime(true) - $start, 2).'s to get the filters');
         }
         foreach ($regex as $file) {
-            $progressBar?->advance();
+            ($nullsafeVariable1 = $progressBar) ? $nullsafeVariable1->advance() : null;
             $file = $file[0];
             $isIgnored = false;
             foreach ($this->ignoredFolders as $ignoredFolder) {
-                if (str_contains($file, $ignoredFolder)) {
+                if (strpos($file, $ignoredFolder) !== false) {
                     $isIgnored = true;
                     break;
                 }
@@ -76,7 +82,7 @@ class FileGetter implements FileGetterInterface
         if (isset($start)) {
             $output->writeln(PHP_EOL.'Files filtered in '.round(microtime(true) - $start, 2).'s');
         }
-        $progressBar?->finish();
+        ($nullsafeVariable2 = $progressBar) ? $nullsafeVariable2->finish() : null;
         return $files;
     }
 

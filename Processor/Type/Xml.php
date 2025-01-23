@@ -24,7 +24,7 @@ class Xml extends AbstractType implements TypeInterface
                     $processor->setFile($xmlFile);
                 }
                 $processor->run();
-                $progressBar?->advance();
+                ($nullsafeVariable1 = $progressBar) ? $nullsafeVariable1->advance() : null;
                 if ($hasErrors === false && $processor->hasErrors()) {
                     $hasErrors = true;
                 }

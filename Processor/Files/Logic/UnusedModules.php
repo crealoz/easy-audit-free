@@ -10,6 +10,10 @@ use Magento\Framework\Exception\FileSystemException;
 
 class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInterface
 {
+    /**
+     * @readonly
+     */
+    private GetModuleConfig $getModuleConfig;
     public function getAuditSection(): string
     {
         return __('Logic');
@@ -22,9 +26,10 @@ class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInte
 
     public function __construct(
         AuditStorage $auditStorage,
-        private readonly GetModuleConfig $getModuleConfig
+        GetModuleConfig $getModuleConfig
     )
     {
+        $this->getModuleConfig = $getModuleConfig;
         parent::__construct($auditStorage);
     }
 

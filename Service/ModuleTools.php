@@ -11,13 +11,28 @@ use Magento\Framework\Module\ModuleList;
 class ModuleTools
 {
 
-    public function __construct(
-        protected readonly DriverInterface $driver,
-        private readonly FullModuleList    $fullModuleList,
-        private readonly ModuleList        $moduleList,
-        private readonly ModulePaths       $modulePath
-    )
+    /**
+     * @readonly
+     */
+    protected DriverInterface $driver;
+    /**
+     * @readonly
+     */
+    private FullModuleList $fullModuleList;
+    /**
+     * @readonly
+     */
+    private ModuleList $moduleList;
+    /**
+     * @readonly
+     */
+    private ModulePaths $modulePath;
+    public function __construct(DriverInterface $driver, FullModuleList    $fullModuleList, ModuleList        $moduleList, ModulePaths       $modulePath)
     {
+        $this->driver = $driver;
+        $this->fullModuleList = $fullModuleList;
+        $this->moduleList = $moduleList;
+        $this->modulePath = $modulePath;
     }
 
 
@@ -47,7 +62,7 @@ class ModuleTools
         if ($filePath === '') {
             throw new \InvalidArgumentException(__('File path is empty'));
         }
-        if (!$isVendor && str_contains($filePath, 'vendor')) {
+        if (!$isVendor && strpos($filePath, 'vendor') !== false) {
             $isVendor = true;
         }
         try {

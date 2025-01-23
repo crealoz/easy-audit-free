@@ -13,11 +13,18 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 class RunAuditCommand extends Command
 {
+    protected \Crealoz\EasyAudit\Service\Audit $auditService;
+    /**
+     * @readonly
+     */
+    protected AuditStorage $auditStorage;
     public function __construct(
-        protected \Crealoz\EasyAudit\Service\Audit $auditService,
-        protected readonly AuditStorage $auditStorage
+        \Crealoz\EasyAudit\Service\Audit $auditService,
+        AuditStorage $auditStorage
     )
     {
+        $this->auditService = $auditService;
+        $this->auditStorage = $auditStorage;
         parent::__construct();
     }
 

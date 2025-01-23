@@ -6,7 +6,7 @@ class ArgumentTypeChecker
 {
     public function isArgumentModel(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Model');
+        return strpos($argumentName, 'Model') !== false;
     }
 
     /**
@@ -17,7 +17,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentAnInterfaceOrFactory(string $argumentName): bool
     {
-        return str_ends_with($argumentName, 'Factory') || str_ends_with($argumentName, 'Interface');
+        return substr_compare($argumentName, 'Factory', -strlen('Factory')) === 0 || substr_compare($argumentName, 'Interface', -strlen('Interface')) === 0;
     }
 
     /**
@@ -28,7 +28,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentMagentoModel(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Magento\Framework\Model');
+        return strpos($argumentName, 'Magento\Framework\Model') !== false;
     }
 
     /**
@@ -50,7 +50,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentContext(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Context');
+        return strpos($argumentName, 'Context') !== false;
     }
 
     /**
@@ -61,7 +61,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentStdLib(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Stdlib');
+        return strpos($argumentName, 'Stdlib') !== false;
     }
 
     /**
@@ -72,7 +72,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentSerializer(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Serializer');
+        return strpos($argumentName, 'Serializer') !== false;
     }
 
     /**
@@ -92,7 +92,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentSession(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Session');
+        return strpos($argumentName, 'Session') !== false;
     }
 
     /**
@@ -102,7 +102,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentHelper(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Helper');
+        return strpos($argumentName, 'Helper') !== false;
     }
 
     /**
@@ -113,7 +113,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentFileSystem(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Magento\Framework\Filesystem');
+        return strpos($argumentName, 'Magento\Framework\Filesystem') !== false;
     }
 
     /**
@@ -123,7 +123,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentCollection(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Collection');
+        return strpos($argumentName, 'Collection') !== false;
     }
 
     /**
@@ -133,7 +133,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentRepository(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Repository');
+        return strpos($argumentName, 'Repository') !== false;
     }
 
     /**
@@ -143,7 +143,7 @@ class ArgumentTypeChecker
      */
     public function isArgumentGenerator(string $argumentName): bool
     {
-        return str_contains($argumentName, 'Generator');
+        return strpos($argumentName, 'Generator') !== false;
     }
 
     /**
@@ -153,6 +153,6 @@ class ArgumentTypeChecker
      */
     public function isArgumentResourceModel(string $argumentName): bool
     {
-        return str_contains($argumentName, 'ResourceModel');
+        return strpos($argumentName, 'ResourceModel') !== false;
     }
 }

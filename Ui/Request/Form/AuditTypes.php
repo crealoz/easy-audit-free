@@ -7,11 +7,13 @@ use Psr\Log\LoggerInterface;
 
 class AuditTypes implements \Magento\Framework\Data\OptionSourceInterface
 {
-    public function __construct(
-        private readonly Audit $auditService
-    )
+    /**
+     * @readonly
+     */
+    private Audit $auditService;
+    public function __construct(Audit $auditService)
     {
-
+        $this->auditService = $auditService;
     }
 
     public function toOptionArray()
@@ -35,7 +37,7 @@ class AuditTypes implements \Magento\Framework\Data\OptionSourceInterface
             if (is_array($subProcessors)) {
                 $result = array_merge($result, $this->recursivelyGetProcessor($subProcessors, $currentPath));
             } else {
-                $result[$processorName] = $currentPath . ':' . $subProcessors::class;
+                $result[$processorName] = $currentPath . ':' . get_class($subProcessors);
             }
         }
         return $result;

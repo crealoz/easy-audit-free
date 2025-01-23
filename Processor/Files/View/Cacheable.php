@@ -51,7 +51,7 @@ class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
             foreach ($blocksNotCached as $block) {
                 $blockName = (string) $block->attributes()->name;
                 foreach ($this->allowedAreas as $area) {
-                    if (str_contains($blockName, $area)) {
+                    if (strpos($blockName, $area) !== false) {
                         continue 2;
                     }
                 }

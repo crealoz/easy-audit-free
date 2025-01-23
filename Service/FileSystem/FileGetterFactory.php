@@ -8,11 +8,15 @@ use Magento\Framework\ObjectManagerInterface;
 class FileGetterFactory
 {
 
-    public function __construct(
-        protected ObjectManagerInterface $objectManager,
-        private readonly array $fileGetters = []
-    ) {
-
+    protected ObjectManagerInterface $objectManager;
+    /**
+     * @readonly
+     */
+    private array $fileGetters = [];
+    public function __construct(ObjectManagerInterface $objectManager, array $fileGetters = [])
+    {
+        $this->objectManager = $objectManager;
+        $this->fileGetters = $fileGetters;
     }
 
     public function create(string $type): FileGetterInterface

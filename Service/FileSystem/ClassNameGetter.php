@@ -12,13 +12,28 @@ use Magento\Framework\Filesystem\Io\File;
 class ClassNameGetter
 {
 
-    public function __construct(
-        protected readonly DriverInterface $driver,
-        protected readonly File $io,
-        private readonly ModulePaths $modulePaths,
-        private readonly ModuleTools $moduleTools
-    )
+    /**
+     * @readonly
+     */
+    protected DriverInterface $driver;
+    /**
+     * @readonly
+     */
+    protected File $io;
+    /**
+     * @readonly
+     */
+    private ModulePaths $modulePaths;
+    /**
+     * @readonly
+     */
+    private ModuleTools $moduleTools;
+    public function __construct(DriverInterface $driver, File $io, ModulePaths $modulePaths, ModuleTools $moduleTools)
     {
+        $this->driver = $driver;
+        $this->io = $io;
+        $this->modulePaths = $modulePaths;
+        $this->moduleTools = $moduleTools;
     }
 
     /**
@@ -54,10 +69,10 @@ class ClassNameGetter
         if ($fileContent == null) {
             throw new FileSystemException(__('Could not read the file %1', $filePathName));
         }
-        if (!str_contains($fileContent, 'namespace ' . $namespace)) {
+        if (strpos($fileContent, 'namespace ' . $namespace) === false) {
             throw new NotAClassException(__('The file %1 does not contain a namespace %2', $filePathName, $namespace));
         }
-        if (!str_contains($fileContent, 'class ' . $className)) {
+        if (strpos($fileContent, 'class ' . $className) === false) {
             throw new NotAClassException(__('The file %1 does not contain a class named %2', $filePathName, $className));
         }
         return $fullClassName;
@@ -91,7 +106,7 @@ class ClassNameGetter
      */
     public function isModuleRegistrationFile(string $filePath): bool
     {
-        return str_contains($filePath, 'registration.php');
+        return strpos($filePath, 'registration.php') !== false;
     }
 
     /**
@@ -101,7 +116,7 @@ class ClassNameGetter
      */
     public function isVendorClass(string $className): bool
     {
-        return str_contains($className, 'vendor');
+        return strpos($className, 'vendor') !== false;
     }
 
     /**
@@ -111,7 +126,7 @@ class ClassNameGetter
      */
     public function isAppClass(string $className): bool
     {
-        return str_contains($className, 'app/code');
+        return strpos($className, 'app/code') !== false;
     }
 
 

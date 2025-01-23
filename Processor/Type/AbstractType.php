@@ -11,6 +11,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractType implements TypeInterface
 {
+    /**
+     * @readonly
+     */
+    protected FileGetterFactory $fileGetterFactory;
+    /**
+     * @readonly
+     */
+    protected LoggerInterface $logger;
     protected array $results = [];
 
     protected array $fileGetters = [];
@@ -19,10 +27,10 @@ abstract class AbstractType implements TypeInterface
 
     protected bool $hasErrors = false;
 
-    public function __construct(
-        protected readonly FileGetterFactory $fileGetterFactory,
-        protected readonly LoggerInterface $logger
-    ) {
+    public function __construct(FileGetterFactory $fileGetterFactory, LoggerInterface $logger)
+    {
+        $this->fileGetterFactory = $fileGetterFactory;
+        $this->logger = $logger;
     }
 
     public function hasErrors(): bool
