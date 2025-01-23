@@ -19,14 +19,10 @@ class SizeCalculation
      * size of the title.
      *
      * @param $subResults
-     * @param bool $getFirstSection
      * @return int
      */
-    public function calculateTitlePlusFirstSubsectionSize($subResults, $getFirstSection = false): int
+    public function calculateTitlePlusFirstSubsectionSize($subResults): int
     {
-        if ($getFirstSection) {
-            $subResults = $this->getFirstSection($subResults);
-        }
         $size = 0;
         $size += 44;
         $size += $this->calculateSectionIntroSize(reset($subResults));
@@ -109,37 +105,6 @@ class SizeCalculation
             $text = (string)$text;
         }
         return $this->calculateNumberOfLines($text, $columnCount) * $this->lineHeight;
-    }
-
-    /**
-     * Get the first section of the subresults (errors, warnings or suggestions)
-     *
-     * @param $subResults
-     * @return array
-     */
-    private function getFirstSection($subResults): array
-    {
-        if (isset($subResults['errors'])) {
-            return $subResults['errors'];
-        } elseif (isset($subResults['warnings'])) {
-            return $subResults['warnings'];
-        } elseif (isset($subResults['suggestions'])) {
-            return $subResults['suggestions'];
-        }
-    }
-
-    /**
-     * Calculate the size of the intro section of the PDF. It is not made to be used with the intro of the sections.
-     *
-     * @param $intro
-     * @return int
-     */
-    public function calculateIntroSize($intro): int
-    {
-        $size = 0;
-        $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', $intro['summary'])) * $this->lineHeight;
-
-        return $size;
     }
 
     /**

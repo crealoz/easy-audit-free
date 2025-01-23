@@ -3,7 +3,7 @@
 namespace Crealoz\EasyAudit\Ui\Audit\Listing;
 
 use Crealoz\EasyAudit\Api\FileRepositoryInterface;
-use Magento\Framework\Url;
+use Magento\Backend\Model\UrlInterface;
 use Magento\Framework\View\Element\UiComponent\ContextInterface;
 use Magento\Framework\View\Element\UiComponentFactory;
 
@@ -12,7 +12,7 @@ class FileColumn extends \Magento\Ui\Component\Listing\Columns\Column
     public function __construct(
         ContextInterface   $context,
         UiComponentFactory $uiComponentFactory,
-        private readonly \Magento\Backend\Model\Url $backendUrl,
+        private readonly UrlInterface $backendUrl,
         private readonly FileRepositoryInterface $fileRepository,
         array              $components = [],
         array              $data = []

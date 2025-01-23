@@ -11,7 +11,7 @@ class UnusedModules extends AbstractSection implements SectionInterface
     /**
      * @inheritDoc
      */
-    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
+    protected function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
         $pdfWriter->writeLine(__('Modules:'));
         foreach ($subresults['files'] as $module) {

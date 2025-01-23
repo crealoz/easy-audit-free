@@ -20,7 +20,7 @@ class SpecificClass extends AbstractSection implements SectionInterface
     /**
      * @inheritDoc
      */
-    public function writeContent(PDFWriter $pdfWriter, array $subresults): void
+    protected function writeContent(PDFWriter $pdfWriter, array $subresults): void
     {
         $pdfWriter->writeLine('Files:');
         foreach ($subresults['files'] as $file => $arguments) {
