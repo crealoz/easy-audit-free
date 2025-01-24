@@ -37,7 +37,7 @@ class ClassNameGetter
         if ($this->isVendorClass($filePathName)) {
             $fullClassName = $this->getNamespaceForVendorModule($filePathName);
         } elseif ($this->isAppClass($filePathName)) {
-            $fullClassName = preg_replace('/.*app\/code/', '', $filePathName);
+            $fullClassName = preg_replace('/.*app\/code/', '', (string) $filePathName);
         } else {
             throw new FileSystemException(__('The file %1 is not in app/code or vendor', $filePathName));
         }
@@ -77,7 +77,8 @@ class ClassNameGetter
         $namespaceParts = explode('_', $moduleName);
         $namespace = DIRECTORY_SEPARATOR . $namespaceParts[0] . DIRECTORY_SEPARATOR . $namespaceParts[1];
         if (isset($parts[3])) {
-            for ($i = 3; $i < count($parts); $i++) {
+            $counter = count($parts);
+            for ($i = 3; $i < $counter; $i++) {
                 $namespace .= DIRECTORY_SEPARATOR . $parts[$i];
             }
         }

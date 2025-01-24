@@ -7,6 +7,8 @@ use Crealoz\EasyAudit\Processor\Files\AbstractXmlProcessor;
 
 class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
 {
+    public const ORDER = 10;
+
     protected array $allowedAreas = ['sales', 'customer', 'gift', 'message'];
 
     public function getProcessorName(): string
@@ -51,7 +53,7 @@ class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
             foreach ($blocksNotCached as $block) {
                 $blockName = (string) $block->attributes()->name;
                 foreach ($this->allowedAreas as $area) {
-                    if (str_contains($blockName, $area)) {
+                    if (str_contains($blockName, (string) $area)) {
                         continue 2;
                     }
                 }

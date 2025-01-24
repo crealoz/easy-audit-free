@@ -10,7 +10,7 @@ use Magento\Framework\Phrase;
  */
 class MagentoFrameworkPluginExtension extends AuditProcessorException
 {
-    private string $pluggedFile;
+    private readonly string $pluggedFile;
 
     public function __construct(Phrase $phrase, string $erroneousFile, string $pluggedFile, \Exception $cause = null, $code = 0)
     {

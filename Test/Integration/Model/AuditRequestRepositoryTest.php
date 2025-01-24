@@ -6,6 +6,12 @@ use Crealoz\EasyAudit\Model\ResourceModel\AuditRequest;
 
 class AuditRequestRepositoryTest extends \PHPUnit\Framework\TestCase
 {
+    public $resource;
+    public $requestFactory;
+    public $searchResultFactory;
+    public $collectionProcessor;
+    public $collectionFactory;
+    public $auditRequestRepository;
     protected function setUp(): void
     {
         $this->resource = $this->createMock(AuditRequest::class);

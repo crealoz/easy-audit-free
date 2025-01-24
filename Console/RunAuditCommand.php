@@ -54,7 +54,7 @@ class RunAuditCommand extends Command
 
         $ignoredModules = $input->getOption('ignored-modules');
         if (!empty($ignoredModules)) {
-            $this->auditStorage->setIgnoredModules(explode(',',$ignoredModules));
+            $this->auditStorage->setIgnoredModules(explode(',',(string) $ignoredModules));
         }
 
         $this->auditService->run($output, $language);

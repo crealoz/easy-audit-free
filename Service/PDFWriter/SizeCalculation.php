@@ -16,17 +16,14 @@ class SizeCalculation
 
     /**
      * Try to get the first section of the subresults (errors, warnings or suggestions) and calculate its size plus the
-     * size of the title.
+     * size of the title (44).
      *
      * @param $subResults
      * @return int
      */
     public function calculateTitlePlusFirstSubsectionSize($subResults): int
     {
-        $size = 0;
-        $size += 44;
-        $size += $this->calculateSectionIntroSize(reset($subResults));
-        return $size;
+        return $this->calculateSectionIntroSize(reset($subResults)) + 44;
     }
 
     /**
@@ -43,11 +40,11 @@ class SizeCalculation
         }
         if (isset($subsection['explanation'])) {
             $size += $this->lineHeight;
-            $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', $subsection['explanation'])) * $this->lineHeight;
+            $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', (string) $subsection['explanation'])) * $this->lineHeight;
         }
         if (isset($subsection['caution'])) {
             $size += $this->lineHeight;
-            $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', $subsection['caution'])) * $this->lineHeight;
+            $size += $this->calculateNumberOfLines(preg_replace('/\s+/', ' ', (string) $subsection['caution'])) * $this->lineHeight;
         }
         return $size;
     }

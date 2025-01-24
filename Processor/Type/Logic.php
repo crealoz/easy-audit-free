@@ -8,6 +8,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class Logic extends AbstractType implements TypeInterface
 {
+    const ORDER = 20;
 
     /**
      * @inheritDoc

@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 
 class PDFWriterTest extends TestCase
 {
+    public $specificSectionGetter;
     private PDFWriter $pdfWriter;
     private Filesystem $filesystem;
     private SizeCalculation $sizeCalculation;

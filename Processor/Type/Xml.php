@@ -8,6 +8,7 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class Xml extends AbstractType implements TypeInterface
 {
+    const ORDER = 30;
 
     /**
      * @inheritDoc

@@ -64,7 +64,7 @@ class FileGetter implements FileGetterInterface
             $file = $file[0];
             $isIgnored = false;
             foreach ($this->ignoredFolders as $ignoredFolder) {
-                if (str_contains($file, $ignoredFolder)) {
+                if (str_contains((string) $file, (string) $ignoredFolder)) {
                     $isIgnored = true;
                     break;
                 }

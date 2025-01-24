@@ -4,6 +4,8 @@ namespace Crealoz\EasyAudit\Test\Unit\Model;
 
 class AuditStorageTest extends \PHPUnit\Framework\TestCase
 {
+    public $moduleReader;
+    public $auditStorage;
     protected function setUp(): void
     {
         $this->moduleReader = $this->getMockBuilder(\Magento\Framework\Module\Dir\Reader::class)

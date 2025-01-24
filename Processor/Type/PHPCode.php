@@ -8,6 +8,9 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class PHPCode extends AbstractType implements TypeInterface
 {
+
+    const ORDER = 10;
+
     /**
      * @inheritDoc
      */
@@ -16,7 +19,7 @@ class PHPCode extends AbstractType implements TypeInterface
         $hasErrors = false;
         foreach ($files as $codeFile) {
             // ignores autoload.php and registration.php
-            if (str_contains($codeFile, 'autoload.php') || str_contains($codeFile, 'registration.php')) {
+            if (str_contains((string) $codeFile, 'autoload.php') || str_contains((string) $codeFile, 'registration.php')) {
                 continue;
             }
             foreach ($processors as $processor) {

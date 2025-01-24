@@ -85,8 +85,9 @@ class PDFWriter
                 continue;
             }
             $isFirst = true;
+            ksort($sectionResults);
             foreach ($sectionResults as $subsection => $subResults) {
-                if (is_array($subResults) && !empty($subResults) && ($subResults['hasErrors'])) {
+                if (is_array($subResults) && $subResults !== [] && ($subResults['hasErrors'])) {
                     if ($isFirst) {
                         if ($this->columnCount !== 1) {
                             $this->setColumnCount(1);
@@ -181,7 +182,7 @@ class PDFWriter
             if ($this->y < 50) {
                 $this->switchColumnOrAddPage();
             }
-            $this->writeLine(ucfirst($scope) . ' files:');
+            $this->writeLine(ucfirst((string) $scope) . ' files:');
             foreach ($files as $file => $score) {
                 $file = $this->modulePaths->stripVendorOrApp($file);
                 if ($score >= 10) {
@@ -434,7 +435,7 @@ class PDFWriter
             }
         }
 
-        if (!empty($text)) {
+        if ($text !== '' && $text !== '0') {
             $lines[] = $text;
         }
 
@@ -500,7 +501,7 @@ class PDFWriter
         $x = $x ?? $this->x;
         $this->styleManager->setTitleStyle($this->currentPage);
         $this->y -= 15;
-        $this->currentPage->drawText(strtoupper($text), $x, $this->y);
+        $this->currentPage->drawText(strtoupper((string) $text), $x, $this->y);
         $this->y -= 30;
         $this->styleManager->setGeneralStyle($this->currentPage);
     }
@@ -524,12 +525,12 @@ class PDFWriter
         }
         if (isset($subsection['explanation'])) {
             // First we remove line feed, carriage return and tabs
-            $subsection['explanation'] = preg_replace('/\s+/', ' ', $subsection['explanation']);
+            $subsection['explanation'] = preg_replace('/\s+/', ' ', (string) $subsection['explanation']);
             $this->y -= 10;
             $this->writeLine($subsection['explanation']);
         }
         if (isset($subsection['caution'])) {
-            $subsection['caution'] = preg_replace('/\s+/', ' ', $subsection['caution']);
+            $subsection['caution'] = preg_replace('/\s+/', ' ', (string) $subsection['caution']);
             $this->writeLine($subsection['caution'], false, 8, 0, 0.85, 0, 0);
         }
     }

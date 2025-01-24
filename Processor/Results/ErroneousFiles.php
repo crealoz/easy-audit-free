@@ -37,7 +37,7 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessor
             $fileList[$scope][$filename] = $score;
         }
 
-        if (!empty($fileList)) {
+        if ($fileList !== []) {
             $summary[] = __('%1 files have a score equal to or higher than 10. These files must have really bad design pattern and/or not follow coding standards. Please check them with high priority.', $countHigherThan10);
             $summary[] = __('Beside that, %1 files have a score equal to or higher than 5. These files must be checked with medium priority.', $countHigherThan5);
 
@@ -60,13 +60,13 @@ class ErroneousFiles implements \Crealoz\EasyAudit\Api\Processor\ResultProcessor
      */
     private function getScope($file) : string
     {
-        if (str_contains($file, 'vendor')) {
+        if (str_contains((string) $file, 'vendor')) {
             return 'vendor';
         }
-        if (str_contains($file, 'code')) {
+        if (str_contains((string) $file, 'code')) {
             return 'code';
         }
-        if (str_contains($file, 'design')) {
+        if (str_contains((string) $file, 'design')) {
             return 'design';
         }
         return 'other';

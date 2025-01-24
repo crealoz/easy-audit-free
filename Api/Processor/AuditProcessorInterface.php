@@ -35,4 +35,6 @@ interface AuditProcessorInterface
     public function prepopulateResults(): void;
 
     public function hasErrors(): bool;
+
+    public function getOrder(): int;
 }

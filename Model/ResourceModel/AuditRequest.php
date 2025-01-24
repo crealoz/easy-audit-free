@@ -54,7 +54,7 @@ class AuditRequest extends AbstractDb
             return $this;
         }
         $files = $object->getFiles();
-        if (count($files) > 0) {
+        if ($files !== []) {
             $connection = $this->getConnection();
             $connection->delete(
                 $this->getTable('crealoz_easyaudit_request_file'),

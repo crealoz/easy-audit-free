@@ -37,10 +37,9 @@ class SpecificModel extends AbstractSection implements SectionInterface
      */
     public function calculateSize(array $subresults): int
     {
-        $size = $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize([$subresults]);
-        $size += $this->sizeCalculation->getSizeForText('Files:');
-        $size += $this->sizeCalculation->calculateMultidimensionalArraySize($subresults['files']);
-        return $size;
+        return $this->sizeCalculation->calculateTitlePlusFirstSubsectionSize([$subresults]) +
+            $this->sizeCalculation->getSizeForText('Files:') +
+            $this->sizeCalculation->calculateMultidimensionalArraySize($subresults['files']);
     }
 
     public function getLine($key, mixed $entry): string

@@ -12,6 +12,9 @@ use PHPUnit\Framework\TestCase;
 
 class DownloadTest extends TestCase
 {
+    public $requestMock;
+    public $responseMock;
+    public $tempDir;
     private $downloadController;
     private $contextMock;
     private $filesystemMock;

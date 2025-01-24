@@ -31,7 +31,7 @@ class AuditTypes implements \Magento\Framework\Data\OptionSourceInterface
     {
         $result = [];
         foreach ($processors as $processorName => $subProcessors) {
-            $currentPath = $path ? $path . '/' . $processorName : $processorName;
+            $currentPath = $path !== '' && $path !== '0' ? $path . '/' . $processorName : $processorName;
             if (is_array($subProcessors)) {
                 $result = array_merge($result, $this->recursivelyGetProcessor($subProcessors, $currentPath));
             } else {
