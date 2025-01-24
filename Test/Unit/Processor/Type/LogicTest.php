@@ -14,6 +14,12 @@ use Psr\Log\LoggerInterface;
 
 class LogicTest extends \PHPUnit\Framework\TestCase
 {
+    public $fileGetterFactory;
+    /**
+     * @var (\PHPUnit\Framework\MockObject\MockObject & \Psr\Log\LoggerInterface)
+     */
+    public $logger;
+    public $logic;
     protected function setUp(): void
     {
         $this->fileGetterFactory = $this->createMock(FileGetterFactory::class);

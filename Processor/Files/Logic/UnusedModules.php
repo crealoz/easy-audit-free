@@ -10,6 +10,8 @@ use Magento\Framework\Exception\FileSystemException;
 
 class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInterface
 {
+    public const ORDER = 10;
+
     public function getAuditSection(): string
     {
         return __('Logic');
@@ -59,7 +61,7 @@ class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInte
     public function run(): void
     {
         $unusedModules = $this->getModuleConfig->process($this->getArray());
-        if (!empty($unusedModules)) {
+        if ($unusedModules !== []) {
             foreach ($unusedModules as $module) {
                 $this->results['hasErrors'] = true;
                 $this->results['suggestions']['unusedModules']['files'][] = $module;

@@ -15,6 +15,13 @@ use Psr\Log\LoggerInterface;
 
 class PhpCodeTest extends \PHPUnit\Framework\TestCase
 {
+    public $fileGetterFactory;
+    /**
+     * @var (\PHPUnit\Framework\MockObject\MockObject & \Psr\Log\LoggerInterface)
+     */
+    public $logger;
+    public $logic;
+    public $logicMock;
     protected function setUp(): void
     {
         $this->fileGetterFactory = $this->createMock(FileGetterFactory::class);

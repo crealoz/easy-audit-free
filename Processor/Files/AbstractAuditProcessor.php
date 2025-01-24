@@ -8,6 +8,7 @@ use Crealoz\EasyAudit\Model\AuditStorage;
 
 abstract class AbstractAuditProcessor implements AuditProcessorInterface
 {
+    public const ORDER = 0;
 
     protected array $results = [];
 
@@ -70,6 +71,10 @@ abstract class AbstractAuditProcessor implements AuditProcessorInterface
         } else {
             $this->erroneousFiles[$file] += $score;
         }
+    }
 
+    public function getOrder(): int
+    {
+        return static::ORDER;
     }
 }

@@ -29,6 +29,12 @@ use Magento\Framework\Serialize\SerializerInterface;
  */
 class AuditTest extends TestCase
 {
+    public $logger;
+    public $auditRequestFactory;
+    public $auditRequestRepository;
+    public $serializer;
+    public $localization;
+    public $arrayTools;
     private Audit $audit;
     private PDFWriter $pdfWriter;
 

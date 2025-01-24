@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 abstract class AbstractType implements TypeInterface
 {
+    const ORDER = 0;
     protected array $results = [];
 
     protected array $fileGetters = [];
@@ -23,6 +24,11 @@ abstract class AbstractType implements TypeInterface
         protected readonly FileGetterFactory $fileGetterFactory,
         protected readonly LoggerInterface $logger
     ) {
+    }
+
+    public function getOrder(): int
+    {
+        return static::ORDER;
     }
 
     public function hasErrors(): bool
@@ -46,9 +52,9 @@ abstract class AbstractType implements TypeInterface
         foreach ($subTypes as $subType => $processors) {
             $fileGetter = $this->getFileGetter($subType);
             $files = $fileGetter->execute();
-            if (!empty($files)) {
+            if ($files !== []) {
                 $progressBar = null;
-                if ($output) {
+                if ($output instanceof \Symfony\Component\Console\Output\OutputInterface) {
                     $output->writeln("\r\nProcessing $subType files...");
                     /** if we are in command line, we display a bar */
                     $progressBar = new ProgressBar($output, $this->getProgressBarCount($processors, $files));
@@ -59,7 +65,7 @@ abstract class AbstractType implements TypeInterface
                     $this->hasErrors = true;
                 }
                 $this->manageResults($processors);
-                if ($output) {
+                if ($output instanceof \Symfony\Component\Console\Output\OutputInterface) {
                     $progressBar->finish();
                 }
             }
@@ -121,7 +127,7 @@ abstract class AbstractType implements TypeInterface
         foreach ($processors as $processor) {
             $results = $processor->getResults();
             $results['title'] = $processor->getProcessorName();
-            $this->results[$processor->getAuditSection()][$processor->getProcessorTag()] = $results;
+            $this->results[$processor->getAuditSection()][$processor->getOrder()] = $results;
             foreach ($processor->getErroneousFiles() as $file => $score) {
                 if (isset($this->erroneousFiles[$file])) {
                     $this->erroneousFiles[$file] += $score;

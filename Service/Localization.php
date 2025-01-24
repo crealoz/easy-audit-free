@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 
 class Localization
 {
+    public $languages;
     public function __construct(
         private readonly Filesystem $filesystem,
         private readonly Reader     $moduleReader,
@@ -35,7 +36,7 @@ class Localization
         $availableModulesLanguages = $this->filesystem->getDirectoryReadByPath($availableModulesLanguages)->read();
         $availableLanguages = [];
         foreach ($availableModulesLanguages as $availableModuleLanguage) {
-            $availableLanguages[] = substr($availableModuleLanguage, 0, 5);
+            $availableLanguages[] = substr((string) $availableModuleLanguage, 0, 5);
         }
         return $availableLanguages;
     }
@@ -81,10 +82,10 @@ class Localization
         if (in_array($locale, $availableLanguages)) {
             $fallbackLocale = $locale;
         }
-        if ($locale == "zh_HK" || $locale == "zh_TW") {
+        if ($locale === "zh_HK" || $locale === "zh_TW") {
             $fallbackLocale = "zh_HanT";
         }
-        if ($locale == "zh_CN") {
+        if ($locale === "zh_CN") {
             $fallbackLocale = "zh_HanS";
         }
         $languageWithoutRegion = substr($locale, 0, 2);

@@ -11,6 +11,7 @@ use Magento\Framework\Filesystem\DriverInterface;
 
 class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInterface
 {
+    public const ORDER = 30;
 
     public function getProcessorName(): string
     {
@@ -117,7 +118,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
              * Tries to find a FROM clause in the SQL query
              */
             preg_match('/SELECT.*FROM/', $code, $matches);
-            if (!empty($matches)) {
+            if ($matches !== []) {
                 $this->results['hasErrors'] = true;
                 $this->results['errors']['hardWrittenSQLSelect']['files'][] = $input;
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
@@ -128,7 +129,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
              * Tries to find an INTO clause in the SQL query
              */
             preg_match('/INSERT.*INTO/', $code, $matches);
-            if (!empty($matches)) {
+            if ($matches !== []) {
                 $this->results['hasErrors'] = true;
                 $this->results['warnings']['hardWrittenSQLInsert']['files'][] = $input;
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
@@ -139,7 +140,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
              * Tries to find a SET clause in the SQL query
              */
             preg_match('/UPDATE.*SET/', $code, $matches);
-            if (!empty($matches)) {
+            if ($matches !== []) {
                 $this->results['hasErrors'] = true;
                 $this->results['warnings']['hardWrittenSQLUpdate']['files'][] = $input;
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
@@ -150,7 +151,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
              * Tries to find a FROM clause in the SQL query
              */
             preg_match('/DELETE.*FROM/', $code, $matches);
-            if (!empty($matches)) {
+            if ($matches !== []) {
                 $this->results['hasErrors'] = true;
                 $this->results['errors']['hardWrittenSQLDelete']['files'][] = $input;
                 $this->addErroneousFile($input, Audit::PRIORITY_AVERAGE);
@@ -161,7 +162,7 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
              * Tries to find a JOIN sth ON clause in the SQL query
              */
             preg_match('/JOIN.*ON/', $code, $matches);
-            if (!empty($matches)) {
+            if ($matches !== []) {
                 $this->results['hasErrors'] = true;
                 $this->results['suggestions']['hardWrittenSQLJoin']['files'][] = $input;
             }

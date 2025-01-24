@@ -8,6 +8,7 @@ use Crealoz\EasyAudit\Processor\Files\AbstractAuditProcessor;
 
 class BlockViewModelRatio extends AbstractArrayProcessor implements ArrayProcessorInterface
 {
+    public const ORDER = 40;
 
     public function getProcessorName(): string
     {

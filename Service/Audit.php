@@ -76,7 +76,7 @@ class Audit
             $typeResults = $type->process($subTypes, $typeName, $output);
             if ($type->hasErrors()) {
                 $hasErrors = true;
-                $this->results = array_merge_recursive($typeResults, $this->results);
+                $this->results = $this->mergeResultsWithPreservedIndexes($this->results, $typeResults);
                 $erroneousFiles[$typeName] = $type->getErroneousFiles();
             }
         }
@@ -127,6 +127,18 @@ class Audit
         return '';
     }
 
+    private function mergeResultsWithPreservedIndexes(array $oldResults, array $newResults): array
+    {
+        foreach ($newResults as $key => $value) {
+            if (array_key_exists($key, $oldResults)) {
+                $oldResults[$key] = $this->mergeResultsWithPreservedIndexes($oldResults[$key], $value);
+            } else {
+                $oldResults[$key] = $value;
+            }
+        }
+        return $oldResults;
+    }
+
     /**
      * Initialize the results of the processors
      * @return void
@@ -150,7 +162,7 @@ class Audit
         foreach ($erroneousFiles as $files) {
             foreach ($files as $file => $score) {
                 // if file consists only in empty spaces and line feed, we skip it
-                if (trim($file) === '') {
+                if (trim((string) $file) === '') {
                     continue;
                 }
 

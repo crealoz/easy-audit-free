@@ -13,7 +13,7 @@ use Magento\Framework\ObjectManager\DefinitionInterface;
 
 class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterface
 {
-
+    public const ORDER = 10;
 
     public function __construct(
         AuditStorage $auditStorage,

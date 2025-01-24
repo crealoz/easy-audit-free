@@ -20,16 +20,7 @@ use Psr\Log\LoggerInterface;
 
 class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
 {
-
-    public function getProcessorName(): string
-    {
-        return __('Plugins');
-    }
-
-    public function getAuditSection(): string
-    {
-        return __('Dependency Injection (DI)');
-    }
+    public const ORDER = 10;
 
     public function __construct(
         AuditStorage $auditStorage,
@@ -41,6 +32,16 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
     )
     {
         parent::__construct($auditStorage);
+    }
+
+    public function getProcessorName(): string
+    {
+        return __('Plugins');
+    }
+
+    public function getAuditSection(): string
+    {
+        return __('Dependency Injection (DI)');
     }
 
     public function prepopulateResults(): void

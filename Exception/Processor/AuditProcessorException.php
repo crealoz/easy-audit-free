@@ -10,7 +10,7 @@ use Magento\Framework\Phrase;
  */
 class AuditProcessorException extends LocalizedException
 {
-    private string $erroneousFile;
+    private readonly string $erroneousFile;
 
     public function __construct(Phrase $phrase, string $erroneousFile, \Exception $cause = null, $code = 0)
     {

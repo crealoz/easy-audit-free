@@ -14,4 +14,6 @@ interface TypeInterface
     public function initResults(array $subTypes): void;
 
     public function hasErrors(): bool;
+
+    public function getOrder(): int;
 }

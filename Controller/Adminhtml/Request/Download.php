@@ -67,6 +67,7 @@ class Download extends \Magento\Backend\App\Action implements \Magento\Framework
             $this->messageManager->addErrorMessage(__('An error occurred while downloading the file.'));
             return $this->_redirect('*/*/index');
         }
+        return null;
     }
 
     /**

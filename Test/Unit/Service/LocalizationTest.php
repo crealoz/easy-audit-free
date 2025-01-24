@@ -14,6 +14,7 @@ use Psr\Log\LoggerInterface;
 
 class LocalizationTest extends TestCase
 {
+    public $directoryRead;
     private $filesystem;
     private $moduleReader;
     private $translator;
