@@ -13,6 +13,8 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
 {
     public const ORDER = 30;
 
+    public const TAG = 'hardWrittenSQL';
+
     public function getProcessorName(): string
     {
         return __('Hard Written SQL');
@@ -167,10 +169,5 @@ class HardWrittenSQL extends AbstractFileProcessor implements FileProcessorInter
                 $this->results['suggestions']['hardWrittenSQLJoin']['files'][] = $input;
             }
         }
-    }
-
-    public function getProcessorTag(): string
-    {
-        return 'hardWrittenSQL';
     }
 }

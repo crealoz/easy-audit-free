@@ -164,7 +164,7 @@ class FileRepositoryTest extends TestCase
         $this->searchCriteriaBuilder->method('addFilter')->with('request_id', 1)->willReturnSelf();
         $this->searchCriteriaBuilder->method('create')->willReturn($searchCriteria);
         $this->searchResultFactory->method('create')->willReturn($searchResults);
-        $collection->method('getItems')->willReturn(['file1', 'file2']);
+        $collection->method('getSize')->willReturn(2);
         $this->collectionFactory->method('create')->willReturn($collection);
 
         $this->assertTrue($this->fileRepository->hasFiles(1));

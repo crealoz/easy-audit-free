@@ -9,6 +9,8 @@ class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
 {
     public const ORDER = 10;
 
+    public const TAG = 'cacheable';
+
     protected array $allowedAreas = ['sales', 'customer', 'gift', 'message'];
 
     public function getProcessorName(): string
@@ -60,10 +62,5 @@ class Cacheable extends AbstractXmlProcessor implements FileProcessorInterface
                 $this->results['suggestions']['useCacheable']['files'][] = $blockName;
             }
         }
-    }
-
-    public function getProcessorTag(): string
-    {
-        return 'cacheable';
     }
 }

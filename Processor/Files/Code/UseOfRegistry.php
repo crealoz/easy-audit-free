@@ -15,6 +15,8 @@ class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterf
 {
     public const ORDER = 10;
 
+    public const TAG = 'useOfRegistry';
+
     public function __construct(
         AuditStorage $auditStorage,
         private readonly ClassNameGetter $classNameGetter,
@@ -95,10 +97,5 @@ class UseOfRegistry extends AbstractFileProcessor implements FileProcessorInterf
             }
         }
 
-    }
-
-    public function getProcessorTag(): string
-    {
-        return 'useOfRegistry';
     }
 }

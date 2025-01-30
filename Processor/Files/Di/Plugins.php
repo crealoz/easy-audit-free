@@ -22,6 +22,8 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
 {
     public const ORDER = 10;
 
+    public const TAG = 'plugins';
+
     public function __construct(
         AuditStorage $auditStorage,
         private readonly AroundToAfter       $aroundToAfter,
@@ -280,10 +282,5 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
         } catch (\ReflectionException $e) {
             $this->logger->error($e->getMessage());
         }
-    }
-
-    public function getProcessorTag(): string
-    {
-        return 'plugins';
     }
 }

@@ -12,6 +12,8 @@ class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInte
 {
     public const ORDER = 10;
 
+    public const TAG = 'unusedModules';
+
     public function getAuditSection(): string
     {
         return __('Logic');
@@ -67,10 +69,5 @@ class UnusedModules extends AbstractArrayProcessor implements ArrayProcessorInte
                 $this->results['suggestions']['unusedModules']['files'][] = $module;
             }
         }
-    }
-
-    public function getProcessorTag(): string
-    {
-        return 'unusedModules';
     }
 }

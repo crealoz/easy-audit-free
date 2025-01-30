@@ -89,10 +89,14 @@ class FileRepository implements \Crealoz\EasyAudit\Api\FileRepositoryInterface
         return $collection->getItems();
     }
 
+    /**
+     * @inheritdoc
+     */
     public function hasFiles($requestId): bool
     {
         $searchCriteria = $this->searchCriteriaBuilder->addFilter('request_id', $requestId)->create();
-        $collection = $this->getList($searchCriteria);
-        return $collection->getTotalCount() > 0;
+        $collection = $this->collectionFactory->create();
+        $this->collectionProcessor->process($searchCriteria, $collection);
+        return $collection->getSize() > 0;
     }
 }
