@@ -23,6 +23,8 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
 {
     public const ORDER = 20;
 
+    public const TAG = 'specificClassInjection';
+
     private array $ignoredClass = [
         'Magento\Framework\Escaper',
         'Magento\Framework\Data\Collection\AbstractDb',
@@ -219,10 +221,5 @@ class SpecificClassInjection extends AbstractFileProcessor implements FileProces
     private function isClassRepository($argumentName): bool
     {
         return str_contains((string) $argumentName, 'Repository');
-    }
-
-    public function getProcessorTag(): string
-    {
-        return 'specificClassInjection';
     }
 }

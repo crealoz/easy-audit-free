@@ -10,6 +10,8 @@ abstract class AbstractAuditProcessor implements AuditProcessorInterface
 {
     public const ORDER = 0;
 
+    const TAG = 'abstract';
+
     protected array $results = [];
 
     protected array $erroneousFiles = [];
@@ -18,6 +20,11 @@ abstract class AbstractAuditProcessor implements AuditProcessorInterface
         protected readonly AuditStorage $auditStorage
     )
     {
+    }
+
+    public function getProcessorName(): string
+    {
+        return static::TAG;
     }
 
     public function hasErrors(): bool
@@ -76,5 +83,10 @@ abstract class AbstractAuditProcessor implements AuditProcessorInterface
     public function getOrder(): int
     {
         return static::ORDER;
+    }
+
+    public function getProcessorTag(): string
+    {
+        return static::TAG;
     }
 }
