@@ -10,7 +10,7 @@ class BlockViewModelRatio extends AbstractArrayProcessor implements ArrayProcess
 {
     public const ORDER = 40;
 
-    public const TAG = 'blockViewModelRatio';
+    public const TAG = 'BlockVsViewModelRatio';
 
     public function getProcessorName(): string
     {
