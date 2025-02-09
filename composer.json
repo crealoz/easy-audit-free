@@ -15,7 +15,8 @@
         "magento/framework": "*",
         "ext-simplexml": "*",
         "phpunit/phpunit": "*",
-        "ext-zip": "*"
+        "ext-zip": "*",
+        "ext-curl": "*"
     },
     "type": "magento2-module",
     "version": "0.2.2",

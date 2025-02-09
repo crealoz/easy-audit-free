@@ -30,12 +30,15 @@ class ClassNameGetter
      */
     public function getClassFullNameFromFile($filePathName): string
     {
+        if ($this->isAnInterface($filePathName)) {
+            throw new NotAClassException(__('The file %1 is an interface', $filePathName));
+        }
         if ($this->isModuleRegistrationFile($filePathName)) {
             throw new NotAClassException(__('The file %1 is a registration file', $filePathName));
         }
         // We first remove the .php extension
         if ($this->isVendorClass($filePathName)) {
-            $fullClassName = $this->getNamespaceForVendorModule($filePathName);
+            $fullClassName = $this->getNamespaceForVendorModule($filePathName) . DIRECTORY_SEPARATOR . $this->io->getPathInfo($filePathName)['filename'];
         } elseif ($this->isAppClass($filePathName)) {
             $fullClassName = preg_replace('/.*app\/code/', '', (string) $filePathName);
         } else {
@@ -63,6 +66,14 @@ class ClassNameGetter
         return $fullClassName;
     }
 
+    public function isAnInterface($filePath): bool
+    {
+        if (str_ends_with($filePath, 'Interface.php')) {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Get the namespace for a vendor module
      * @param string $filePath
@@ -71,12 +82,12 @@ class ClassNameGetter
      */
     private function getNamespaceForVendorModule(string $filePath): string
     {
-        $parts = explode('/', $filePath);
-        $moduleXmlPath = $this->modulePaths->getDeclarationXml($filePath, true);
-        $moduleName = $this->moduleTools->getModuleNameByModuleXml($moduleXmlPath);
+        $moduleName = $this->moduleTools->getModuleNameByAnyFile($filePath, true);
         $namespaceParts = explode('_', $moduleName);
         $namespace = DIRECTORY_SEPARATOR . $namespaceParts[0] . DIRECTORY_SEPARATOR . $namespaceParts[1];
-        if (isset($parts[3])) {
+        preg_match('/vendor\/[^\/]+\/[^\/]+\/(.*)/', $filePath, $matches);
+        $parts = explode(DIRECTORY_SEPARATOR, $matches[1]);
+        if (isset($parts[0])) {
             $counter = count($parts);
             for ($i = 3; $i < $counter; $i++) {
                 $namespace .= DIRECTORY_SEPARATOR . $parts[$i];

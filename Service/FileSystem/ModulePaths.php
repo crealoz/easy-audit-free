@@ -7,6 +7,7 @@ use Magento\Framework\Filesystem;
 
 class ModulePaths
 {
+    private array $moduleNameByBaseDir = [];
     public function __construct(
         private readonly Filesystem       $filesystem,
     )
@@ -22,19 +23,8 @@ class ModulePaths
      */
     public function getDeclarationXml(string $filePath, bool $isVendor = false): string
     {
-        $filePath = $this->removeBaseNameFromPath($filePath);
-        $parts = explode('/', $filePath);
-        if (!isset($parts[3])) {
-            return '';
-        }
-        if (!isset($parts[2])) {
-            return '';
-        }
-        $moduleXmlPath = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . $parts[3] . DIRECTORY_SEPARATOR . 'etc/module.xml';
-        if ($isVendor) {
-            $moduleXmlPath = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . 'etc/module.xml';
-        }
-        return $moduleXmlPath;
+        $baseDir = $this->getModuleBaseDir($filePath, $isVendor);
+        return $baseDir . DIRECTORY_SEPARATOR . 'etc/module.xml';
     }
 
     /**
@@ -79,12 +69,16 @@ class ModulePaths
      */
     public function getModuleBaseDir(string $filePath, bool $isVendor = false): string
     {
-        $parts = explode('/', $filePath);
-        $baseDir = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2] . DIRECTORY_SEPARATOR . $parts[3];
-        if ($isVendor) {
-            $baseDir = $parts[0] . DIRECTORY_SEPARATOR . $parts[1] . DIRECTORY_SEPARATOR . $parts[2];
+        $installationPath = $this->filesystem->getDirectoryRead(DirectoryList::ROOT)->getAbsolutePath();
+        $codeDir = $isVendor ? 'vendor' : 'app/code';
+        $strippedPath = str_replace($installationPath, '', $filePath);
+        $strippedPath = str_replace($codeDir, '', $strippedPath);
+        $strippedPath = trim($strippedPath, DIRECTORY_SEPARATOR);
+        $parts = explode(DIRECTORY_SEPARATOR, $strippedPath);
+        if (!isset($parts[0]) || !isset($parts[1])) {
+            return '';
         }
-        return $baseDir;
+        return str_replace('//', '/', $installationPath . DIRECTORY_SEPARATOR . $codeDir . DIRECTORY_SEPARATOR . $parts[0] . DIRECTORY_SEPARATOR . $parts[1]);
     }
 
     /**
