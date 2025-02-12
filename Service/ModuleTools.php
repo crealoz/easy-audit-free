@@ -10,6 +10,9 @@ use Magento\Framework\Module\ModuleList;
 
 class ModuleTools
 {
+    private array $moduleNamesByModuleXml = [];
+
+    private array $moduleNamesByFile = [];
 
     public function __construct(
         protected readonly DriverInterface $driver,
@@ -31,12 +34,20 @@ class ModuleTools
      */
     public function getModuleNameByModuleXml(string $input): string
     {
+        if (isset($this->moduleNamesByModuleXml[$input])) {
+            return $this->moduleNamesByModuleXml[$input];
+        }
         if (!$this->driver->isExists($input)) {
             throw new \InvalidArgumentException(__('File not found: %1', $input));
         }
         $content = $this->driver->fileGetContents($input);
         $xml = new \SimpleXMLElement($content);
-        return (string)$xml->module['name'];
+        $moduleName = (string)$xml->module['name'];
+        if ($moduleName === '') {
+            throw new \InvalidArgumentException(__('Module name not found in %1', $input));
+        }
+        $this->moduleNamesByModuleXml[$input] = $moduleName;
+        return $moduleName;
     }
 
     /**
@@ -44,6 +55,9 @@ class ModuleTools
      */
     public function getModuleNameByAnyFile(string $filePath, bool $isVendor = false): string
     {
+        if (isset($this->moduleNamesByFile[$filePath])) {
+            return $this->moduleNamesByFile[$filePath];
+        }
         if ($filePath === '') {
             throw new \InvalidArgumentException(__('File path is empty'));
         }
@@ -52,11 +66,16 @@ class ModuleTools
         }
         try {
             $input = $this->modulePath->getDeclarationXml($filePath, $isVendor);
-            return $this->getModuleNameByModuleXml($input);
+            $moduleName = $this->getModuleNameByModuleXml($input);
         } catch (\InvalidArgumentException $e) {
             $input = $this->modulePath->getDeclarationXml($filePath, !$isVendor);
-            return $this->getModuleNameByModuleXml($input);
+            $moduleName = $this->getModuleNameByModuleXml($input);
         }
+        if ($moduleName === '') {
+            throw new \InvalidArgumentException(__('Module name not found in %1', $filePath));
+        }
+        $this->moduleNamesByFile[$filePath] = $moduleName;
+        return $moduleName;
     }
 
     /**

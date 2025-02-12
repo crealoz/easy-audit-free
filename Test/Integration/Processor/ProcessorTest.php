@@ -10,7 +10,6 @@ class ProcessorTest extends TestCase
 {
     protected array $processors = [];
 
-
     protected function setUp(): void
     {
         $baseDir = __DIR__ . '/../../../Processor/Files/';
@@ -49,7 +48,7 @@ class ProcessorTest extends TestCase
 
                     // Appeler setFile sur la classe parent
                     if (method_exists($processor, 'setFile')) {
-                        $processor->setFile('fake_file_path'); // Faux fichier
+                        $processor->setFile('/app/code/Fake/Path/Model/File.php'); // Faux fichier
                     }
 
                     if (method_exists($processor, 'setArray')) {

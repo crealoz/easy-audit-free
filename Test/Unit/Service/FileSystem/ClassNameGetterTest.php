@@ -53,11 +53,11 @@ class ClassNameGetterTest extends TestCase
     {
         $filePath = 'vendor/crealoz/easy-audit/Service/FileSystem/ClassNameGetter.php';
         $fileContent = '<?php namespace Crealoz\EasyAudit\Service\FileSystem; class ClassNameGetter {}';
-        $this->modulePathsMock->method('getDeclarationXml')
-            ->with($filePath, true)
-            ->willReturn('vendor/crealoz/easy-audit/etc/module.xml');
-        $this->moduleToolsMock->method('getModuleNameByModuleXml')
-            ->with('vendor/crealoz/easy-audit/etc/module.xml')
+        $this->ioMock->method('getPathInfo')
+            ->with($filePath)
+            ->willReturn(['dirname' => 'vendor/crealoz/easy-audit/Service/FileSystem', 'basename' => 'ClassNameGetter.php', 'extension' => 'php', 'filename' => 'ClassNameGetter']);
+        $this->moduleToolsMock->method('getModuleNameByAnyFile')
+            ->with('vendor/crealoz/easy-audit/Service/FileSystem/ClassNameGetter.php', true)
             ->willReturn('Crealoz_EasyAudit');
 
         $this->driverMock->method('fileGetContents')

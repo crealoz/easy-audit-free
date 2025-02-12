@@ -66,6 +66,9 @@
                         <item name="specificclassinjection" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\SpecificClassInjection</item>
                         <item name="useofregistry" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\UseOfRegistry</item>
                     </item>
+                    <item name="helpers" xsi:type="array">
+                        <item name="general" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\Helpers</item>
+                    </item>
                 </item>
                 <item name="logic" xsi:type="array">
                     <item name="blockvm" xsi:type="array">
@@ -120,6 +123,12 @@
             <argument name="pattern" xsi:type="string">/^.+module\.xml$/i</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Crealoz\EasyAudit\Service\FileSystem\HelpersGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
+        <arguments>
+            <argument name="path" xsi:type="string">app/code/</argument>
+            <argument name="pattern" xsi:type="string">/^.+\/Helper\/.*\.php$/i</argument>
+        </arguments>
+    </virtualType>
     <type name="Crealoz\EasyAudit\Service\FileSystem\FileGetterFactory">
         <arguments>
             <argument name="fileGetters" xsi:type="array">
@@ -129,6 +138,7 @@
                 <item name="php" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\PhpGetter</item>
                 <item name="blockvm" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\BlockVmGetter</item>
                 <item name="localunusedmodules" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\ModuleXmlGetter</item>
+                <item name="helpers" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\HelpersGetter</item>
             </argument>
         </arguments>
     </type>
@@ -174,6 +184,11 @@
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
     </type>
+    <type name="Crealoz\EasyAudit\Processor\Files\Code\Helpers">
+        <arguments>
+            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+        </arguments>
+    </type>
     <!-- End of change default preference of DriverInterface -->
     <!-- PDF Writer -->
     <type name="Crealoz\EasyAudit\Service\PDFWriter">
@@ -191,6 +206,7 @@
                 <item name="manageUnusedModules" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\UnusedModules</item>
                 <item name="manageSpecificClassInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificClass</item>
                 <item name="manageSpecificModelInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificModel</item>
+                <item name="manageHelperInsteadOfViewModel" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\HelperInsteadOfViewModel</item>
             </argument>
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
