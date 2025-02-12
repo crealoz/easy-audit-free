@@ -1,0 +1,5 @@
+<?php
+use Crealoz\EasyAudit\Test\Mock\ExtendedHelper;
+$extendedHelper = $this->helper('Crealoz\EasyAudit\Test\Mock\ExtendedHelper');
+$taxHelper = $this->helper('Magento\Tax\Helper\Data');
+$anotherExtendedHelper = $this->helper(ExtendedHelper::class);

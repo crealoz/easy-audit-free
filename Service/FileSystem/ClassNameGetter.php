@@ -88,8 +88,8 @@ class ClassNameGetter
         preg_match('/vendor\/[^\/]+\/[^\/]+\/(.*)/', $filePath, $matches);
         $parts = explode(DIRECTORY_SEPARATOR, $matches[1]);
         if (isset($parts[0])) {
-            $counter = count($parts);
-            for ($i = 3; $i < $counter; $i++) {
+            $counter = count($parts) - 1;
+            for ($i = 0; $i < $counter; $i++) {
                 $namespace .= DIRECTORY_SEPARATOR . $parts[$i];
             }
         }

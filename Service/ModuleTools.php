@@ -38,8 +38,6 @@ class ModuleTools
             return $this->moduleNamesByModuleXml[$input];
         }
         if (!$this->driver->isExists($input)) {
-            dump('file does not exist');
-            dump($input);
             throw new \InvalidArgumentException(__('File not found: %1', $input));
         }
         $content = $this->driver->fileGetContents($input);
