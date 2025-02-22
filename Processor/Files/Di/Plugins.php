@@ -217,7 +217,7 @@ class Plugins extends AbstractXmlProcessor implements FileProcessorInterface
     {
         $pluggingClassParts = explode('\\', $pluggingClass);
         $pluggedInClassParts = explode('\\', $pluggedInClass);
-        if ($pluggingClassParts[0].'\\'.$pluggingClassParts[1] === $pluggedInClassParts[0].'\\'.$pluggedInClassParts[1]) {
+        if ($pluggingClassParts[0]?:''.'\\'.$pluggingClassParts[1]?:'' === $pluggedInClassParts[0]?:''.'\\'.$pluggedInClassParts[1]?:'') {
             throw new SameModulePluginException(
                 __("Plugin class must not be in the same module as the plugged in class"),
                 $pluggingClass
