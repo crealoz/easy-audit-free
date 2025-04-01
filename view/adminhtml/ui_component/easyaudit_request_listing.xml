@@ -84,6 +84,17 @@
             </settings>
         </column>
 
+        <column name="results" class="Crealoz\EasyAudit\Ui\Component\Listing\Column\Results">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">false</item>
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                    <item name="label" xsi:type="string" translate="true">Results</item>
+                    <item name="urlPath" xsi:type="string">easy_audit_premium/results/index</item>
+                </item>
+            </argument>
+        </column>
+
         <column name="files" component="Magento_Ui/js/grid/columns/link" class="Crealoz\EasyAudit\Ui\Audit\Listing\FileColumn" sortOrder="50">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">

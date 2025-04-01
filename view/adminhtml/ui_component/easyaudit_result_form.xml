@@ -1,0 +1,160 @@
+<?xml version="1.0" ?>
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">easyaudit_result_form.easyaudit_result_data_source</item>
+        </item>
+        <item name="label" translate="true" xsi:type="string">General Information</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+        <item name="reverseMetadataMerge" xsi:type="boolean">true</item>
+    </argument>
+    <settings>
+        <namespace>easyaudit_result_form</namespace>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>easyaudit_result_form.easyaudit_result_data_source</dep>
+        </deps>
+        <buttons>
+            <button class="Crealoz\EasyAudit\Block\Adminhtml\Widget\Button\Result\Back" name="back"/>
+            </buttons>
+    </settings>
+    <dataSource name="easyaudit_result_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <submitUrl path="easyaudit/result/makepr"/>
+            <updateUrl path="easyaudit/result/validatepr"/>
+        </settings>
+        <dataProvider class="Crealoz\EasyAudit\Ui\DataProvider\Result" name="easyaudit_result_data_source">
+            <settings>
+                <requestFieldName>result_id</requestFieldName>
+                <primaryFieldName>result_id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <container name="messages" component="Crealoz_EasyAudit/js/form/components/messages">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="additionalClasses" xsi:type="string">message</item>
+                <item name="visible" xsi:type="boolean">false</item>
+            </item>
+        </argument>
+    </container>
+    <fieldset name="general" class="Magento\Ui\Component\Form\Fieldset">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="collapsible" xsi:type="boolean">false</item>
+                <item name="label" xsi:type="string" translate="true">General</item>
+                <item name="sortOrder" xsi:type="number">10</item>
+            </item>
+        </argument>
+        <field name="result_id" formElement="hidden">
+            <settings>
+                <dataScope>general.result_id</dataScope>
+                <dataType>text</dataType>
+            </settings>
+        </field>
+        <field name="summary" formElement="input" sortOrder="10">
+            <settings>
+                <label translate="true">Explanation</label>
+                <dataScope>general.summary</dataScope>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+            </settings>
+        </field>
+        <field name="severity_id" formElement="input" class="Crealoz\EasyAudit\Ui\Component\Form\Field\Severity" sortOrder="20">
+            <settings>
+                <label translate="true">Severity</label>
+                <dataScope>general.severity</dataScope>
+                <elementTmpl>ui/form/element/text</elementTmpl>
+            </settings>
+        </field>
+        <field name="entries" formElement="input" class="Crealoz\EasyAudit\Ui\Component\Form\Field\Entries" sortOrder="30">
+            <settings>
+                <label translate="true">Entry</label>
+                <dataScope>general.entries</dataScope>
+                <elementTmpl>ui/form/element/html</elementTmpl>
+            </settings>
+        </field>
+        <button name="request_patch" component="Crealoz_EasyAudit/js/form/components/patch-button" class="Crealoz\EasyAudit\Ui\Component\Form\Field\PatchButton">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="formElement" xsi:type="string">container</item>
+                    <item name="buttonClasses" xsi:type="string">request-patch-button</item>
+                    <item name="actions" xsi:type="array">
+                        <item name="0" xsi:type="array">
+                            <item name="targetName" xsi:type="string">${ $.parentName}.patch_generation_modal</item>
+                            <item name="actionName" xsi:type="string">openModal</item>
+                        </item>
+                    </item>
+                </item>
+            </argument>
+            <settings>
+                <imports>
+                    <link name="resultId">${ $.provider}:data.general.result_id</link>
+                </imports>
+            </settings>
+        </button>
+
+        <field name="diff" formElement="textarea" class="Crealoz\EasyAudit\Ui\Component\Form\Field\Diff" sortOrder="50" component="Crealoz_EasyAudit/js/form/element/diff-textarea">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="rows" xsi:type="number">20</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Diff</label>
+                <dataScope>general.diff</dataScope>
+                <visible>false</visible>
+                <additionalClasses>
+                    <class name="diff">true</class>
+                </additionalClasses>
+            </settings>
+        </field>
+
+        <!-- Modal -->
+        <modal name="patch_generation_modal" component="Crealoz_EasyAudit/js/form/components/patch-modal">
+            <settings>
+                <options>
+                    <option name="buttons" xsi:type="array">
+                        <item name="0" xsi:type="array">
+                            <item name="text" xsi:type="string">Generate</item>
+                            <item name="class" xsi:type="string">action-primary</item>
+                            <item name="actions" xsi:type="array">
+                                <item name="0" xsi:type="string">saveData</item>
+                            </item>
+                        </item>
+                    </option>
+                    <option name="title" xsi:type="string">Patch generation</option>
+                    <option name="namespace" xsi:type="string">easyaudit_patch_form</option>
+                </options>
+                <onCancel>closeModal</onCancel>
+                <deps>
+                    <dep>easyaudit_patch_form.easyaudit_patch_data_source</dep>
+                </deps>
+                <exports>
+                    <link name="resultId">${ $.provider}:data.general.result_id</link>
+                </exports>
+                <imports>
+                    <link name="relativePath">easyaudit_patch_form:data.patch.relative_path</link>
+                    <link name="patchType">easyaudit_patch_form:data.patch.patch_type</link>
+                </imports>
+            </settings>
+            <insertForm name="easyaudit_patch_form_loader">
+                <settings>
+                    <autoRender>true</autoRender>
+                    <formSubmitType>ajax</formSubmitType>
+                    <renderUrl path="mui/index/render_handle">
+                        <param name="handle">easyaudit_result_patch</param>
+                        <param name="buttons">0</param>
+                    </renderUrl>
+                    <loading>false</loading>
+                    <externalProvider>${ $.ns }.easyaudit_patch_data_source</externalProvider>
+                    <ns>easyaudit_patch_form</ns>
+                </settings>
+            </insertForm>
+        </modal>
+    </fieldset>
+</form>

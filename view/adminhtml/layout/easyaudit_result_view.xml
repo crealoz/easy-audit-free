@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+    EasyAudit Premium - Magento 2 Audit Extension
+
+    Copyright (c) 2025 Crealoz. All rights reserved.
+    Licensed under the EasyAudit Premium EULA.
+
+    This software is provided under a paid license and may not be redistributed,
+    modified, or reverse-engineered without explicit permission.
+    See EULA for details: https://crealoz.fr/easyaudit-eula
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="content">
+            <uiComponent name="easyaudit_result_form"/>
+        </referenceContainer>
+    </body>
+</page>
