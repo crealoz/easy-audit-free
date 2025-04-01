@@ -45,7 +45,9 @@ class PDFWriterTest extends TestCase
         $this->logger = $this->createMock(LoggerInterface::class);
         $this->sizeCalculation = new SizeCalculation($this->logger);
         $this->moduleReader = $this->createMock(Reader::class);
-        $this->modulePaths = new ModulePaths($this->filesystem);
+        $jsonSerializer = $this->createMock(\Magento\Framework\Serialize\Serializer\Json::class);
+
+        $this->modulePaths = new ModulePaths($this->filesystem, $jsonSerializer);
         $this->styleManager = new PDFWriter\StyleManager();
 
         $this->mockedPage = $this->createMock(\Zend_Pdf_Page::class);
