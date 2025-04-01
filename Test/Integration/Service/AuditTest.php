@@ -140,8 +140,9 @@ class AuditTest extends TestCase
             }
             return $this->createMock(ReadInterface::class);
         });
+        $jsonSerializer = $this->createMock(\Magento\Framework\Serialize\Serializer\Json::class);
 
-        $modulePaths = new ModulePaths($filesystem);
+        $modulePaths = new ModulePaths($filesystem, $jsonSerializer);
 
         $erroneousFileProcessor = new ErroneousFiles($modulePaths);
 

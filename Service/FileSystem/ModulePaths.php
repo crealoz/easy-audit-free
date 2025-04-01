@@ -4,12 +4,14 @@ namespace Crealoz\EasyAudit\Service\FileSystem;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Filesystem;
+use Magento\Framework\Serialize\Serializer\Json;
 
 class ModulePaths
 {
     private array $moduleNameByBaseDir = [];
     public function __construct(
         private readonly Filesystem       $filesystem,
+        private readonly Json   $jsonSerializer,
     )
     {
     }
@@ -78,7 +80,23 @@ class ModulePaths
         if (!isset($parts[0]) || !isset($parts[1])) {
             return '';
         }
-        return str_replace('//', '/', $installationPath . DIRECTORY_SEPARATOR . $codeDir . DIRECTORY_SEPARATOR . $parts[0] . DIRECTORY_SEPARATOR . $parts[1]);
+        $vendorName = $parts[0];
+        $moduleName = $parts[1];
+        $moduleBaseDir = str_replace('//', '/', $installationPath . DIRECTORY_SEPARATOR . $codeDir . DIRECTORY_SEPARATOR . $vendorName . DIRECTORY_SEPARATOR . $moduleName);
+        /**
+         * Checks if composer.json exists and if it changes the psr4 autoload
+         */
+        if ($this->filesystem->getDirectoryReadByPath($moduleBaseDir)->isExist('composer.json')) {
+            $composerJson = $this->jsonSerializer->unserialize($this->filesystem->getDirectoryReadByPath($moduleBaseDir)->readFile('composer.json'));
+            if (
+                isset($composerJson['autoload']['psr-4']) &&
+                isset($composerJson['autoload']['psr-4'][$vendorName . '\\' . $moduleName . '\\']) &&
+                $composerJson['autoload']['psr-4'][$vendorName . '\\' . $moduleName . '\\'] !== ''
+            ) {
+                $moduleBaseDir = $moduleBaseDir . DIRECTORY_SEPARATOR . $composerJson['autoload']['psr-4'][$vendorName . '\\' . $moduleName . '\\'];
+            }
+        }
+        return $moduleBaseDir;
     }
 
     /**
