@@ -12,10 +12,11 @@
 
 namespace Crealoz\EasyAudit\Processor\Files\Code;
 
+use Crealoz\EasyAudit\Exception\Processor\FolderOrFileNotFoundException;
 use Crealoz\EasyAudit\Model\AuditStorage;
 use Crealoz\EasyAudit\Processor\Files\AbstractArrayProcessor;
+use Crealoz\EasyAudit\Service\Config\AvailableCodingStandards;
 use Crealoz\EasyAudit\Service\ModuleTools;
-use Crealoz\EasyAudit\Exception\Processor\MissingCodingStandards;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Symfony\Component\Console\Helper\ProgressBar;
@@ -36,7 +37,8 @@ class PhpCs extends AbstractArrayProcessor implements \Crealoz\EasyAudit\Api\Pro
     public function __construct(
         AuditStorage $auditStorage,
         private readonly ModuleTools $moduleTools,
-        private readonly DirectoryList $directoryList
+        private readonly DirectoryList $directoryList,
+        private readonly AvailableCodingStandards $availableCodingStandards,
     )
     {
         parent::__construct($auditStorage);
@@ -106,31 +108,32 @@ class PhpCs extends AbstractArrayProcessor implements \Crealoz\EasyAudit\Api\Pro
     }
 
     /**
+     * @return string
+     * @throws FolderOrFileNotFoundException
+     */
+    private function getRoot(): string
+    {
+        $root = $this->directoryList->getRoot();
+        if (null === $root) {
+            throw new FolderOrFileNotFoundException(__('Root directory not found.'));
+        }
+        return $root;
+    }
+
+    /**
      * @return void
      * @throws FileSystemException
+     * @throws FolderOrFileNotFoundException
      */
     public function run(): void
     {
-        /**
-         * Check installed coding standards, if one of them [Magento2|PSR12] is missing, skip the test
-         */
-        // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
-        $commandStandards = 'cd ' . escapeshellarg($this->directoryList->getRoot()) . ' && ./vendor/bin/phpcs -i';
-        $processStandards = \Symfony\Component\Process\Process::fromShellCommandline($commandStandards);
-        $processStandards->setTimeout(600);
-        $processStandards->run();
-
-        if (!$processStandards->isSuccessful()) {
-            return;
-        }
+        $outputStandards = $this->availableCodingStandards->getCodingStandards($this->getRoot());
 
         $codingStandards = [
             'Magento2' => true,
             'PSR12' => true
         ];
 
-        $outputStandards = trim($processStandards->getOutput());
-        unset($processStandards);
         if (!str_contains($outputStandards, 'Magento2')) {
             unset($codingStandards['Magento2']);
             $this->results['hasErrors'] = true;
@@ -150,7 +153,7 @@ class PhpCs extends AbstractArrayProcessor implements \Crealoz\EasyAudit\Api\Pro
         $codingStandards = implode(',', array_keys($codingStandards));
         foreach ($this->getArray() as $modulePath){
             $moduleName = $this->moduleTools->getModuleNameByAnyFile($modulePath);
-            if ($this->auditStorage->isModuleIgnored($moduleName)) {
+            if (!$moduleName || $this->auditStorage->isModuleIgnored($moduleName)) {
                 continue;
             }
             // Run PHP Code Sniffer with PSR12 and Magento2 standards
@@ -175,19 +178,19 @@ class PhpCs extends AbstractArrayProcessor implements \Crealoz\EasyAudit\Api\Pro
      * @param string $modulePath
      * @param string $codingStandards
      * @return void
+     * @throws FolderOrFileNotFoundException|\RuntimeException
      */
     private function runPhpCs(string $modulePath, string $codingStandards): void
     {
-
         // phpcs:ignore Magento2.Functions.DiscouragedFunction.Discouraged
-        $command = 'cd ' . escapeshellarg($this->directoryList->getRoot()) . ' && ./vendor/bin/phpcs --standard=' . $codingStandards . ' --report-width=200 --extensions=php,phtml ' . escapeshellarg($modulePath);
+        $command = 'cd ' . escapeshellarg($this->getRoot()) . ' && ./vendor/bin/phpcs --standard=' . $codingStandards . ' --report-width=200 --extensions=php,phtml ' . escapeshellarg($modulePath);
 
         $process = \Symfony\Component\Process\Process::fromShellCommandline($command);
         $process->setTimeout(600);
         $process->run();
 
         if (!$process->isSuccessful() && $process->getExitCode() !== 2) {
-            throw new \RuntimeException(trim($process->getErrorOutput()));
+            throw new \RuntimeException($process->getExitCodeText());
         }
 
         $output = trim($process->getOutput());

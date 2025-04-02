@@ -9,7 +9,6 @@ use Crealoz\EasyAudit\Service\FileSystem\FileGetter;
 use Crealoz\EasyAudit\Service\FileSystem\FileGetterFactory;
 use Crealoz\EasyAudit\Service\ModuleTools;
 use Crealoz\EasyAudit\Test\Mock\ExtendedHelper;
-use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Filesystem\Io\File;
 use PHPUnit\Framework\TestCase;
 
