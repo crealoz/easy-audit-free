@@ -1,14 +1,5 @@
 <?php
-/**
- * EasyAudit Premium - Magento 2 Audit Extension
- *
- * Copyright (c) 2025 Crealoz. All rights reserved.
- * Licensed under the EasyAudit Premium EULA.
- *
- * This software is provided under a paid license and may not be redistributed,
- * modified, or reverse-engineered without explicit permission.
- * See EULA for details: https://crealoz.fr/easyaudit-eula
- */
+
 
 namespace Crealoz\EasyAudit\Ui\Component\Form\Field;
 
@@ -31,35 +22,45 @@ class Entries extends \Magento\Ui\Component\Form\Field
         parent::__construct($context, $uiComponentFactory, $components, $data);
     }
 
-    public function prepareDataSource(array $dataSource)
+    public function prepareDataSource(array $dataSource): array
     {
-        if (isset($dataSource['data']['general'])) {
-            foreach ($dataSource['data']['general'] as $name => $value) {
-                if ($name === 'result_id' && $this->entryRepository->hasEntries($value)) {
-                    $dataSource['data']['general']['entries'] = $this->manageEntries($value);
+        try {
+            if (isset($dataSource['data']['general'])) {
+                foreach ($dataSource['data']['general'] as $name => $value) {
+                    if ($name === 'result_id' && $this->entryRepository->hasEntries($value)) {
+                        $dataSource['data']['general']['entries'] = $this->manageEntries($value);
+                    }
                 }
             }
+            return $dataSource;
+        } catch (\Exception $e) {
+            // Log the error or handle it gracefully
+            return $dataSource;
         }
-
-        return $dataSource;
     }
 
-    private function manageEntries($resultId)
+    private function manageEntries($resultId): string
     {
-        $entriesString = '';
+        $entriesString = [];
         $entriesData = $this->entryRepository->getEntriesByResultId($resultId);
         foreach ($entriesData as $entry) {
-            if ($entry->getEntry() === null) {
+            if ($entry->getEntry() === '') {
                 continue;
             }
-            $entriesString .= nl2br($entry->getEntry()) . '<br>';
-            if (!$this->subEntryRepository->hasSubEntries($entry->getEntryId())) {
-                continue;
+
+            $entryLines = [nl2br($entry->getEntry())];
+
+            if ($this->subEntryRepository->hasSubEntries($entry->getEntryId())) {
+                $subEntries = $this->subEntryRepository->getSubEntriesByEntryId($entry->getEntryId());
+                $entryLines = array_merge(
+                    $entryLines,
+                    array_map(fn($subEntry) => ' - ' . $subEntry->getSubentry(), $subEntries)
+                );
             }
-            foreach ($this->subEntryRepository->getSubEntriesByEntryId($entry->getEntryId()) as $subEntry) {
-                $entriesString .= ' - ' . $subEntry->getSubentry() . '<br>';
-            }
+
+            $entriesString[] = implode('<br>', $entryLines);
         }
-        return $entriesString;
+
+        return implode('<br>', $entriesString);
     }
 }

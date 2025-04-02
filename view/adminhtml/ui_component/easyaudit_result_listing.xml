@@ -62,6 +62,7 @@
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">result_id</item>
                     <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">1</item>
                 </item>
             </argument>
         </column>
@@ -71,6 +72,7 @@
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">request_id</item>
                     <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">2</item>
                 </item>
             </argument>
         </column>
@@ -80,6 +82,7 @@
                     <item name="filter" xsi:type="string">text</item>
                     <item name="label" xsi:type="string" translate="true">Title</item>
                     <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">3</item>
                 </item>
             </argument>
         </column>
@@ -88,10 +91,11 @@
                 <item name="config" xsi:type="array">
                     <item name="label" xsi:type="string" translate="true">Summary</item>
                     <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">4</item>
                 </item>
             </argument>
         </column>
-        <column name="severity_id" component="Crealoz_EasyAudit/js/grid/columns/select-custom-html" class="Crealoz\EasyAudit\Ui\Component\Listing\Column\Results\Severity">
+        <column name="severity_id" component="Crealoz_EasyAudit/js/grid/columns/select-custom-html" class="Crealoz\EasyAudit\Ui\Component\Listing\Column\Results\Severity" sortOrder="5">
             <settings>
                 <options class="Crealoz\EasyAudit\Model\Result\Severity\Options"/>
                 <filter>select</filter>
@@ -100,11 +104,21 @@
             </settings>
         </column>
 
+        <column name="pr_enabled" component="Magento_Ui/js/grid/columns/select" sortOrder="9">
+            <settings>
+                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <label translate="true">EasyAudit Fixer</label>
+            </settings>
+        </column>
+
         <column name="entries" class="Crealoz\EasyAudit\Ui\Component\Listing\Column\Results\Entries">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
                     <item name="label" xsi:type="string" translate="true">View details</item>
+                    <item name="sortOrder" xsi:type="number">100</item>
                 </item>
             </argument>
         </column>

@@ -1,14 +1,5 @@
 <?php
-/**
- * EasyAudit Premium - Magento 2 Audit Extension
- *
- * Copyright (c) 2025 Crealoz. All rights reserved.
- * Licensed under the EasyAudit Premium EULA.
- *
- * This software is provided under a paid license and may not be redistributed,
- * modified, or reverse-engineered without explicit permission.
- * See EULA for details: https://crealoz.fr/easyaudit-eula
- */
+
 
 namespace Crealoz\EasyAudit\Controller\Adminhtml\Result;
 
@@ -44,8 +35,8 @@ class MakePr extends \Magento\Backend\App\Action implements \Magento\Framework\A
             return $resultJson;
         }
         $resultId = (int)$data['result_id'];
-        $path = (string)$data['relative_path'] ?? '';
-        $patchType = (int)$data['patch_type'] ?? PrManager::PATCH_TYPE_PATCH;
+        $path = (string)($data['relative_path'] ?? '');
+        $patchType = (int)($data['patch_type'] ?? PrManager::PATCH_TYPE_PATCH);
         try {
             $errors = $this->prManager->sendPrRequest($resultId, $path, $patchType);
         } catch (CouldNotSaveException|NoSuchEntityException|LocalizedException $e) {
