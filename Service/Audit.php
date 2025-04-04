@@ -181,7 +181,7 @@ class Audit
     {
         return [
             'disclaimer' => $this->getDisclaimer(),
-            'easyAuditPremium' => $this->getEasyAuditPremium(),
+            'EasyAudit' => $this->getEasyAudit(),
             'selfBranding' => $this->getSelfBranding(),
         ];
     }
@@ -191,7 +191,7 @@ class Audit
         return __('Crealoz can help you to understand or to deepen the analysis of your codebase. We can provide you with a professional audit of your Magento 2 codebase. You can find more information on our website: https://www.crealoz.fr/un-projet/');
     }
 
-    private function getEasyAuditPremium(): string
+    private function getEasyAudit(): string
     {
         return __('If you want to go further, you can use EasyAudit Premium, a paid version of EasyAudit that provides more features and more in-depth analysis. You can find more information on our website: https://www.crealoz.fr/crealoz-easy-audit/');
     }

@@ -1,0 +1,79 @@
+<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">easyaudit_patch_form.easyaudit_patch_data_source</item>
+        </item>
+        <item name="label" translate="true" xsi:type="string">General Information</item>
+        <item name="reverseMetadataMerge" xsi:type="boolean">true</item>
+        <item name="template" xsi:type="string">templates/form/collapsible</item>
+    </argument>
+    <settings>
+        <namespace>easyaudit_patch_form</namespace>
+        <ajaxSave>true</ajaxSave>
+        <ajaxSaveType>simple</ajaxSaveType>
+        <dataScope>data</dataScope>
+        <deps>
+            <dep>easyaudit_patch_form.easyaudit_patch_data_source</dep>
+        </deps>
+        <buttons>
+            <button class="Crealoz\EasyAudit\Block\Adminhtml\Widget\Button\Result\Patch" name="make_patch"/>
+        </buttons>
+    </settings>
+    <dataSource name="easyaudit_patch_data_source">
+        <argument name="data" xsi:type="array">
+            <item name="js_config" xsi:type="array">
+                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>
+            </item>
+        </argument>
+        <settings>
+            <validateUrl path="easyaudit/result/validatepr"/>
+            <submitUrl path="easyaudit/result/makepr"/>
+        </settings>
+        <aclResource>Crealoz_EasyAudit::view</aclResource>
+        <dataProvider class="Crealoz\EasyAudit\Ui\DataProvider\Patch" name="easyaudit_patch_data_source">
+            <settings>
+                <requestFieldName>id</requestFieldName>
+                <primaryFieldName>id</primaryFieldName>
+            </settings>
+        </dataProvider>
+    </dataSource>
+    <fieldset name="patch">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="is_collection" xsi:type="boolean">true</item>
+            </item>
+        </argument>
+        <settings>
+            <label/>
+            <dataScope/>
+        </settings>
+        <field name="relative_path" formElement="input" sortOrder="10" component="Crealoz_EasyAudit/js/form/element/relative-path">
+            <settings>
+                <label translate="true">Relative Path</label>
+                <dataScope>general.relative_path</dataScope>
+                <elementTmpl>ui/form/element/input</elementTmpl>
+            </settings>
+        </field>
+        <field name="patch_type" formElement="select" sortOrder="20" component="Crealoz_EasyAudit/js/form/element/patch-type">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="value" xsi:type="string">1</item>
+                </item>
+            </argument>
+            <settings>
+                <label translate="true">Patch Type</label>
+                <dataScope>general.patch_type</dataScope>
+                <elementTmpl>ui/form/element/select</elementTmpl>
+                <required>true</required>
+            </settings>
+            <formElements>
+                <select>
+                    <settings>
+                        <caption> --- Please Select --- </caption>
+                        <options class="Crealoz\EasyAudit\Ui\Component\Form\Field\PatchType"/>
+                    </settings>
+                </select>
+            </formElements>
+        </field>
+    </fieldset>
+</form>

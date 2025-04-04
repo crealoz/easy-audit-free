@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!--
+    EasyAudit Premium - Magento 2 Audit Extension
+
+    Copyright (c) 2025 Crealoz. All rights reserved.
+    Licensed under the EasyAudit Premium EULA.
+
+    This software is provided under a paid license and may not be redistributed,
+    modified, or reverse-engineered without explicit permission.
+    See EULA for details: https://crealoz.fr/easyaudit-eula
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <!-- 1200 should be the last tab before "services" and "advanced" -->
+        <tab id="crealoz" translate="label" sortOrder="1200">
+            <label>Crealoz</label>
+        </tab>
+        <section id="easy_audit" translate="label" sortOrder="10" showInDefault="1">
+            <label>Easy Audit</label>
+            <tab>crealoz</tab>
+            <resource>Crealoz_EasyAudit::system</resource>
+            <group id="general" translate="label" sortOrder="0" showInDefault="1">
+                <label>General</label>
+                <field id="pr_enabled" translate="label" type="select" sortOrder="10" showInDefault="1">
+                    <label>Allow PR (Pull Request) generation</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>By enabling this, you allow Crealoz to upload your source files to a dedicated server for automated analysis and processing. This may include, when applicable, the use of OpenAI generative Artificial Intelligence.</comment>
+                </field>
+                <!-- dependent fields hash and key -->
+                <field id="hash" translate="label" type="text" sortOrder="20" showInDefault="1">
+                    <label>Hash</label>
+                    <comment>Enter your hash here</comment>
+                    <depends>
+                        <field id="pr_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="key" translate="label" type="text" sortOrder="30" showInDefault="1">
+                    <label>Key</label>
+                    <comment>Enter your key here</comment>
+                    <depends>
+                        <field id="pr_enabled">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

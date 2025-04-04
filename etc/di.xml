@@ -47,6 +47,16 @@
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
     </type>
+    <type name="\Crealoz\EasyAudit\Processor\Results\ResultsSaver">
+        <arguments>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
+        </arguments>
+    </type>
+    <type name="\Crealoz\EasyAudit\Processor\Results\PhpCs">
+        <arguments>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
+        </arguments>
+    </type>
     <!-- End of Logger -->
     <!-- Processors -->
     <type name="Crealoz\EasyAudit\Service\Audit">
@@ -55,9 +65,12 @@
                 <item name="xml" xsi:type="array">
                     <item name="di" xsi:type="array">
                         <item name="plugins" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Di\Plugins</item>
+                        <item name="preferences" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Di\Preferences</item>
+                        <item name="commands" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Di\Commands</item>
                     </item>
                     <item name="layout" xsi:type="array">
                         <item name="cacheable" xsi:type="object">Crealoz\EasyAudit\Processor\Files\View\Cacheable</item>
+                        <item name="advanced_cacheable" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\AdvancedBlockVsViewModel</item>
                     </item>
                 </item>
                 <item name="php" xsi:type="array">
@@ -65,9 +78,17 @@
                         <item name="sql" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL</item>
                         <item name="specificclassinjection" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\SpecificClassInjection</item>
                         <item name="useofregistry" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\UseOfRegistry</item>
+                        <item name="objectManager" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\UseOfObjectManager</item>
+                        <item name="proxyforheavyclasses" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Di\ProxyForHeavyClasses</item>
+                        <item name="paymentinterfaceuse" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\PaymentInterfaceUseAudit</item>
                     </item>
                     <item name="helpers" xsi:type="array">
                         <item name="general" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\Helpers</item>
+                    </item>
+                    <item name="vendorphp" xsi:type="array">
+                        <item name="objectManager" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\UseOfObjectManager</item>
+                        <item name="sql" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\HardWrittenSQL</item>
+                        <item name="paymentinterfaceuse" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\PaymentInterfaceUseAudit</item>
                     </item>
                 </item>
                 <item name="logic" xsi:type="array">
@@ -77,10 +98,31 @@
                     <item name="localunusedmodules" xsi:type="array">
                         <item name="configphp" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules</item>
                     </item>
+                    <item name="vendorblockvm" xsi:type="array">
+                        <item name="ratio" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\BlockViewModelRatio</item>
+                    </item>
+                    <item name="vendorxml" xsi:type="array">
+                        <item name="configphp" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Logic\UnusedModules</item>
+                        <item name="activedisabled" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Logic\VendorDisabledModules</item>
+                    </item>
+                </item>
+                <item name="database" xsi:type="array">
+                    <item name="general" xsi:type="array">
+                        <item name="heavytables" xsi:type="object">Crealoz\EasyAudit\Processor\Database\HeavyTables</item>
+                        <item name="flatcatalog" xsi:type="object">Crealoz\EasyAudit\Processor\Database\FlatCatalog</item>
+                    </item>
+                </item>
+                <item name="phpcs" xsi:type="array">
+                    <item name="general" xsi:type="array">
+                        <item name="phpcs" xsi:type="object">Crealoz\EasyAudit\Processor\Files\Code\PhpCs</item>
+                    </item>
                 </item>
             </argument>
             <argument name="resultProcessors" xsi:type="array">
                 <item name="erroneous_files" xsi:type="object">Crealoz\EasyAudit\Processor\Results\ErroneousFiles</item>
+                <item name="store_results" xsi:type="object">Crealoz\EasyAudit\Processor\Results\ResultsSaver\Proxy</item>
+                <item name="generate_phpcs" xsi:type="object">Crealoz\EasyAudit\Processor\Results\PhpCs\Proxy</item>
+                <item name="change_introduction" xsi:type="object">Crealoz\EasyAudit\Processor\Results\ChangeIntroduction\Proxy</item>
             </argument>
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
@@ -129,6 +171,32 @@
             <argument name="pattern" xsi:type="string">/^.+\/Helper\/.*\.php$/i</argument>
         </arguments>
     </virtualType>
+    <virtualType name="Crealoz\EasyAudit\Service\FileSystem\VendorModuleXmlGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
+        <arguments>
+            <argument name="path" xsi:type="string">vendor/</argument>
+            <argument name="pattern" xsi:type="string">/^.+module\.xml$/i</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Crealoz\EasyAudit\Service\FileSystem\VendorModulePHPGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
+        <arguments>
+            <argument name="path" xsi:type="string">vendor/</argument>
+            <argument name="pattern" xsi:type="string">/^.+\.php$/i</argument>
+            <argument name="filter" xsi:type="string">not-magento-module</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Crealoz\EasyAudit\Service\FileSystem\VendorBlockVmGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
+        <arguments>
+            <argument name="path" xsi:type="string">vendor/</argument>
+            <argument name="pattern" xsi:type="string">/^.+\/(Block(?!\/Adminhtml)|ViewModel)\/.*\.php$/i</argument>
+            <argument name="filter" xsi:type="string">not-magento-module</argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="Crealoz\EasyAudit\Service\FileSystem\VendorComposerGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
+        <arguments>
+            <argument name="path" xsi:type="string">vendor/</argument>
+            <argument name="pattern" xsi:type="string">/^.+composer\.json$/i</argument>
+        </arguments>
+    </virtualType>
     <type name="Crealoz\EasyAudit\Service\FileSystem\FileGetterFactory">
         <arguments>
             <argument name="fileGetters" xsi:type="array">
@@ -139,6 +207,10 @@
                 <item name="blockvm" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\BlockVmGetter</item>
                 <item name="localunusedmodules" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\ModuleXmlGetter</item>
                 <item name="helpers" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\HelpersGetter</item>
+                <item name="vendorxml" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\VendorModuleXmlGetter</item>
+                <item name="vendorphp" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\VendorModulePHPGetter</item>
+                <item name="vendorblockvm" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\VendorBlockVmGetter</item>
+                <item name="vendorcomposer" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\VendorComposerGetter</item>
             </argument>
         </arguments>
     </type>
@@ -149,6 +221,8 @@
                 <item name="php" xsi:type="string">Crealoz\EasyAudit\Processor\Type\PHPCode</item>
                 <item name="xml" xsi:type="string">Crealoz\EasyAudit\Processor\Type\Xml</item>
                 <item name="logic" xsi:type="string">Crealoz\EasyAudit\Processor\Type\Logic</item>
+                <item name="database" xsi:type="string">Crealoz\EasyAudit\Processor\Type\Database</item>
+                <item name="phpcs" xsi:type="string">Crealoz\EasyAudit\Processor\Type\PhpCs</item>
             </argument>
         </arguments>
     </type>
@@ -189,6 +263,39 @@
             <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
         </arguments>
     </type>
+    <type name="Crealoz\EasyAudit\Processor\Files\Code\UseOfObjectManager">
+        <arguments>
+            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Crealoz\EasyAudit\Processor\Files\Logic\Modules\CheckEnabled">
+        <arguments>
+            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
+        </arguments>
+    </type>
+    <type name="Crealoz\EasyAudit\Processor\Files\Code\PaymentInterfaceUseAudit">
+        <arguments>
+            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Crealoz\EasyAudit\Processor\Files\Code\AdvancedBlockVsViewModel">
+        <arguments>
+            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Crealoz\EasyAudit\Processor\Files\Logic\VendorDisabledModules">
+        <arguments>
+            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+        </arguments>
+    </type>
+    <type name="Crealoz\EasyAudit\Service\FileSystem\Filter\NotMagentoModule">
+        <arguments>
+            <argument name="driver" xsi:type="object">Magento\Framework\Filesystem\Driver\File\Proxy</argument>
+            <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
+            <argument name="fileGetterType" xsi:type="string">vendorcomposer</argument>
+        </arguments>
+    </type>
     <!-- End of change default preference of DriverInterface -->
     <!-- PDF Writer -->
     <type name="Crealoz\EasyAudit\Service\PDFWriter">
@@ -207,6 +314,11 @@
                 <item name="manageSpecificClassInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificClass</item>
                 <item name="manageSpecificModelInjection" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\SpecificModel</item>
                 <item name="manageHelperInsteadOfViewModel" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\HelperInsteadOfViewModel</item>
+                <item name="irretrievableConfig" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\IrretrievableConfig</item>
+                <item name="manageMultiplePreferences" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\MultiplePreferences</item>
+                <item name="manageHeavyTables" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\HeavyTables</item>
+                <item name="manageFlatCatalog" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\FlatCatalog</item>
+                <item name="advancedBlockVsVM" xsi:type="object">Crealoz\EasyAudit\Service\PDFWriter\SpecificSection\AdvancedBlockVsVM</item>
             </argument>
             <argument name="logger" xsi:type="object">Crealoz\EasyAudit\Logger\Logger</argument>
         </arguments>
@@ -236,6 +348,13 @@
             <argument name="resourceModel" xsi:type="string">Crealoz\EasyAudit\Model\ResourceModel\AuditRequest</argument>
         </arguments>
     </virtualType>
+    <type name="Crealoz\EasyAudit\Service\FileSystem\FilterGetter">
+        <arguments>
+            <argument name="filterClasses" xsi:type="array">
+                <item name="not-magento-module" xsi:type="object">Crealoz\EasyAudit\Service\FileSystem\Filter\NotMagentoModule</item>
+            </argument>
+        </arguments>
+    </type>
     <!-- End of AuditRequest -->
 
     <!-- Add datasources to the collection factory -->
@@ -246,8 +365,57 @@
             </argument>
         </arguments>
     </type>
+    <type name="Crealoz\EasyAudit\Ui\DataProvider\Result">
+        <arguments>
+            <argument name="collection" xsi:type="object">Crealoz\EasyAudit\Model\Result\Grid\Collection</argument>
+            <argument name="filterPool" xsi:type="object">Crealoz\EasyAudit\Ui\FilterPool\Result</argument>
+        </arguments>
+    </type>
+    <virtualType name="Crealoz\EasyAudit\Ui\FilterPool\Result" type="Magento\Framework\View\Element\UiComponent\DataProvider\FilterPool">
+        <arguments>
+            <argument name="appliers" xsi:type="array">
+                <item name="regular" xsi:type="object">Magento\Framework\View\Element\UiComponent\DataProvider\RegularFilter</item>
+                <item name="fulltext" xsi:type="object">Magento\Framework\View\Element\UiComponent\DataProvider\FulltextFilter</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <type name="Crealoz\EasyAudit\Model\Result\Grid\Collection">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">crealoz_easyaudit_result</argument>
+            <argument name="resourceModel" xsi:type="string">Crealoz\EasyAudit\Model\ResourceModel\Result</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="easyaudit_result_data_source" xsi:type="string">Crealoz\EasyAudit\Model\Result\Grid\Collection</item>
+                <item name="easyaudit_patch_data_source" xsi:type="string">Crealoz\EasyAudit\Model\Result\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    <preference for="\Crealoz\EasyAudit\Api\Data\EntryInterface"
+                type="\Crealoz\EasyAudit\Model\Result\Entry"/>
+    <preference for="\Crealoz\EasyAudit\Api\EntryRepositoryInterface"
+                type="\Crealoz\EasyAudit\Model\EntryRepository"/>
+
+    <preference for="\Crealoz\EasyAudit\Api\Data\SeverityInterface"
+                type="\Crealoz\EasyAudit\Model\Result\Severity"/>
+    <preference for="\Crealoz\EasyAudit\Api\SeverityRepositoryInterface"
+                type="\Crealoz\EasyAudit\Model\SeverityRepository"/>
+
+    <preference for="\Crealoz\EasyAudit\Api\Data\TypeInterface"
+                type="\Crealoz\EasyAudit\Model\Result\Type"/>
+    <preference for="\Crealoz\EasyAudit\Api\TypeRepositoryInterface"
+                type="\Crealoz\EasyAudit\Model\TypeRepository"/>
+
+    <preference for="\Crealoz\EasyAudit\Api\Data\SubEntryInterface"
+                type="\Crealoz\EasyAudit\Model\Result\Entry\SubEntry"/>
+    <preference for="\Crealoz\EasyAudit\Api\SubEntryRepositoryInterface"
+                type="\Crealoz\EasyAudit\Model\SubEntryRepository"/>
     <!-- End of DataSources for the grids -->
-<preference for="\Crealoz\EasyAudit\Api\Data\FileInterface" type="\Crealoz\EasyAudit\Model\Request\File"/>
-<preference for="\Crealoz\EasyAudit\Api\FileRepositoryInterface" type="\Crealoz\EasyAudit\Model\FileRepository"/>
+    <preference for="\Crealoz\EasyAudit\Api\Data\FileInterface" type="\Crealoz\EasyAudit\Model\Request\File"/>
+    <preference for="\Crealoz\EasyAudit\Api\FileRepositoryInterface" type="\Crealoz\EasyAudit\Model\FileRepository"/>
+    <preference for="\Crealoz\EasyAudit\Api\Data\ResultInterface" type="\Crealoz\EasyAudit\Model\Result"/>
+    <preference for="\Crealoz\EasyAudit\Api\ResultRepositoryInterface" type="\Crealoz\EasyAudit\Model\ResultRepository"/>
 
 </config>

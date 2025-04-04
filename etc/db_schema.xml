@@ -27,4 +27,65 @@
                     table="crealoz_easyaudit_request_file" column="request_id"
                     referenceTable="crealoz_easyaudit_request" referenceColumn="request_id"  onDelete="CASCADE"/>
     </table>
+    <table name="crealoz_easyaudit_result" engine="innodb" resource="default" comment="Results for the audit">
+        <column name="result_id" padding="5" unsigned="true" nullable="false" identity="true" xsi:type="int"/>
+        <column name="request_id" padding="5" unsigned="true" nullable="false" xsi:type="int"/>
+        <column name="processor" nullable="false" xsi:type="text"/>
+        <column name="title" nullable="false" xsi:type="text"/>
+        <column name="summary" nullable="false" xsi:type="text"/>
+        <column name="severity_id" padding="5" unsigned="true" nullable="false" default="1" xsi:type="int"/>
+        <column name="github_issue" nullable="true" xsi:type="text"/>
+        <column name="jira_issue" nullable="true" xsi:type="text"/>
+        <column name="pr_enabled" nullable="false" default="0" xsi:type="boolean"/>
+        <column name="pr_status" nullable="false" default="0" xsi:type="int"/>
+        <column name="queue_id" nullable="true" xsi:type="text"/>
+        <column name="diff" nullable="true" xsi:type="text"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="result_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="" table="crealoz_easyaudit_result" column="severity_id"
+                    referenceTable="crealoz_easyaudit_result_severity" referenceColumn="severity_id" onDelete="CASCADE"/>
+    </table>
+    <table name="crealoz_easyaudit_result_type" engine="innodb" resource="default" comment="Type of result">
+        <column name="type_id" padding="2" unsigned="true" nullable="false" identity="true" xsi:type="int"/>
+        <column name="name" nullable="false" xsi:type="text"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="type_id"/>
+        </constraint>
+    </table>
+    <table name="crealoz_easyaudit_result_entry" engine="innodb" resource="default"
+           comment="Entries for an audit's result">
+        <column name="entry_id" padding="10" unsigned="true" nullable="false" identity="true" xsi:type="int"/>
+        <column name="type_id" padding="2" unsigned="true" nullable="false" default="0" xsi:type="int"/>
+        <column name="result_id" padding="5" unsigned="true" nullable="false" xsi:type="int"/>
+        <column name="entry" nullable="false" xsi:type="text"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entry_id"/>
+        </constraint>
+        <constraint xsi:type="foreign" referenceId="CREALOZ_EASY_AUDIT_ENTRY_RESULT_TYPE" table="crealoz_easyaudit_result_entry" column="type_id"
+                    referenceTable="crealoz_easyaudit_result_type" referenceColumn="type_id" onDelete="CASCADE"/>
+        <constraint xsi:type="foreign" referenceId="CREALOZ_EASY_AUDIT_ENTRY_RESULT" table="crealoz_easyaudit_result_entry" column="result_id"
+                    referenceTable="crealoz_easyaudit_result" referenceColumn="result_id" onDelete="CASCADE"/>
+    </table>
+    <table name="crealoz_easyaudit_result_severity" engine="innodb" resource="default" comment="Severity of the result">
+        <column name="severity_id" padding="2" unsigned="true" nullable="false" identity="true" xsi:type="int"/>
+        <column name="level" length="60" nullable="false" xsi:type="varchar"/>
+        <column name="color" length="6" nullable="true" xsi:type="varchar"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="severity_id"/>
+        </constraint>
+    </table>
+    <table name="crealoz_easyaudit_result_subentry" engine="innodb" resource="default"
+           comment="Sub entries for a result">
+        <column name="subentry_id" padding="5" xsi:type="int" unsigned="true" nullable="false" identity="true"/>
+        <column name="entry_id" xsi:type="int" padding="10" unsigned="true" nullable="false"/>
+        <column name="subentry" xsi:type="varchar" length="255" nullable="false"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="subentry_id"/>
+        </constraint>
+        <constraint xsi:type="foreign"
+                    referenceId="CREALOZ_EASYAUDIT_RESULT_SUBENTRY_ENTRY_ID_CREALOZ_EASYAUDIT_RESULT_ENTRY_ENTRY_ID"
+                    table="crealoz_easyaudit_result_subentry" column="entry_id"
+                    referenceTable="crealoz_easyaudit_result_entry" referenceColumn="entry_id" onDelete="CASCADE"/>
+    </table>
 </schema>

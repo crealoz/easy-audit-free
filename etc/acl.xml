@@ -4,6 +4,10 @@
         <resources>
             <resource id="Magento_Backend::admin">
                 <resource id="Crealoz_EasyAudit::index" title="Easy Audit" sortOrder="10"/>
+                <resource id="Crealoz_EasyAudit::view" title="EasyAudit View" translate="title" sortOrder="10"/>
+                <resource id="Crealoz_EasyAudit::manage" title="EasyAudit Manage" translate="title" sortOrder="15"/>
+                <resource id="Crealoz_EasyAudit::system" title="EasyAudit Config" translate="title" sortOrder="20"/>
+                <resource id="Crealoz_EasyAudit::issues" title="EasyAudit Issues" translate="title" sortOrder="25"/>
             </resource>
         </resources>
     </acl>

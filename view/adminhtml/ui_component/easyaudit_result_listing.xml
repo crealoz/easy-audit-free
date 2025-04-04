@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
+    <argument name="data" xsi:type="array">
+        <item name="js_config" xsi:type="array">
+            <item name="provider" xsi:type="string">
+                easyaudit_result_listing.easyaudit_result_data_source
+            </item>
+            <item name="deps" xsi:type="string">
+                easyaudit_result_listing.easyaudit_result_data_source
+            </item>
+        </item>
+        <item name="spinner" xsi:type="string">easyaudit_result_columns</item>
+        <item name="rowUrl" xsi:type="url" path="easyaudit/entry/index">
+            <param name="id">result_id</param>
+        </item>
+    </argument>
+
+    <dataSource name="easyaudit_result_data_source">
+        <argument name="dataProvider" xsi:type="configurableObject">
+            <argument name="class" xsi:type="string">Crealoz\EasyAudit\Ui\DataProvider\Result</argument> <!-- Data provider class -->
+            <argument name="name" xsi:type="string">easyaudit_result_data_source</argument> <!-- provider defined above -->
+            <argument name="primaryFieldName" xsi:type="string">result_id</argument> <!-- Primary key -->
+            <argument name="requestFieldName" xsi:type="string">id</argument> <!-- URL name parameter -->
+
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="component" xsi:type="string">Magento_Ui/js/grid/provider</item>
+                    <item name="update_url" xsi:type="url" path="mui/index/render"/>
+                    <item name="storageConfig" xsi:type="array">
+                        <!-- Primary key column name -->
+                        <item name="indexField" xsi:type="string">result_id</item>
+                    </item>
+                    <item name="filter_url_params" xsi:type="array">
+                        <item name="request_id" xsi:type="string">*</item>
+                    </item>
+                </item>
+            </argument>
+        </argument>
+    </dataSource>
+
+    <listingToolbar name="listing_top">
+        <settings>
+            <sticky>true</sticky>
+        </settings>
+        <bookmark name="bookmarks"/>
+        <columnsControls name="columns_controls"/>
+        <filterSearch name="fulltext"/>
+        <filters name="listing_filters"/>
+        <paging name="listing_paging"/>
+    </listingToolbar>
+
+    <columns name="easyaudit_result_columns">
+        <selectionsColumn name="ids" sortOrder="0">
+            <settings>
+                <indexField>result_id</indexField>
+            </settings>
+        </selectionsColumn>
+        <column name="result_id">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">result_id</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">1</item>
+                </item>
+            </argument>
+        </column>
+        <column name="request_id">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">request_id</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">2</item>
+                </item>
+            </argument>
+        </column>
+        <column name="title">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="filter" xsi:type="string">text</item>
+                    <item name="label" xsi:type="string" translate="true">Title</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">3</item>
+                </item>
+            </argument>
+        </column>
+        <column name="summary" class="Crealoz\EasyAudit\Ui\Component\Listing\Column\Results\Summary">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="label" xsi:type="string" translate="true">Summary</item>
+                    <item name="dataType" xsi:type="string">text</item>
+                    <item name="sortOrder" xsi:type="number">4</item>
+                </item>
+            </argument>
+        </column>
+        <column name="severity_id" component="Crealoz_EasyAudit/js/grid/columns/select-custom-html" class="Crealoz\EasyAudit\Ui\Component\Listing\Column\Results\Severity" sortOrder="5">
+            <settings>
+                <options class="Crealoz\EasyAudit\Model\Result\Severity\Options"/>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <label translate="true">Severity</label>
+            </settings>
+        </column>
+
+        <column name="pr_enabled" component="Magento_Ui/js/grid/columns/select" sortOrder="9">
+            <settings>
+                <options class="Magento\Config\Model\Config\Source\Yesno"/>
+                <filter>select</filter>
+                <dataType>select</dataType>
+                <label translate="true">EasyAudit Fixer</label>
+            </settings>
+        </column>
+
+        <column name="entries" class="Crealoz\EasyAudit\Ui\Component\Listing\Column\Results\Entries">
+            <argument name="data" xsi:type="array">
+                <item name="config" xsi:type="array">
+                    <item name="bodyTmpl" xsi:type="string">ui/grid/cells/html</item>
+                    <item name="label" xsi:type="string" translate="true">View details</item>
+                    <item name="sortOrder" xsi:type="number">100</item>
+                </item>
+            </argument>
+        </column>
+
+    </columns>
+</listing>

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+HEADER=""
+
+# Trouver tous les fichiers PHP dans le répertoire courant et ses sous-dossiers
+find . -type f -name "*.php" 2>/dev/null | while read -r file; do
+    # Vérifier si le fichier contient déjà l'en-tête
+    if ! grep -q "EasyAudit Premium - Magento 2 Audit Extension" "$file"; then
+        echo "Ajout de l'en-tête à : $file"
+
+        # Vérifier si le fichier commence par '<?php'
+        if head -n 1 "$file" | grep -q "^<?php"; then
+            # Utiliser awk pour insérer l'en-tête après '<?php'
+            # shellcheck disable=SC1003
+            awk -v header="$HEADER" 'NR==1 {print $0 "\n" header; next} {print}' "$file" > temp_file && mv temp_file "$file"
+        else
+            # Ajouter l'en-tête normalement en début de fichier
+            echo "$HEADER" > temp_file
+            cat "$file" >> temp_file
+            mv temp_file "$file"
+        fi
+    else
+        echo "En-tête déjà présent dans : $file"
+    fi
+done
+
+echo "✅ Ajout terminé."
