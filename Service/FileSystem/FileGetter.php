@@ -43,6 +43,9 @@ class FileGetter implements FileGetterInterface
             $files = $this->applyFilter($regex);
         } else {
             foreach ($regex as $file) {
+                if (str_contains($file[0], 'Test')) {
+                    continue;
+                }
                 $files[] = $file[0];
             }
         }
