@@ -1,21 +1,10 @@
 <?php
-/**
- * EasyAudit Premium - Magento 2 Audit Extension
- *
- * Copyright (c) 2025 Crealoz. All rights reserved.
- * Licensed under the EasyAudit Premium EULA.
- *
- * This software is provided under a paid license and may not be redistributed,
- * modified, or reverse-engineered without explicit permission.
- * See EULA for details: https://crealoz.fr/easyaudit-eula
- */
+
 
 namespace Crealoz\EasyAudit\Service;
 
-use Crealoz\EasyAudit\Processor\Files\Di\Plugins;
 use Crealoz\EasyAudit\Api\ResultRepositoryInterface;
-use Crealoz\EasyAudit\Exception\InvalidPrType;
-use Crealoz\EasyAudit\Processor\Files\Di\ProxyForHeavyClasses;
+use Crealoz\EasyAudit\Exception\InvalidPrTypeException;
 use Crealoz\EasyAudit\Service\Config\MiddlewareHost;
 use Crealoz\EasyAudit\Service\PrManager\BodyPreparerFactory;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -62,16 +51,16 @@ class PrManager
             throw new LocalizedException(__('Pull request is not enabled for that type of files. No credits were used.'));
         }
 
+        if (!isset($this->patchTypes[$patchType])) {
+            throw new InvalidPrTypeException(__('Invalid patch type'));
+        }
+
         try {
             $bodyPreparer = $this->bodyPreparerFactory->create($result->getProcessor());
-        } catch (InvalidPrType $e) {
+        } catch (InvalidPrTypeException $e) {
             $result->setPrEnabled(false);
             $this->resultRepository->save($result);
             return ['error' => true, 'messages' => __('Pull request is not enabled for that type of files. No credits were used.')];
-        }
-
-        if ($patchType === 0) {
-            $patchType = self::PATCH_TYPE_PATCH;
         }
 
         $body = $bodyPreparer->prepare($result, $this->patchTypes[$patchType], $relativePath);

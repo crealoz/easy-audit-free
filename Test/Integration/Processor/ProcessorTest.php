@@ -39,6 +39,8 @@ class ProcessorTest extends TestCase
                     foreach ($parameters as $parameter) {
                         if ($parameter->getName() === 'auditStorage') {
                             $dependencies[] = $this->getMockAuditStorage();
+                        } elseif ($parameter->getName() === 'directoryList') {
+                            $dependencies[] = $this->getMockDirectoryList($baseDir);
                         } else {
                             $dependencies[] = $this->getMockDependency($parameter->getType());
                         }
@@ -88,6 +90,13 @@ class ProcessorTest extends TestCase
     {
         $mock = $this->createMock(\Crealoz\EasyAudit\Model\AuditStorage::class);
         $mock->method('getIgnoredModules')->willReturn(['Module1', 'Module2']);
+        return $mock;
+    }
+
+    private function getMockDirectoryList($baseDir)
+    {
+        $mock = $this->createMock(\Magento\Framework\App\Filesystem\DirectoryList::class);
+        $mock->method('getRoot')->willReturn($baseDir);
         return $mock;
     }
 

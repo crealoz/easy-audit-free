@@ -1,14 +1,4 @@
 <?php
-/**
- * EasyAudit Premium - Magento 2 Audit Extension
- *
- * Copyright (c) 2025 Crealoz. All rights reserved.
- * Licensed under the EasyAudit Premium EULA.
- *
- * This software is provided under a paid license and may not be redistributed,
- * modified, or reverse-engineered without explicit permission.
- * See EULA for details: https://crealoz.fr/easyaudit-eula
- */
 
 namespace Crealoz\EasyAudit\Processor\Files\Code;
 
@@ -77,8 +67,10 @@ class PaymentInterfaceUseAudit extends AbstractFileProcessor implements FileProc
             return;
         }
         $code = $this->driver->fileGetContents($this->getFile());
-        if (strpos($code, 'extends \Magento\Payment\Model\Method\AbstractMethod') !== false) {
+        if (str_contains($code, 'extends \Magento\Payment\Model\Method\AbstractMethod')) {
             $this->addErroneousFile($this->getFile(), 1);
+            $this->results['hasErrors'] = true;
+            $this->results['errors']['extensionOfAbstractMethod']['files'][] = $this->getFile();
         }
     }
 }
