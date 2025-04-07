@@ -24,6 +24,7 @@ class BodyPreparerFactory
         return match ($type) {
             'aroundToBeforePlugin', 'aroundToAfterPlugin' => $this->objectManager->create(AroundFunctions::class),
             'noProxyUsedInCommands' => $this->objectManager->create(NoProxyUsedInCommands::class),
+            'noProxyUsedForHeavyClasses' => $this->objectManager->create(NoProxyForHeavyClasses::class),
             default => throw new InvalidPrTypeException(__('Invalid type %1', $type)),
         };
     }
