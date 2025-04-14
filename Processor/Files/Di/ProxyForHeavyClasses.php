@@ -45,7 +45,7 @@ class ProxyForHeavyClasses extends AbstractFileProcessor implements FileProcesso
         $this->results = [
             'hasErrors' => false,
             'errors' => [
-                'noProxyUsed' => $this->getNoProxyUsedEntry()
+                'noProxyUsedForHeavyClasses' => $this->getNoProxyUsedEntry()
             ],
             'warnings' => []
         ];

@@ -3,6 +3,7 @@
 namespace Crealoz\EasyAudit\Test\Unit\Ui\Form;
 
 use Codeception\PHPUnit\TestCase;
+use Crealoz\EasyAudit\Service\Config\MiddlewareHost;
 use Crealoz\EasyAudit\Service\PrManager;
 use Crealoz\EasyAudit\Ui\Component\Form\Field\PatchButton;
 
@@ -13,6 +14,8 @@ class PatchButtonTest extends TestCase
     private $resultRepository;
     private $patchButton;
 
+    private $middlewareHost;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -22,10 +25,12 @@ class PatchButtonTest extends TestCase
         $this->context->method('getProcessor')->willReturn($this->createMock(\Magento\Framework\View\Element\UiComponent\Processor::class));
         $this->prManager = $this->createMock(PrManager::class);
         $this->resultRepository = $this->createMock(\Crealoz\EasyAudit\Model\ResultRepository::class);
+        $this->middlewareHost = $this->createMock(MiddlewareHost::class);
         $this->patchButton = new PatchButton(
             $this->context,
             $this->prManager,
             $this->resultRepository,
+            $this->middlewareHost,
             [],
             [
                 'config' => ['visible' => true]

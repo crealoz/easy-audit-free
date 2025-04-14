@@ -1,14 +1,4 @@
 <?xml version="1.0"?>
-<!--
-    EasyAudit Premium - Magento 2 Audit Extension
-
-    Copyright (c) 2025 Crealoz. All rights reserved.
-    Licensed under the EasyAudit Premium EULA.
-
-    This software is provided under a paid license and may not be redistributed,
-    modified, or reverse-engineered without explicit permission.
-    See EULA for details: https://crealoz.fr/easyaudit-eula
--->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
     <system>
         <!-- 1200 should be the last tab before "services" and "advanced" -->
@@ -40,6 +30,18 @@
                     <depends>
                         <field id="pr_enabled">1</field>
                     </depends>
+                </field>
+                <field id="credits_left" translate="label" type="Crealoz\EasyAudit\Model\Config\Source\Credits" sortOrder="40" showInDefault="1">
+                    <label>Credits left</label>
+                    <depends>
+                        <field id="pr_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="external_resource_note" translate="label" type="note" sortOrder="50" showInDefault="1">
+                    <label>Setting instructions</label>
+                    <comment>
+                        <![CDATA[For more information, please visit <a href="https://shop.crealoz.fr/my-account/easyaudit/" target="_blank">your account on crealoz's shop</a>.]]>
+                    </comment>
                 </field>
             </group>
         </section>
