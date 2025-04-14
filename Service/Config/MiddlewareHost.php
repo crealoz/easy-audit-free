@@ -30,11 +30,16 @@ class MiddlewareHost
 
     public function getKey(): string
     {
-        return $this->deploymentConfig->get('easy_audit/middleware/key') ?? $this->scopeConfig->getValue('easy_audit/general/key');
+        return $this->deploymentConfig->get('easy_audit/middleware/key') ?? $this->scopeConfig->getValue('easy_audit/general/key') ?? '';
     }
 
     public function getHash(): string
     {
-        return $this->deploymentConfig->get('easy_audit/middleware/hash') ?? $this->scopeConfig->getValue('easy_audit/general/hash');
+        return $this->deploymentConfig->get('easy_audit/middleware/hash') ?? $this->scopeConfig->getValue('easy_audit/general/hash') ?? '';
+    }
+
+    public function isConfigured(): bool
+    {
+        return $this->getHost() != '' && $this->getKey() != '' && $this->getHash() != '';
     }
 }

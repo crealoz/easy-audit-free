@@ -19,17 +19,6 @@ define([
         defaults: {
             resultId: null,
             diff: false,
-            title: $t('Generate Patch'),
-        },
-
-        initialize: function () {
-            this._super();
-            let title = this.title();
-            if (this.source.data.general.diff != null && this.source.data.general.diff != '') {
-                title = $t('Update Patch');
-            }
-            title += ' ' + $t('(a credit per file will be consumed)');
-            this.title(title);
         },
 
         /**
