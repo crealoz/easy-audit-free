@@ -44,13 +44,14 @@ class Credits extends \Magento\Framework\Data\Form\Element\AbstractElement
         $response = $this->json->unserialize($this->curl->getBody());
 
         $spanColor = 'red';
-        if ($response['credits'] > 0 && $response['credits'] < 10) {
+        $credits = $response['credits'] ?? 0;
+        if ($credits > 0 && $credits < 10) {
             $spanColor = 'orange';
-        } elseif ($response['credits'] > 10) {
+        } elseif ($credits > 10) {
             $spanColor = 'green';
         }
 
-        return '<span style="color:' . $spanColor . '; font-weight: bold">' . $response['credits'] . '</span> <a href="https://shop.crealoz.fr/shop/credits-for-easyaudit-fixer/" class="action-default" target="_blank">buy credits</a>';
+        return '<span style="color:' . $spanColor . '; font-weight: bold">' . $credits . '</span> <a href="https://shop.crealoz.fr/shop/credits-for-easyaudit-fixer/" class="action-default" target="_blank">buy credits</a>';
     }
 
 }
