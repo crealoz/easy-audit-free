@@ -46,7 +46,7 @@ composer install
 Audit can be run using magento CLI command:
 
 ```bash
-php bin/magento crealoz:run:audit
+php bin/magento crealoz:audit:run
 ```
 or using the [back-office](docs/using-admin.md).
 
