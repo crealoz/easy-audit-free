@@ -9,7 +9,7 @@ jobs:
     name: Send report to codecov
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         env:
