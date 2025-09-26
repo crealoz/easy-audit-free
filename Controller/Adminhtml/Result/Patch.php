@@ -21,7 +21,6 @@ class Patch extends \Magento\Backend\App\Action
 
     public function execute()
     {
-        dd($this->getRequest()->getParams());
         $auditResultId = $this->getRequest()->getParam('result_id');
         if (!$auditResultId) {
             $this->messageManager->addErrorMessage(__('Entries cannot be viewed without a result ID.'));
