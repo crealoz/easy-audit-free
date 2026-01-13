@@ -20,6 +20,7 @@
     },
     "type": "magento2-module",
     "version": "0.4.5",
+    "abandoned": "crealoz/easyaudit-cli",
     "license": [
         "MIT"
     ],
