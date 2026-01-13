@@ -6,164 +6,166 @@
 [![Packagist](https://img.shields.io/packagist/dm/crealoz/easy-audit-free.svg?style=flat-square)](https://packagist.org/packages/crealoz/easy-audit-free/stats)
 [![codecov](https://codecov.io/gh/crealoz/easy-audit-free/graph/badge.svg?token=CKH0L0G395)](https://codecov.io/gh/crealoz/easy-audit-free)
 
-This module is designed to provide auditing capabilities for Magento applications.
+EasyAudit is a Magento 2 module that audits your codebase and configuration to highlight potential issues and provide actionable insights. It helps developers and site owners improve Magento applications' quality, performance, and maintainability.
 
-## What is EasyAudit?
 
-EasyAudit is a Magento module that provides auditing capabilities for Magento applications. It is designed to help 
-developers and/or website owners identify potential issues in their codebase and improve the overall quality of their
-Magento applications.
+## Stack and Project Overview
 
-## Features
+- Language: PHP (>= 8.1)
+- Framework / Platform: Magento 2 (module type: magento2-module)
+- Package manager: Composer
+- Tests: PHPUnit
+- Entry points:
+  - Magento CLI command: `crealoz:audit:run`
+  - Magento Admin UI (grids and configuration)
 
-For more details on the processors used in the EasyAudit project, refer to the [Existing Processors](docs/existing-processors.md).
+For more details on the processors used in EasyAudit, see docs/existing-processors.md.
+
+
+## Requirements
+
+From composer.json and codebase:
+- PHP: ^8.1
+- Magento Framework (Magento 2)
+- PHP extensions: ext-simplexml, ext-zip, ext-curl
+- Composer
+
+Note: A working Magento 2 instance is required to use the module (both CLI and Admin UI).
+
 
 ## Installation
 
-The package is available on Packagist, so you can install it via Composer:
+Install via Composer from Packagist:
 
 ```bash
 composer require crealoz/easy-audit-free
 ```
 
-If you want to install the module manually (for participation), follow these steps:
+Then enable and register the module in Magento:
 
-1. Clone the repository:
 ```bash
-git clone git@github.com:crealoz/easy-audit.git
+php bin/magento module:enable Crealoz_EasyAudit
+php bin/magento setup:upgrade
+php bin/magento cache:flush
 ```
-2. Navigate to the project directory:
-```bash
-cd easy-audit
-```
-3. Install the module via Composer:
-```bash
-composer install
-```
+
+Manual installation (for contributors):
+
+1. Clone the repository into your Magento installation under app/code/Crealoz/EasyAudit or use path mapping via composer.
+2. Install PHP dependencies if needed (usually handled at the Magento root):
+   ```bash
+   composer install
+   ```
+3. Enable the module as above.
+
 
 ## Usage
 
-Audit can be run using magento CLI command:
+You can run EasyAudit from the Magento CLI or via the Admin UI.
+
+- CLI command (correct command name):
+  ```bash
+  php bin/magento crealoz:audit:run \
+      --language=en_US \
+      --ignored-modules=Vendor_Module1,Vendor_Module2
+  ```
+  Options:
+  - --language (-l): locale to use for messages (default: en_US)
+  - --ignored-modules (-i): comma-separated list of modules to exclude
+
+- Admin back-office: see docs/using-admin.md. Screenshots are available in docs/img.
+
+
+## Configuration and Environment Variables
+
+Configuration can be set in Magento Admin at Stores > Configuration > Crealoz > Easy Audit.
+
+Fields (etc/adminhtml/system.xml):
+- Allow PR generation (easy_audit/general/pr_enabled)
+- Hash (easy_audit/general/hash)
+- Key (easy_audit/general/key)
+- Credits left (display only)
+
+Advanced settings (can also be set via app/etc/env.php using DeploymentConfig):
+- easy_audit/middleware/host: override API host (default: https://api.crealoz.fr)
+- easy_audit/middleware/self_signed: boolean; if true, SSL peer verification is disabled for the middleware client
+- easy_audit/middleware/key: middleware key (overrides admin value)
+- easy_audit/middleware/hash: middleware hash (overrides admin value)
+
+Notes:
+- PR generation uploads selected source data to a dedicated service for automated processing. See in-module notices for details.
+- If you’re unsure of host/key/hash values, obtain them from your Crealoz account.
+- TODO: Document sandbox/test endpoints if available.
+
+
+## Features at a Glance
+
+- Detects common Magento anti-patterns (ObjectManager usage, helpers vs ViewModels, SQL in code, heavy classes without proxies, etc.)
+- XML/layout checks (cacheable layout handles, preferences, plugins, command registrations)
+- Logic-level insights (unused/disabled modules, Block vs ViewModel ratios)
+- Database checks (heavy tables, flat catalog)
+- PHPCS results export
+- Result grids in Admin, downloadable reports, optional patch/ticket generation integration
+
+For in-depth processors list and rationale, see docs/existing-processors.md.
+
+
+## Patch and Ticket Generation
+
+From the result detail view, a Generate Patch button opens a modal where you can choose relative paths and patch type. Once generated, apply patches incrementally to avoid conflicts.
+
+- Available processors include:
+  - Around plugins that should be converted to before/after plugins
+  - Proxies for commands
+
+Ticket creation is available for GitHub and Jira; created links appear in the grid and disable the respective button.
+
+
+## Scripts
+
+Utility scripts are provided in bash/ for development purposes:
+- bash/add-headers-php: add a license header to all PHP files
+- bash/add-headers-xml: add a license header to all XML files
+- bash/add-headers-js: add a license header to all JS files
+
+Composer scripts: none defined in this module’s composer.json.
+
+
+## Tests
+
+PHPUnit configuration files are provided (phpunit.xml, phpunit.xml.dist). To run tests from the module root:
 
 ```bash
-php bin/magento crealoz:run:audit
-```
-or using the [back-office](docs/using-admin.md).
-
-## Settings
-
-The settings are available in the admin panel. You can set the API key for the patch generation and tickes generation.
-
-![](docs/img/system-config.png)
-
-
-***Note*** : None of the configuration is compulsory. You can use the module without any configuration but related
-functionalities will not be available.
-
-## How to use
-
-A new column is added to the admin grid.
-
-![](docs/img/request-grid.png)
-
-You can click on the view link to see the details of the audit. A grid is displayed with the results and you
-can see at a glance the different problems and the attributed severity.
-
-![](docs/img/results-grid.png)
-
-### Patch generation
-Once you are in the detailed view, there will be a "generate patch" button. This button will open a modal to
-generate the patch. You can choose the path that neeeds to be removed from absolute one and the type of patch.
-
-![](docs/img/result-view-patch-generation.png)
-
-![](docs/img/patch-generation-modal.png)
-
-The patch will be generated and delivered as soon as possible.
-
-![](docs/img/result-view-patch-generated.png)
-
-The only thing you need to do is to apply the patch to your code. Better do it one by one to avoid any conflict.
-
-#### Available processors
-
-* Around plugins that should be converted to before or after plugins
-* Proxies for commands
-
-### Ticket generation
-
-You can generate tickets for GitHub and jira.
-
-Click on any button. A ticket will be generated and the link will be displayed first in the info message and later
-in the grid. If an issue has already been created, the button will be deactivated.
-
-![](docs/img/result-view-ticket-creation.png)
-
-The column "bug tracker" has now the link for results where a ticket has been created.
-
-![](docs/img/result-grid-with-bugtracker-links.png)
-
-## How to add a new audit subject?
-
-### General considerations
-
-There is a single entry point for the audit process, which is the `\Crealoz\EasyAudit\Service\Audit` class. This class is
-responsible for running the audit process and handling the audit results. The audit process will loop through the list of
-types of audit subjects and run the audit processes for each of them.
-
-### Create a new type of audit subject
-
-For the moment, the audit process is divided into two types: `xml`, `php` and `logic`. If you want to create a new type, you need
-to create a new class that implements the `TypeInterface` interface. The class should be located in the `Service\Type`
-directory. The new class can extend the `AbstractType` class, which provides a default implementation for the `TypeInterface`.
-
-The new class should be registered in the `di.xml` file, in the `typeMapping` arguments of the class `Crealoz\EasyAudit\Service\Type\TypeFactory`.
-Please note that the entry in the `typeMapping` arguments should be in the format `type => class` and type will be used
-to identify the type of the audit subject for the `processors` of `\Crealoz\EasyAudit\Service\Audit`.
-
-### Create a new audit subject
-
-Create a new class that implements `ProcessorInterface`. The class should be located in the `Service\Processor` directory.
-It can extend the `AbstractProcessor` class, which provides a default implementation for the `ProcessorInterface` methods.
-
-### Register the new audit subject
-
-In `di.xml` file, add a new `item` node to the `processor` arguments of the class `Crealoz\EasyAudit\Service\Audit`.
-Please note that the processors are divided by _types_ (e.g. : di, view...) and if you want to create a new type. The 
-logic have to be implemented and the new type have to implement the `Crealoz\EasyAudit\Service\Processor\ProcessorInterface`
-interface.
-
-## Adding a New File Getter
-
-To add a new file getter similar to `DiXmlGetter`, follow these steps:
-
-### Step 1: Define the Virtual Type in `di.xml`
-
-Add a new virtual type definition in your `di.xml` file. Replace `NewFileGetter` with your desired name, and update the `path` and `pattern` arguments as needed.
-
-```xml
-<virtualType name="Crealoz\EasyAudit\Service\FileSystem\NewFileGetter" type="Crealoz\EasyAudit\Service\FileSystem\FileGetter">
-    <arguments>
-        <argument name="path" xsi:type="string">your/path/here</argument>
-        <argument name="pattern" xsi:type="string">/your-pattern-here/</argument>
-    </arguments>
-</virtualType>
+./vendor/bin/phpunit
 ```
 
-### Step 2: Register the New File Getter in `FileGetterFactory`
+Coverage reports (HTML and Clover) will be written under build/ as configured in phpunit.xml.
 
-Add your new file getter to the `fileGetters` array in `di.xml`:
+Notes:
+- Unit tests live under Test/Unit; integration tests under Test/Integration.
+- Integration tests may require a bootstrapped Magento testing environment and database configuration.
+- TODO: Provide fixtures setup instructions for integration tests.
 
-```xml
-<type name="Crealoz\EasyAudit\Service\FileSystem\FileGetterFactory">
-    <arguments>
-        <argument name="fileGetters" xsi:type="array">
-            <item name="newfilegetter" xsi:type="string">Crealoz\EasyAudit\Service\FileSystem\NewFileGetter</item>
-        </argument>
-    </arguments>
-</type>
-```
+
+## Project Structure (top-level)
+
+- Api, Model, Service, Processor, Ui, Controller, etc: Magento module code
+- etc/: DI, adminhtml, and other Magento configurations
+- view/: adminhtml UI components and assets
+- Test/: Unit, Integration, and Mocks
+- docs/: documentation and screenshots
+- bash/: development helpers
+- composer.json, registration.php: module metadata and registration
+- LICENSE, LICENSE-FR, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
+
+
+## License
+
+EasyAudit Free is released under the MIT License. See LICENSE and LICENSE-FR for details.
+
+Note: Certain referenced premium assets (e.g., examples or headers mentioning “EasyAudit Premium”) relate to a separate paid edition and are not part of this free module’s license. TODO: Add a link that compares Free vs Premium features.
+
 
 ## Contributing
 
-Contributions are welcome. Please make sure to update tests as appropriate.
+Contributions are welcome. Please open issues and submit pull requests. Be sure to run tests before submitting.
